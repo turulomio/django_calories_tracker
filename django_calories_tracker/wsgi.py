@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_caloriestracker.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_calories_tracker.settings')
 
 application = get_wsgi_application()
