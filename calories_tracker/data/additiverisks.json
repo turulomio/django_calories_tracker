@@ -1,1 +1,1 @@
-{"rows": [{"id":1,"name":"Low"},{"id":3,"name":"High"},{"id":0,"name":"No risk"},{"id":2,"name":"Medium"},{"id":-1,"name":"Not evaluated"}]}
+{"rows": [{"id":0,"name":"No risk"},{"id":1,"name":"Low"},{"id":2,"name":"Medium"},{"id":3,"name":"High"},{"id":100,"name":"Not evaluated"}]}
