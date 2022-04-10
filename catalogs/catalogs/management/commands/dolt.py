@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand 
-from catalogs.reusing.text_inputs import input_boolean, input_string
+from catalogs.reusing.text_inputs import  input_string
 #from catalogs.update_data import update_from_code
-from os import system, makedirs, chdir, remove, path, getcwd
+from os import system, makedirs, chdir
 
 class Command(BaseCommand):
     help = 'Installs dolt, launches sql console, makes commit, makes push, makes dump in calories_tracker/data/'
