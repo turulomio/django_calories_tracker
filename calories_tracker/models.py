@@ -15,6 +15,9 @@ class Activities(models.Model):
     class Meta:
         managed = True
         db_table = 'activities'
+        
+    def __str__(self):
+        return self.name
 
     def is_fully_equal(self, other):
         if not self.name==other.name:
@@ -36,6 +39,9 @@ class AdditiveRisks(models.Model):
         if not self.name==other.name:
             return False
         return True
+        
+    def __str__(self):
+        return self.name
 
 class WeightWishes(models.Model):
     name = models.TextField()
@@ -47,6 +53,9 @@ class WeightWishes(models.Model):
         if not self.name==other.name:
             return False
         return True
+        
+    def __str__(self):
+        return self.name
 
 class Additives(models.Model):
     name = models.TextField()

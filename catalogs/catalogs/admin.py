@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from calories_tracker.models import Activities, AdditiveRisks, WeightWishes, Biometrics
+from catalogs.models import Activities, AdditiveRisks, WeightWishes
 #from django.contrib.auth.models import User, Group
 #from django.urls import reverse_lazy
 from django.contrib import admin# Need to import this since auth models get registered on import.
@@ -9,13 +9,11 @@ class ActivitiesAdmin(admin.ModelAdmin):
     model = Activities
     ordering = ['name']
     list_display = ['name', 'description', 'multiplier']
-    search_fields = ['name', 'description', 'multiplier']
+    search_fields = ['name']
     list_filter = ('name', )
 class AdditiveRisksAdmin(admin.ModelAdmin):
     model = AdditiveRisks
     list_display = ['name']
-class BiometricsAdmin(admin.ModelAdmin):
-    model = Biometrics
     
 class WeightWishesAdmin(admin.ModelAdmin):
     model = WeightWishes
@@ -28,7 +26,6 @@ admin.site.index_title = _('My Django Calories Tracker administration')
 
 admin.site.register(Activities, ActivitiesAdmin)
 admin.site.register(AdditiveRisks, AdditiveRisksAdmin)
-admin.site.register(Biometrics, BiometricsAdmin)
 admin.site.register(WeightWishes, WeightWishesAdmin)
     
 #admin.site.site_url = reverse_lazy('home') 
