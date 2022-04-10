@@ -9,17 +9,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         pass
         
-    def reinstall_dolt(self):
-        makedirs("dolt", exist_ok=True)
-        chdir("dolt")
-        if path.exists("dolt-linux-amd64.tar.gz"):
-            remove("dolt-linux-amd64.tar.gz")
-            
-        system("wget https://github.com/dolthub/dolt/releases/latest/download/dolt-linux-amd64.tar.gz")
-        system("tar xvfz dolt-linux-amd64.tar.gz")
-        system("dolt-linux-amd64/bin/dolt clone turulomio/dolthub_caloriestracker")
-        chdir("..")
-        
+
         
     def handle(self, *args, **options):
         makedirs("calories_tracker/data/", exist_ok=True)

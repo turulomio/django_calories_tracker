@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand 
 from catalogs.reusing.text_inputs import  input_string
 #from catalogs.update_data import update_from_code
-from os import system, makedirs, chdir
+from os import system, makedirs, chdir, remove
 
 class Command(BaseCommand):
     help = 'Installs dolt, launches sql console, makes commit, makes push, makes dump in calories_tracker/data/'
@@ -25,7 +25,13 @@ class Command(BaseCommand):
         if commit_messages!="":
             system(f"dolt commit -am '{commit_messages}'")
             system("dolt push")            
-        system("dolt dump -r json -f --directory=../../../calories_tracker/data")      
+        system("dolt dump -r json -f --directory=../../../calories_tracker/data")     
+        
+        remove("../../../calories_tracker/data/auth_permission.json")
+        remove("../../../calories_tracker/data/django_admin_log.json")
+        remove("../../../calories_tracker/data/django_migrations.json")
+      
+ 
 #  
 #        if input_boolean("Do you want to update new data?", default="T"):
 #            chdir("../../..")
