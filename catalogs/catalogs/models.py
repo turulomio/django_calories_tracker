@@ -115,7 +115,7 @@ class SystemProducts(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'syste_products'
+        db_table = 'system_products'
 
 
 class Formats(models.Model):

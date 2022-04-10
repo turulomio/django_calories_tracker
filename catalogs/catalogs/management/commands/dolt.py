@@ -8,37 +8,24 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         pass
-        
-    def reinstall_dolt(self):
-        makedirs("dolt", exist_ok=True)
-        chdir("dolt")
-        if path.exists("dolt-linux-amd64.tar.gz"):
-            remove("dolt-linux-amd64.tar.gz")
-            
-        system("wget https://github.com/dolthub/dolt/releases/latest/download/dolt-linux-amd64.tar.gz")
-        system("tar xvfz dolt-linux-amd64.tar.gz")
-        system("dolt-linux-amd64/bin/dolt clone turulomio/dolthub_caloriestracker")
-        chdir("..")
-        
-        
+                
     def handle(self, *args, **options):
         makedirs("../calories_tracker/data/", exist_ok=True)
-        # from whichcraft import which
-        if path.exists("dolt") is True:            
-            if input_boolean("Dolt seems to be installed. Do you want to reinstall it ?", default="F"):
-                self.reinstall_dolt()
-        else:
-            self.reinstall_dolt()
+
+        makedirs("dolt", exist_ok=True)
+        chdir("dolt")
+        system("dolt clone turulomio/dolthub_caloriestracker")
+        chdir("..")
             
         chdir("dolt/dolthub_caloriestracker")
-        system("../dolt-linux-amd64/bin/dolt pull")
-        system("../dolt-linux-amd64/bin/dolt sql-server")
-        system("../dolt-linux-amd64/bin/dolt diff")
+        system("dolt pull")
+        system("dolt sql-server")
+        system("dolt diff")
         commit_messages=input_string("If you want to make a commit, enter a comment. Empty to continue", default="")
         if commit_messages!="":
-            system(f"../dolt-linux-amd64/bin/dolt commit -am '{commit_messages}'")
-            system("../dolt-linux-amd64/bin/dolt push")            
-        system("../dolt-linux-amd64/bin/dolt dump -r json -f --directory=../../calories_tracker/data")      
+            system(f"dolt commit -am '{commit_messages}'")
+            system("dolt push")            
+        system("dolt dump -r json -f --directory=../../../calories_tracker/data")      
 #  
 #        if input_boolean("Do you want to update new data?", default="T"):
 #            chdir("../../..")
