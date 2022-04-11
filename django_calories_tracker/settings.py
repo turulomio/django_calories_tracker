@@ -120,6 +120,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
+LOCALE_PATHS = (
+    str(BASE_DIR) + '/calories_tracker/locale', )
 LANGUAGE_CODE = 'en-us'
 
 LANGUAGES=[

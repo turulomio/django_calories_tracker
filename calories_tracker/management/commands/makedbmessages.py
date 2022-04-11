@@ -9,10 +9,10 @@ class Command(BaseCommand):
         strings=[]
         for row in cursor_rows("select name from weight_wishes order by name"):
             strings.append("_('{}')".format(row["name"]))
-#        for row in cursor_rows("select name from leverages order by name"):
-#            strings.append("_('{}')".format(row["name"]))
-#        for row in cursor_rows("select name from productstypes order by name"):
-#            strings.append("_('{}')".format(row["name"]))
+        for row in cursor_rows("select name from activities order by name"):
+            strings.append("_('{}')".format(row["name"]))
+        for row in cursor_rows("select name from additive_risks order by name"):
+            strings.append("_('{}')".format(row["name"]))
 #        for row in cursor_rows("select name from operationstypes order by name"):
 #            strings.append("_('{}')".format(row["name"]))
 #        for row in cursor_rows("select name from stockmarkets order by name"):

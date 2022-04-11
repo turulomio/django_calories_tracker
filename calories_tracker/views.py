@@ -1,6 +1,6 @@
 
 from calories_tracker import serializers
-from calories_tracker.models import WeightWishes
+from calories_tracker import models
 from decimal import Decimal
 from rest_framework import viewsets, permissions
 
@@ -22,7 +22,7 @@ class MyDjangoJSONEncoder(DjangoJSONEncoder):
         
         
 class WeightWishesViewSet(viewsets.ModelViewSet):
-    queryset = WeightWishes.objects.all()
+    queryset = models.WeightWishes.objects.all()
     serializer_class = serializers.WeightWishesSerializer
     permission_classes = [permissions.IsAuthenticated]      
 #    
@@ -36,3 +36,13 @@ class WeightWishesViewSet(viewsets.ModelViewSet):
 #            return self.queryset.filter(active=active)
 #        else:
 #            return self.queryset.all()
+
+class ActivitiesViewSet(viewsets.ModelViewSet):
+    queryset = models.Activities.objects.all()
+    serializer_class = serializers.ActivitiesSerializer
+    permission_classes = [permissions.IsAuthenticated]     
+
+class AdditiveRisksViewSet(viewsets.ModelViewSet):
+    queryset = models.AdditiveRisks.objects.all()
+    serializer_class = serializers.AdditiveRisksSerializer
+    permission_classes = [permissions.IsAuthenticated]      
