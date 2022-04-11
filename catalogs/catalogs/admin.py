@@ -7,19 +7,25 @@ from django.contrib import admin# Need to import this since auth models get regi
 
 class ActivitiesAdmin(admin.ModelAdmin):
     model = Activities
-    ordering = ['name']
-    list_display = ['name', 'description', 'multiplier']
-    search_fields = ['name']
-    list_filter = ('name', )
+    ordering = ['multiplier']
+    list_display = ['id','name', 'description', 'multiplier']
+    search_fields = ['name', 'description']
+
 class AdditivesAdmin(admin.ModelAdmin):
     model = Additives
     list_display = ['name']
 class AdditiveRisksAdmin(admin.ModelAdmin):
     model = AdditiveRisks
-    list_display = ['name']
+    list_display = ['id','name']
+    ordering = ['id']
+    search_fields = ['name']
+
 class FoodTypesAdmin(admin.ModelAdmin):
     model = FoodTypes
-    list_display = ['name']
+    list_display = ['id','name']
+    ordering = ['id']
+    search_fields = ['name']
+
 class FormatsAdmin(admin.ModelAdmin):
     model = Formats
     list_display = ['name']

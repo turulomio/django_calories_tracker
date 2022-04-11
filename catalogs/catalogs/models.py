@@ -121,7 +121,6 @@ class SystemProducts(models.Model):
 class Formats(models.Model):
     name = models.TextField(blank=True, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    last = models.DateTimeField()
 
     class Meta:
         managed = True
