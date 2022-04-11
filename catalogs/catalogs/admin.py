@@ -13,7 +13,10 @@ class ActivitiesAdmin(admin.ModelAdmin):
 
 class AdditivesAdmin(admin.ModelAdmin):
     model = Additives
-    list_display = ['name']
+    list_display = ['id','name', 'description', 'additive_risks']
+    search_fields = ['name', 'description']
+    list_filters = ['additive_risks']
+    
 class AdditiveRisksAdmin(admin.ModelAdmin):
     model = AdditiveRisks
     list_display = ['id','name']
@@ -28,7 +31,9 @@ class FoodTypesAdmin(admin.ModelAdmin):
 
 class FormatsAdmin(admin.ModelAdmin):
     model = Formats
-    list_display = ['name']
+    list_display = ['id','name']
+    ordering = ['name']
+    search_fields = ['name']
     
 class SystemCompaniesAdmin(admin.ModelAdmin):
     model = WeightWishes

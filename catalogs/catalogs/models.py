@@ -64,6 +64,8 @@ class Additives(models.Model):
     class Meta:
         managed = True
         db_table = 'additives'
+    def __str__(self):
+        return self.name
 
 
 class FoodTypes(models.Model):
@@ -72,6 +74,8 @@ class FoodTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'food_types'
+    def __str__(self):
+        return self.name
 
 class SystemCompanies(models.Model):
     name = models.TextField(blank=True, null=True)
@@ -81,6 +85,8 @@ class SystemCompanies(models.Model):
     class Meta:
         managed = True
         db_table = 'system_companies'
+    def __str__(self):
+        return self.name
 
 
 class SystemProducts(models.Model):
@@ -116,13 +122,17 @@ class SystemProducts(models.Model):
     class Meta:
         managed = True
         db_table = 'system_products'
+    def __str__(self):
+        return self.name
 
 
 class Formats(models.Model):
     name = models.TextField(blank=True, null=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
 
     class Meta:
         managed = True
         db_table = 'formats'
+    def __str__(self):
+        return self.name
 
