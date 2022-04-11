@@ -25,9 +25,15 @@ SECRET_KEY = 'django-insecure-lzb1pfk%=da50@n-hns(kvnk5bdt+fnv1vq8&15j&1g-tq=6$l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-
+REST_FRAMEWORK={ 
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework.authentication.BasicAuthentication',  ## Uncomment to use api in url 
+        'rest_framework.authentication.TokenAuthentication', 
+    ], 
+    'COERCE_DECIMAL_TO_STRING': False
+}
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,10 +43,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken', 
+    'corsheaders', 
     'calories_tracker', 
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,6 +78,7 @@ TEMPLATES = [
     },
 ]
 
+CORS_ORIGIN_WHITELIST =  "http://localhost:8012",
 WSGI_APPLICATION = 'django_calories_tracker.wsgi.application'
 
 
@@ -111,6 +122,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+LANGUAGES=[
+    ("en", "English"),  
+    ("es",  "Español"), 
+    ("fr", "Français") , 
+    ("ro", "Romanian"), 
+    ("ru", "Russian"), 
+]
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
