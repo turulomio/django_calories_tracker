@@ -29,9 +29,9 @@ class ActivitiesAdmin(admin.ModelAdmin):
 
 class AdditivesAdmin(admin.ModelAdmin):
     model = Additives
-    list_display = ['id','name', 'description', 'additive_risks']
+    list_display = ['name', 'description', 'additive_risks']
     search_fields = ['name', 'description']
-    list_filters = ['additive_risks']
+    list_filter = ['additive_risks']
     
 class AdditiveRisksAdmin(admin.ModelAdmin):
     model = AdditiveRisks
@@ -59,7 +59,9 @@ class SystemCompaniesAdmin(admin.ModelAdmin):
     search_fields = ['name']
 class SystemProductsAdmin(admin.ModelAdmin):
     model = SystemProducts
-    list_display = ['name']
+    list_display = ['id','name', 'system_companies', 'food_types',   'version', 'version_parent']
+    ordering = ['name']
+    search_fields = ['name']
     form = SystemProductsAdminForm
 class WeightWishesAdmin(admin.ModelAdmin):
     model = WeightWishes
@@ -71,9 +73,9 @@ class WeightWishesAdmin(admin.ModelAdmin):
 
 
 
-admin.site.site_title = _('Django Calories Tracker')
-admin.site.site_header = _('Django Calories Tracker')
-admin.site.index_title = _('My Django Calories Tracker administration')
+admin.site.site_title = _('Django Calories Tracker. Catalog manager with dolt')
+admin.site.site_header = _('Django Calories Tracker. Catalog manager with dolt')
+admin.site.index_title = _('My Django Calories Tracker administration. Catalog manager with dolt')
 
 admin.site.register(Activities, ActivitiesAdmin)
 admin.site.register(AdditiveRisks, AdditiveRisksAdmin)

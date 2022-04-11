@@ -3,3 +3,4 @@ dolt/
 .eric6project/
 *__pycache__*
 .jedi/
+django_calories_tracker/presettings.py

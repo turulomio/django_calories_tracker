@@ -16,8 +16,6 @@ def checks_and_sets_value(d, key):
 
 ## Used in first intallation
 def update_from_code():
-    with open("calories_tracker/data/system_products.json") as p,  open("calories_tracker/data/system_products_additives.json") as a,     open("calories_tracker/data/system_products_formats.json") as f :
-        process_system_products(p, a, f)
     with open("calories_tracker/data/system_companies.json") as f:
         process_system_companies(f)
     with open("calories_tracker/data/activities.json") as f:
@@ -32,11 +30,12 @@ def update_from_code():
         process_food_types(f)
     with open("calories_tracker/data/formats.json") as f:
         process_formats(f)
+    with open("calories_tracker/data/system_products.json") as p,  open("calories_tracker/data/system_products_additives.json") as a,     open("calories_tracker/data/system_products_formats.json") as f :
+        process_system_products(p, a, f)
     
 ## Used to update a started app
 def update_from_github():
     
-    process_system_products()
     process_system_companies()
     process_activities()
     process_additive_risks()
@@ -44,6 +43,7 @@ def update_from_github():
     process_additives()
     process_food_types()
     process_formats()
+    process_system_products()
     
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
 def process_additive_risks(file_descriptor=None):
@@ -238,8 +238,8 @@ def process_system_products(file_descriptor_p=None, file_descriptor_a=None, file
         formats =  loads(response.read())
     else:
         products=loads(file_descriptor_p.read())
-        additives=loads(file_descriptor_p.read())
-        formats=loads(file_descriptor_p.read())
+        additives=loads(file_descriptor_a.read())
+        formats=loads(file_descriptor_f.read())
 
     rp={}
     rp["total"]=len(products["rows"])
@@ -265,23 +265,28 @@ def process_system_products(file_descriptor_p=None, file_descriptor_a=None, file
         o.phosphor=checks_and_sets_value(dp, "phosphor")
         o.calcium=checks_and_sets_value(dp, "calcium")
         o.glutenfree=bool(dp['glutenfree'])
-        o.system_companies=SystemCompanies.objects.filter(pk=dp["system_companies"])[0]
-        o.system_companies=FoodTypes.objects.filter(pk=dp["food_types"])[0]
+        system_companies_id=checks_and_sets_value(dp,  'system_companies_id')
+        if system_companies_id is None:
+            o.system_companies=None
+        else:
+            o.system_companies=SystemCompanies.objects.filter(pk=dp["system_companies_id"])[0]
+        o.food_types=FoodTypes.objects.filter(pk=dp["food_types_id"])[0]
         o.obsolete=bool(dp["obsolete"])
-        o.version=checks_and_sets_value(dp, "version")
+        o.version=string2dtaware(dp['version'], "%Y-%m-%d %H:%M:%S.", "UTC")
         o.version_description=checks_and_sets_value(dp, "version_description")
-        qs_parent=SystemProducts.objects.filter(pk=dp["version_parent"])
-        if len(qs_parent)==0:
+        version_parent_id=checks_and_sets_value(dp,  'version_parent_id')
+        if version_parent_id is None:
             o.version_parent=None
         else:
-            o.version_parent=qs_parent[0]
+            o.version_parent=SystemProducts.objects.filter(pk=dp["version_parent_id"])[0]
         
+        o.save()
         for da in additives["rows"]:
-            if da["system_products_id"]==dp['id']:
-                o.additives.add(Additives.objects.filter(pk=da['additives_id']))
+            if da["systemproducts_id"]==dp['id']:
+                o.additives.add(Additives.objects.filter(pk=da['additives_id'])[0])
         for df in formats["rows"]:
-            if df["system_products_id"]==dp['id']:
-                o.formats.add(Formats.objects.filter(pk=df['formats_id']))
+            if df["systemproducts_id"]==dp['id']:
+                o.formats.add(Formats.objects.filter(pk=df['formats_id'])[0])
                
         qs_before=SystemProducts.objects.filter(pk=dp["id"])#Crash if not found
         if len(qs_before)==0:
@@ -290,5 +295,5 @@ def process_system_products(file_descriptor_p=None, file_descriptor_a=None, file
             if not o.is_fully_equal(qs_before[0]):
                 rp["logs"].append({"object":str(o), "log":_("Updated")})
         o.save()
-    print("Products", "Total:",  rp["total"], "Logs:", len(rp["logs"]))
+    print("SystemProducts", "Total:",  rp["total"], "Logs:", len(rp["logs"]))
     return rp

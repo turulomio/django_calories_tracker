@@ -77,9 +77,9 @@ class Additives(models.Model):
         return self.name
 
 class Biometrics(models.Model):
-    datetime = models.DateTimeField(blank=True, null=True)
-    weight = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    height = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True)
+    weight = models.DecimalField(max_digits=10, decimal_places=2)
+    height = models.DecimalField(max_digits=10, decimal_places=2)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
     activities = models.ForeignKey(Activities, on_delete=models.DO_NOTHING) 
     weight_wishes = models.ForeignKey(WeightWishes, on_delete=models.DO_NOTHING) 
@@ -87,6 +87,9 @@ class Biometrics(models.Model):
     class Meta:
         managed = True
         db_table = 'biometrics'
+    def __str__(self):
+        return str(self.datetime)
+
 
 class FoodTypes(models.Model):
     name = models.TextField(blank=False, null=False)
@@ -103,7 +106,7 @@ class FoodTypes(models.Model):
         return self.name
 
 class SystemCompanies(models.Model):
-    name = models.TextField(blank=True, null=True)
+    name = models.TextField()
     last = models.DateTimeField()
     obsolete = models.BooleanField()
 
@@ -123,18 +126,21 @@ class SystemCompanies(models.Model):
         return self.name
 
 class Companies(models.Model):
-    name = models.TextField(blank=True, null=True)
-    last = models.DateTimeField()
+    name = models.TextField()
+    last = models.DateTimeField(auto_now_add=True)
     obsolete = models.BooleanField()
     system_companies = models.ForeignKey(SystemCompanies, on_delete=models.DO_NOTHING,  blank=True, null=True) # Can be none
 
     class Meta:
         managed = True
         db_table = 'companies'
+        
+    def __str__(self):
+        return self.name
 
 class Formats(models.Model):
     name = models.TextField(blank=True, null=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
 
     class Meta:
         managed = True
@@ -152,39 +158,39 @@ class Formats(models.Model):
 class SystemProducts(models.Model):
     name = models.TextField(blank=False, null=False)
     
-    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
-    fat = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    protein = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    carbohydrate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    calories = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
-    salt = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    cholesterol = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    sodium = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    potassium = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    fiber = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    sugars = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    saturated_fat = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    ferrum = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    magnesium = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    phosphor = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=3, blank=False, null=False)
+    fat = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    protein = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    carbohydrate = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    calories = models.DecimalField(max_digits=10, decimal_places=3, blank=False, null=False)
+    salt = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    cholesterol = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    sodium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    potassium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    fiber = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    sugars = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    saturated_fat = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    ferrum = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    magnesium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    phosphor = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     glutenfree = models.BooleanField(blank=False, null=False)
-    calcium = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    calcium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     
-    system_companies = models.ForeignKey(SystemCompanies, models.DO_NOTHING, blank=False, null=False)
+    system_companies = models.ForeignKey(SystemCompanies, models.DO_NOTHING, blank=True, null=True)
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
-    additives = models.ManyToManyField(Additives)
-    formats = models.ManyToManyField(Formats)
+    additives = models.ManyToManyField(Additives, blank=True)
+    formats = models.ManyToManyField(Formats, blank=True)
     obsolete = models.BooleanField()
     
-    version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=False, null=False)
+    version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
     version= models.DateTimeField()
-    version_description=models.TextField(blank=False, null=False)
+    version_description=models.TextField(blank=True, null=True)
 
 
 
     class Meta:
         managed = True
-        db_table = 'syste_products'
+        db_table = 'system_products'
 
     def is_fully_equal(self, other):
         if not self.name==other.name:
@@ -244,45 +250,49 @@ class Products(models.Model):
     name = models.TextField()
     
     
-    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
-    fat = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    protein = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    carbohydrate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    calories = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
-    salt = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    cholesterol = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    sodium = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    potassium = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    fiber = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    sugars = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    saturated_fat = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    ferrum = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    magnesium = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    phosphor = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=3, blank=False, null=False)
+    fat = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    protein = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    carbohydrate = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    calories = models.DecimalField(max_digits=10, decimal_places=3, blank=False, null=False)
+    salt = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    cholesterol = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    sodium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    potassium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    fiber = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    sugars = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    saturated_fat = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    ferrum = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    magnesium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    phosphor = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     glutenfree = models.BooleanField(blank=False, null=False)
-    calcium = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    calcium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     
-    elaborated_products= models.ForeignKey("ElaboratedProducts", models.DO_NOTHING)
+    system_products= models.ForeignKey("SystemProducts", models.DO_NOTHING, null=True, blank=True)
+    elaborated_products= models.ForeignKey("ElaboratedProducts", models.DO_NOTHING, null=True, blank=True)
     
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
-    additives = models.ManyToManyField(Additives)
-    formats = models.ManyToManyField(Formats)
+    additives = models.ManyToManyField(Additives, blank=True)
+    formats = models.ManyToManyField(Formats, blank=True)
     obsolete = models.BooleanField()
-    companies = models.ForeignKey(Companies, models.DO_NOTHING, blank=False, null=False)
-    version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=False, null=False)
-    version= models.DateTimeField()
-    version_description=models.TextField(blank=False, null=False)
+    companies = models.ForeignKey(Companies, models.DO_NOTHING, blank=True, null=True)
+    version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
+    version= models.DateTimeField(auto_now_add=True)
+    version_description=models.TextField(blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
 
     class Meta:
         managed = True
         db_table = 'products'
+    def __str__(self):
+        return self.name
 
 
 
 class ElaboratedProducts(models.Model):
-    name = models.TextField(blank=True, null=True)
-    final_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    last = models.DateTimeField()
+    name = models.TextField()
+    final_amount = models.DecimalField(max_digits=10, decimal_places=3)
+    last = models.DateTimeField(auto_now_add=True)
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     obsolete = models.BooleanField()
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
@@ -290,26 +300,30 @@ class ElaboratedProducts(models.Model):
     class Meta:
         managed = True
         db_table = 'elaborated_products'
+    def __str__(self):
+        return self.name
 
 
 
 
 class Meals(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
-    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=3)
     products = models.ForeignKey(Products, models.DO_NOTHING)
-    datetime = models.DateTimeField(blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         managed = True
         db_table = 'meals'
 
+    def __str__(self):
+        return f"{self.products} ({self.amount}g)"
 
 
 class ProductsInElaboratedProducts(models.Model):
     products = models.ForeignKey(Products, models.DO_NOTHING)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    elaboratedproducts = models.ForeignKey("ElaboratedProducts", models.DO_NOTHING)
+    amount = models.DecimalField(max_digits=10, decimal_places=3)
+    elaborated_products = models.ForeignKey("ElaboratedProducts", models.DO_NOTHING)
     class Meta:
         managed = True
         db_table = 'products_in_elaborated_products'
@@ -334,15 +348,6 @@ class eAdditiveRisk:
     Low=1
     Medium=2
     High=3
-
-
-
-class eProductComponent:
-    Fat=0
-    Carbohydrate=1
-    Protein=2
-    Fiber=3
-    Calories=4
 
 ## TMB x 1,2: Poco o ningún ejercicio                     +
 ##        |                                |       |          |            | TMB x 1,375: Ejercicio ligero (1 a 3 días a la semana) +
