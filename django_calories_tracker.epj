@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-04-11, 11:15:20"
+    "saved": "2022-04-11, 14:41:59"
   },
   "project": {
     "AUTHOR": "",
@@ -110,7 +110,8 @@
       "catalogs/catalogs/migrations/0003_systemproducts_formats_alter_formats_amount.py",
       "calories_tracker/management/commands/migrate_from_caloriestracker.py",
       "update_reusing.py",
-      "calories_tracker/migrations/0002_remove_formats_last_products_formats_and_more.py"
+      "calories_tracker/migrations/0002_remove_formats_last_products_formats_and_more.py",
+      "calories_tracker/serializers.py"
     ],
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
