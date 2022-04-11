@@ -89,6 +89,17 @@ class SystemCompanies(models.Model):
         return self.name
 
 
+class Formats(models.Model):
+    name = models.TextField(blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
+
+    class Meta:
+        managed = True
+        db_table = 'formats'
+    def __str__(self):
+        return self.name
+
+
 class SystemProducts(models.Model):
     name = models.TextField(blank=False, null=False)
     
@@ -114,25 +125,15 @@ class SystemProducts(models.Model):
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     additives = models.ManyToManyField(Additives)
     obsolete = models.BooleanField()
+    formats = models.ManyToManyField(Formats)
     
-    version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=False, null=False)
-    version= models.DateTimeField()
-    version_description=models.TextField(blank=False, null=False)
+    version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
+    version= models.DateTimeField(auto_now_add=True)
+    version_description=models.TextField(blank=True, null=True)
 
     class Meta:
         managed = True
         db_table = 'system_products'
-    def __str__(self):
-        return self.name
-
-
-class Formats(models.Model):
-    name = models.TextField(blank=True, null=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
-
-    class Meta:
-        managed = True
-        db_table = 'formats'
     def __str__(self):
         return self.name
 

@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-02-28, 18:05:51"
+    "saved": "2022-04-11, 07:30:45"
   },
   "project": {
     "AUTHOR": "",
@@ -50,7 +50,8 @@
     },
     "MIXEDLANGUAGE": false,
     "OTHERS": [
-      "README.md"
+      "README.md",
+      "django_calories_tracker.epj"
     ],
     "OTHERTOOLSPARMS": {},
     "PACKAGERSPARMS": {},
@@ -79,7 +80,35 @@
       "calories_tracker/__init__.py",
       "calories_tracker/apps.py",
       "calories_tracker/admin.py",
-      "manage.py"
+      "manage.py",
+      "calories_tracker/migrations/0001_initial.py",
+      "calories_tracker/management/commands/makedbmessages.py",
+      "calories_tracker/management/commands/doxygen.py",
+      "calories_tracker/management/commands/dumppostgres.py",
+      "calories_tracker/management/commands/procedure.py",
+      "calories_tracker/management/commands/dolt.py",
+      "calories_tracker/update_data.py",
+      "catalogs/manage.py",
+      "catalogs/django_catalogs/settings.py",
+      "catalogs/django_catalogs/asgi.py",
+      "catalogs/django_catalogs/__init__.py",
+      "catalogs/django_catalogs/urls.py",
+      "catalogs/django_catalogs/wsgi.py",
+      "catalogs/catalogs/tests.py",
+      "catalogs/catalogs/admin.py",
+      "catalogs/catalogs/update_data.py",
+      "catalogs/catalogs/apps.py",
+      "catalogs/catalogs/models.py",
+      "catalogs/catalogs/__init__.py",
+      "catalogs/catalogs/views.py",
+      "catalogs/catalogs/management/commands/dolt.py",
+      "catalogs/catalogs/migrations/__init__.py",
+      "catalogs/catalogs/migrations/0001_initial.py",
+      "catalogs/catalogs/reusing/text_inputs.py",
+      "calories_tracker/management/commands/update_catalogs.py",
+      "catalogs/catalogs/migrations/0004_alter_systemproducts_version_and_more.py",
+      "catalogs/catalogs/migrations/0002_remove_formats_last.py",
+      "catalogs/catalogs/migrations/0003_systemproducts_formats_alter_formats_amount.py"
     ],
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",

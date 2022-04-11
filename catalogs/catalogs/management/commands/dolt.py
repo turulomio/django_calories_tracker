@@ -30,7 +30,15 @@ class Command(BaseCommand):
         remove("../../../calories_tracker/data/auth_permission.json")
         remove("../../../calories_tracker/data/django_admin_log.json")
         remove("../../../calories_tracker/data/django_migrations.json")
-      
+        remove("../../../calories_tracker/data/django_content_type.json")
+        remove("../../../calories_tracker/data/django_session.json")
+        remove("../../../calories_tracker/data/auth_user.json")
+        remove("../../../calories_tracker/data/auth_user_groups.json")
+        remove("../../../calories_tracker/data/auth_user_user_permissions.json")
+        remove("../../../calories_tracker/data/auth_group.json")
+        remove("../../../calories_tracker/data/auth_group_permissions.json")
+
+
  
 #  
 #        if input_boolean("Do you want to update new data?", default="T"):

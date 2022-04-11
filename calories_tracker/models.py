@@ -65,6 +65,16 @@ class Additives(models.Model):
     class Meta:
         managed = True
         db_table = 'additives'
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        if not self.description==other.description:
+            return False
+        if not self.additive_risks==other.additive_risks:
+            return False
+        return True
+    def __str__(self):
+        return self.name
 
 class Biometrics(models.Model):
     datetime = models.DateTimeField(blank=True, null=True)
@@ -84,6 +94,13 @@ class FoodTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'food_types'
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        return True
+        
+    def __str__(self):
+        return self.name
 
 class SystemCompanies(models.Model):
     name = models.TextField(blank=True, null=True)
@@ -103,6 +120,23 @@ class Companies(models.Model):
     class Meta:
         managed = True
         db_table = 'companies'
+
+class Formats(models.Model):
+    name = models.TextField(blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'formats'
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        if not self.amount==other.amount:
+            return False
+        return True
+        
+    def __str__(self):
+        return self.name
 
 class SystemProducts(models.Model):
     name = models.TextField(blank=False, null=False)
@@ -128,6 +162,7 @@ class SystemProducts(models.Model):
     system_companies = models.ForeignKey(SystemCompanies, models.DO_NOTHING, blank=False, null=False)
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     additives = models.ManyToManyField(Additives)
+    formats = models.ManyToManyField(Formats)
     obsolete = models.BooleanField()
     
     version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=False, null=False)
@@ -165,6 +200,7 @@ class Products(models.Model):
     
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     additives = models.ManyToManyField(Additives)
+    formats = models.ManyToManyField(Formats)
     obsolete = models.BooleanField()
     companies = models.ForeignKey(Companies, models.DO_NOTHING, blank=False, null=False)
     version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=False, null=False)
@@ -189,13 +225,7 @@ class ElaboratedProducts(models.Model):
         managed = True
         db_table = 'elaborated_products'
 
-class Formats(models.Model):
-    name = models.TextField(blank=True, null=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
-    class Meta:
-        managed = True
-        db_table = 'formats'
 
 
 class Meals(models.Model):

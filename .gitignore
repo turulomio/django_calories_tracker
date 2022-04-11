@@ -2,3 +2,4 @@
 dolt/
 .eric6project/
 *__pycache__*
+.jedi/
