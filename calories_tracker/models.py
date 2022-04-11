@@ -110,6 +110,17 @@ class SystemCompanies(models.Model):
     class Meta:
         managed = True
         db_table = 'system_companies'
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        if not self.last==other.last:
+            return False
+        if not self.obsolete==other.obsolete:
+            return False
+        return True
+        
+    def __str__(self):
+        return self.name
 
 class Companies(models.Model):
     name = models.TextField(blank=True, null=True)
@@ -169,10 +180,65 @@ class SystemProducts(models.Model):
     version= models.DateTimeField()
     version_description=models.TextField(blank=False, null=False)
 
+
+
     class Meta:
         managed = True
         db_table = 'syste_products'
 
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        if not self.amount==other.amount:
+            return False
+        if not self.protein==other.protein:
+            return False
+        if not self.carbohydrate==other.carbohydrate:
+            return False
+        if not self.calories==other.calories:
+            return False
+        if not self.salt==other.salt:
+            return False
+        if not self.cholesterol==other.cholesterol:
+            return False
+        if not self.sodium==other.sodium:
+            return False
+        if not self.potassium==other.potassium:
+            return False
+        return True
+        if not self.fiber==other.fiber:
+            return False
+        if not self.sugars==other.sugars:
+            return False
+        if not self.saturated_fat==other.saturated_fat:
+            return False
+        if not self.ferrum==other.ferrum:
+            return False
+        if not self.magnesium==other.magnesium:
+            return False
+        if not self.phosphor==other.phosphor:
+            return False
+        if not self.glutenfree==other.glutenfree:
+            return False
+        if not self.calcium==other.calcium:
+            return False
+        if not self.system_companies==other.system_companies:
+            return False
+        if not self.food_types==other.food_types:
+            return False
+        if not self.additives==other.additives:
+            return False
+        if not self.formats==other.formats:
+            return False
+        if not self.obsolete==other.obsolete:
+            return False
+        if not self.version_parent==other.version_parent:
+            return False
+        if not self.version==other.version:
+            return False
+        
+    def __str__(self):
+        return self.name
 class Products(models.Model):
     
     name = models.TextField()

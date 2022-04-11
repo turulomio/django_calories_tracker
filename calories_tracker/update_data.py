@@ -2,8 +2,8 @@
 from decimal import Decimal
 from json import loads
 from urllib import request as urllib_request
-from calories_tracker.models import Additives, AdditiveRisks, Activities, WeightWishes, FoodTypes, Formats, SystemCompanies
-from calories_tracker.reusing.datetime_functions import string2dtnaive
+from calories_tracker.models import Additives, AdditiveRisks, Activities, WeightWishes, FoodTypes, Formats, SystemCompanies, SystemProducts
+from calories_tracker.reusing.datetime_functions import string2dtaware
 _=str
 
 
@@ -16,6 +16,8 @@ def checks_and_sets_value(d, key):
 
 ## Used in first intallation
 def update_from_code():
+    with open("calories_tracker/data/system_products.json") as p,  open("calories_tracker/data/system_products_additives.json") as a,     open("calories_tracker/data/system_products_formats.json") as f :
+        process_system_products(p, a, f)
     with open("calories_tracker/data/system_companies.json") as f:
         process_system_companies(f)
     with open("calories_tracker/data/activities.json") as f:
@@ -34,6 +36,7 @@ def update_from_code():
 ## Used to update a started app
 def update_from_github():
     
+    process_system_products()
     process_system_companies()
     process_activities()
     process_additive_risks()
@@ -211,7 +214,7 @@ def process_system_companies(file_descriptor=None):
         o=SystemCompanies()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
-        o.last=string2dtnaive(d['last'], "%Y-%m-%d %H:%M:%S.")
+        o.last=string2dtaware(d['last'], "%Y-%m-%d %H:%M:%S.", "UTC")
         o.obsolete=bool(int(d["obsolete"]))
         
         qs_before=SystemCompanies.objects.filter(pk=d["id"])#Crash if not found
@@ -223,3 +226,69 @@ def process_system_companies(file_descriptor=None):
         o.save()
     print("SystemCompanies", "Total:",  r["total"], "Logs:", len(r["logs"]))
     return r
+
+## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
+def process_system_products(file_descriptor_p=None, file_descriptor_a=None, file_descriptor_f=None):
+    if file_descriptor_p is None:
+        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/system_products.json")
+        products =  loads(response.read())
+        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/system_products_additives.json")
+        additives =  loads(response.read())
+        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/system_products_formats.json")
+        formats =  loads(response.read())
+    else:
+        products=loads(file_descriptor_p.read())
+        additives=loads(file_descriptor_p.read())
+        formats=loads(file_descriptor_p.read())
+
+    rp={}
+    rp["total"]=len(products["rows"])
+    rp["logs"]=[]
+    for dp in products["rows"]:
+        o=SystemProducts()
+        o.id=dp['id']
+        o.name = dp['name']
+        o.amount=checks_and_sets_value(dp, "amount")
+        o.fat=checks_and_sets_value(dp, "fat")
+        o.protein=checks_and_sets_value(dp, "protein")
+        o.carbohydrate=checks_and_sets_value(dp, "carbohydrate")
+        o.calories=checks_and_sets_value(dp, "calories")
+        o.salt=checks_and_sets_value(dp, "salt")
+        o.cholesterol=checks_and_sets_value(dp, "cholesterol")
+        o.sodium=checks_and_sets_value(dp, "sodium")
+        o.potassium=checks_and_sets_value(dp, "potassium")
+        o.fiber=checks_and_sets_value(dp, "fiber")
+        o.sugars=checks_and_sets_value(dp, "sugars")
+        o.saturated_fat=checks_and_sets_value(dp, "saturated_fat")
+        o.ferrum=checks_and_sets_value(dp, "ferrum")
+        o.magnesium=checks_and_sets_value(dp, "magnesium")
+        o.phosphor=checks_and_sets_value(dp, "phosphor")
+        o.calcium=checks_and_sets_value(dp, "calcium")
+        o.glutenfree=bool(dp['glutenfree'])
+        o.system_companies=SystemCompanies.objects.filter(pk=dp["system_companies"])[0]
+        o.system_companies=FoodTypes.objects.filter(pk=dp["food_types"])[0]
+        o.obsolete=bool(dp["obsolete"])
+        o.version=checks_and_sets_value(dp, "version")
+        o.version_description=checks_and_sets_value(dp, "version_description")
+        qs_parent=SystemProducts.objects.filter(pk=dp["version_parent"])
+        if len(qs_parent)==0:
+            o.version_parent=None
+        else:
+            o.version_parent=qs_parent[0]
+        
+        for da in additives["rows"]:
+            if da["system_products_id"]==dp['id']:
+                o.additives.add(Additives.objects.filter(pk=da['additives_id']))
+        for df in formats["rows"]:
+            if df["system_products_id"]==dp['id']:
+                o.formats.add(Formats.objects.filter(pk=df['formats_id']))
+               
+        qs_before=SystemProducts.objects.filter(pk=dp["id"])#Crash if not found
+        if len(qs_before)==0:
+            rp["logs"].append({"object":str(o), "log":_("Created")})
+        else:
+            if not o.is_fully_equal(qs_before[0]):
+                rp["logs"].append({"object":str(o), "log":_("Updated")})
+        o.save()
+    print("Products", "Total:",  rp["total"], "Logs:", len(rp["logs"]))
+    return rp

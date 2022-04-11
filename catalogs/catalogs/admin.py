@@ -53,14 +53,19 @@ class FormatsAdmin(admin.ModelAdmin):
     
 class SystemCompaniesAdmin(admin.ModelAdmin):
     model = SystemCompanies
-    list_display = ['name']
+    
+    list_display = ['id','name', 'last', 'obsolete']
+    ordering = ['name']
+    search_fields = ['name']
 class SystemProductsAdmin(admin.ModelAdmin):
     model = SystemProducts
     list_display = ['name']
     form = SystemProductsAdminForm
 class WeightWishesAdmin(admin.ModelAdmin):
     model = WeightWishes
-    list_display = ['name']
+    list_display = ['id','name']
+    ordering = ['name']
+    search_fields = ['name']
 
 
 

@@ -69,13 +69,17 @@ class SystemCompaniesAdmin(ReadOnlyAdmin):
     list_display = ['id','name', 'last', 'obsolete']
     ordering = ['name']
     search_fields = ['name']
+
 class SystemProductsAdmin(ReadOnlyAdmin):
     model = SystemProducts
     list_display = ['name']
     form = SystemProductsAdminForm
+    
 class WeightWishesAdmin(ReadOnlyAdmin):
     model = WeightWishes
-    list_display = ['name']
+    list_display = ['id','name']
+    ordering = ['name']
+    search_fields = ['name']
 
 
 
