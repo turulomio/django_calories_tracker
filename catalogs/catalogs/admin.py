@@ -3,7 +3,23 @@ from catalogs.models import Activities, AdditiveRisks, WeightWishes, FoodTypes, 
 #from django.contrib.auth.models import User, Group
 #from django.urls import reverse_lazy
 from django.contrib import admin# Need to import this since auth models get registered on import.
+from django.forms import ModelForm
 
+
+class SystemProductsAdminForm(ModelForm):
+    class Meta:
+        model = SystemProducts
+        fields = '__all__' # required in new versions
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['additives'].queryset = (
+            self.fields['additives'].queryset.order_by('name')
+        )
+
+
+class ProductAdmin(admin.ModelAdmin):
+   list_display = ('name','platform')
 
 class ActivitiesAdmin(admin.ModelAdmin):
     model = Activities
@@ -36,14 +52,18 @@ class FormatsAdmin(admin.ModelAdmin):
     search_fields = ['name']
     
 class SystemCompaniesAdmin(admin.ModelAdmin):
-    model = WeightWishes
+    model = SystemCompanies
     list_display = ['name']
 class SystemProductsAdmin(admin.ModelAdmin):
-    model = WeightWishes
+    model = SystemProducts
     list_display = ['name']
+    form = SystemProductsAdminForm
 class WeightWishesAdmin(admin.ModelAdmin):
     model = WeightWishes
     list_display = ['name']
+
+
+
 
 
 admin.site.site_title = _('Django Calories Tracker')
