@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-04-11, 14:41:59"
+    "saved": "2022-04-12, 12:18:00"
   },
   "project": {
     "AUTHOR": "",
@@ -51,7 +51,8 @@
     "MIXEDLANGUAGE": false,
     "OTHERS": [
       "README.md",
-      "django_calories_tracker.epj"
+      "django_calories_tracker.epj",
+      "catalogs/catalogs/management/commands/migrate_system_data_from_caloriestracker.py\u00e7"
     ],
     "OTHERTOOLSPARMS": {},
     "PACKAGERSPARMS": {},
@@ -86,7 +87,6 @@
       "calories_tracker/management/commands/doxygen.py",
       "calories_tracker/management/commands/dumppostgres.py",
       "calories_tracker/management/commands/procedure.py",
-      "calories_tracker/management/commands/dolt.py",
       "calories_tracker/update_data.py",
       "catalogs/manage.py",
       "catalogs/django_catalogs/settings.py",
@@ -110,8 +110,13 @@
       "catalogs/catalogs/migrations/0003_systemproducts_formats_alter_formats_amount.py",
       "calories_tracker/management/commands/migrate_from_caloriestracker.py",
       "update_reusing.py",
-      "calories_tracker/migrations/0002_remove_formats_last_products_formats_and_more.py",
-      "calories_tracker/serializers.py"
+      "calories_tracker/serializers.py",
+      "calories_tracker/hardcoded_strings.py",
+      "catalogs/catalogs/migrations/0005_alter_formats_amount_alter_systemproducts_additives_and_more.py",
+      "catalogs/catalogs/management/commands/migrate_system_data_from_caloriestracker.py",
+      "catalogs/catalogs/migrations/0006_remove_formats_amount_alter_formats_name.py",
+      "catalogs/catalogs/migrations/0007_remove_systemproducts_formats.py",
+      "catalogs/catalogs/migrations/0008_systemproductsformatsthrough_systemproducts_formats_and_more.py"
     ],
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",

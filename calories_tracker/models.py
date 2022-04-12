@@ -4,6 +4,13 @@
 # Meals and elaborated_products reference to products
 # If a product has a system_products reference, uses system_products data and sets all values to -1
 
+
+# La base de datos de system_Products se pone en dolthub y se sincroniza por github o por locals
+# Los nuevos system products se meten usango python manage dolt, desde catalogos. y luego se suben al github.
+# Si hubiera usuarios que aportan hay que valorar como poner las claves primarias
+
+#CAda vez que se crea un producto, se copia y se linka de system_products si existiera 
+
 from django.db import models
 from django.contrib.auth.models import User # new
 
@@ -79,7 +86,7 @@ class Additives(models.Model):
         return self.name
 
 class Biometrics(models.Model):
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField()
     weight = models.DecimalField(max_digits=10, decimal_places=2)
     height = models.DecimalField(max_digits=10, decimal_places=2)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
@@ -126,13 +133,31 @@ class SystemCompanies(models.Model):
         
     def __str__(self):
         return self.name
-
+                
+    ## @param sp SystemProducts to link to Product
+    ## Solo debe usarse cuando se linke o se sepa que es un systemproduct
+    def create_and_link_company(self, user):
+        #Search for system_productst in Products
+        qs=Companies.objects.filter(system_companies=self, user=user)
+        if len(qs)==0: # Product must be created
+            p=Companies()
+        else:
+            p=qs[0]
+            
+        p.name=self.name
+        p.last=self.last
+        p.obsolete=self.obsolete
+        p.system_companies=self
+        p.user=user
+        p.save()
+        return p
 class Companies(models.Model):
     name = models.TextField()
     last = models.DateTimeField(auto_now_add=True)
     obsolete = models.BooleanField()
     system_companies = models.ForeignKey(SystemCompanies, on_delete=models.DO_NOTHING,  blank=True, null=True) # Can be none
 
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
     class Meta:
         managed = True
         db_table = 'companies'
@@ -245,7 +270,77 @@ class SystemProducts(models.Model):
     def __str__(self):
         return self.name
         
-        
+                
+    ## @param sp SystemProducts to link to Product
+    ## Solo debe usarse cuando se linke o se sepa que es un systemproduct
+    def create_and_link_product(self, user):
+        #Search for system_productst in Products
+        qs=Products.objects.filter(system_products=self, user=user)
+        if len(qs)==0: # Product must be created
+            p=Products()
+        else:
+            p=qs[0]
+            
+        p.name=self.name
+        p.amount=self.amount
+        p.fat=self.fat
+        p.protein=self.protein
+        p.carbohydrate=self.carbohydrate
+        p.calories=self.calories
+        p.salt=self.salt
+        p.cholesterol=self.cholesterol
+        p.sodium=self.sodium
+        p.potassium=self.potassium
+        p.fiber=self.fiber
+        p.sugars=self.sugars
+        p.saturated_fat=self.saturated_fat
+        p.ferrum=self.ferrum
+        p.magnesium=self.magnesium
+        p.phosphor=self.phosphor
+        p.glutenfree=self.glutenfree
+        p.calcium=self.calcium
+        p.system_products=self
+        p.elaborated_products=None
+        p.food_types=self.food_types
+        p.obsolete=self.obsolete
+        if self.system_companies is not None:
+            p.companies=self.system_companies.create_and_link_company(user)
+        p.version_parent=self.version_parent
+        p.version=self.version
+        p.version_description=self.version_description
+        p.user=user
+        p.save()
+
+        p.additives.set(self.additives.all())
+        p.save()
+#        print(dir(self))
+#        print(self.systemproductsformatsthrough_set, self.systemproductsformatsthrough_set.__class__)
+#        print(dir(self.systemproductsformatsthrough_set))
+#        print(dir(self.formats), self.formats.__class__)
+        for f in self.formats.all():
+            print(f)
+            spft=SystemProductsFormatsThrough.objects.get(system_products=self, formats=f)
+
+#            print("-start-")
+#            print(f)
+#            print(f.systemproductsformatsthrough_set.values())
+#            print(p)
+#        print(self.systemproductsformatsthrough_set.all())
+#        for value in self.systemproductsformatsthrough_set.all():
+            th=ProductsFormatsThrough()
+            th.amount=spft.amount
+            th.formats=spft.formats
+            th.products=p
+            
+            print("PFT", spft.system_products.name,  th.amount, th.formats.name, p)
+            th.save()
+            
+#        for amount in self.systemproductsformatsthrough_set.list_values():
+#            th=ProductsFormatsThrough()
+#            th.amount=amount
+#            print (th, th.__class__)
+        p.save()
+        return p
 
 class SystemProductsFormatsThrough(models.Model):
     system_products = models.ForeignKey(SystemProducts, on_delete=models.DO_NOTHING)
@@ -295,6 +390,7 @@ class Products(models.Model):
         db_table = 'products'
     def __str__(self):
         return self.name
+
 
 class ProductsFormatsThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
