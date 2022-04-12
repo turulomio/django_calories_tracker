@@ -298,6 +298,7 @@ class ElaboratedProducts(models.Model):
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     obsolete = models.BooleanField()
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
+    products_in = models.ManyToManyField(Products, through='ElaboratedProductsProductsInThrough', blank=True)
 
     class Meta:
         managed = True
@@ -306,6 +307,10 @@ class ElaboratedProducts(models.Model):
         return self.name
 
 
+class ElaboratedProductsProductsInThrough(models.Model):
+    products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
+    elaborated_products = models.ForeignKey(ElaboratedProducts, on_delete=models.DO_NOTHING)
+    amount = models.DecimalField(max_digits=10, decimal_places=3)
 
 
 class Meals(models.Model):

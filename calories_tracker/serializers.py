@@ -34,10 +34,18 @@ class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Companies
         fields = ('url', 'id', 'name', 'last', 'obsolete', 'system_companies')
+
+class ElaboratedProductsProductsInThroughSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ElaboratedProductsProductsInThrough
+
+        fields = ('id','products',  'amount', 'elaborated_products' )
+        
 class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
+    products_in = ElaboratedProductsProductsInThroughSerializer(many=True, read_only=True, source="elaboratedproductsproductsinthrough_set")
     class Meta:
         model = models.ElaboratedProducts
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types', 'final_amount')
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types', 'final_amount', 'products_in')
         
 class FoodTypesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
