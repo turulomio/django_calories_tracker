@@ -65,6 +65,7 @@ class Additives(models.Model):
     class Meta:
         managed = True
         db_table = 'additives'
+        
     def is_fully_equal(self, other):
         if not self.name==other.name:
             return False
@@ -73,6 +74,7 @@ class Additives(models.Model):
         if not self.additive_risks==other.additive_risks:
             return False
         return True
+        
     def __str__(self):
         return self.name
 

@@ -46,3 +46,20 @@ class AdditiveRisksViewSet(viewsets.ModelViewSet):
     queryset = models.AdditiveRisks.objects.all()
     serializer_class = serializers.AdditiveRisksSerializer
     permission_classes = [permissions.IsAuthenticated]      
+
+class AdditivesViewSet(viewsets.ModelViewSet):
+    queryset = models.Additives.objects.all()
+    serializer_class = serializers.AdditivesSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+class BiometricsViewSet(viewsets.ModelViewSet):
+    queryset = models.Biometrics.objects.all()
+    serializer_class = serializers.BiometricsSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+class CompaniesViewSet(viewsets.ModelViewSet):
+    queryset = models.Companies.objects.all()
+    serializer_class = serializers.CompaniesSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+class SystemCompaniesViewSet(viewsets.ModelViewSet):
+    queryset = models.SystemCompanies.objects.all()
+    serializer_class = serializers.SystemCompaniesSerializer
+    permission_classes = [permissions.IsAuthenticated]      

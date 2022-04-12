@@ -8,6 +8,13 @@ router = routers.DefaultRouter()
 router.register(r'weight_wishes', calories_tracker_views.WeightWishesViewSet)
 router.register(r'activities', calories_tracker_views.ActivitiesViewSet)
 router.register(r'additive_risks', calories_tracker_views.AdditiveRisksViewSet)
+router.register(r'additives', calories_tracker_views.AdditivesViewSet)
+router.register(r'biometrics', calories_tracker_views.BiometricsViewSet)
+router.register(r'companies', calories_tracker_views.CompaniesViewSet)
+router.register(r'system_companies', calories_tracker_views.SystemCompaniesViewSet)
+
+
+
 urlpatterns = [
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),

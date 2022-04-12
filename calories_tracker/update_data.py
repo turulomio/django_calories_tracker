@@ -137,7 +137,11 @@ def process_additives(file_descriptor=None):
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         o.description=checks_and_sets_value(d, "description")
-        o.additive_risks==AdditiveRisks.objects.filter(pk=d["additive_risks_id"])[0]
+        additive_risks_id=checks_and_sets_value(d,  'additive_risks_id')
+        if additive_risks_id is None:
+            o.additive_risks=None
+        else:
+            o.additive_risks=AdditiveRisks.objects.filter(pk=d["additive_risks_id"])[0]
         
         qs_before=Additives.objects.filter(pk=d["id"])#Crash if not found
         if len(qs_before)==0:
