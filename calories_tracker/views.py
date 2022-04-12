@@ -59,7 +59,37 @@ class CompaniesViewSet(viewsets.ModelViewSet):
     queryset = models.Companies.objects.all()
     serializer_class = serializers.CompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]      
+class ElaboratedProductsViewSet(viewsets.ModelViewSet):
+    queryset = models.ElaboratedProducts.objects.all()
+    serializer_class = serializers.ElaboratedProductsSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+class FoodTypesViewSet(viewsets.ModelViewSet):
+    queryset = models.FoodTypes.objects.all()
+    serializer_class = serializers.FoodTypesSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+class FormatsViewSet(viewsets.ModelViewSet):
+    queryset = models.Formats.objects.all()
+    serializer_class = serializers.FormatsSerializer
+    permission_classes = [permissions.IsAuthenticated]  
+class MealsViewSet(viewsets.ModelViewSet):
+    queryset = models.Meals.objects.all()
+    serializer_class = serializers.MealsSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+
+class ProductsViewSet(viewsets.ModelViewSet):
+    queryset = models.Products.objects.all()
+    serializer_class = serializers.ProductsSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+class ProfilesViewSet(viewsets.ModelViewSet):
+    queryset = models.Profiles.objects.all()
+    serializer_class = serializers.ProfilesSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+    
 class SystemCompaniesViewSet(viewsets.ModelViewSet):
     queryset = models.SystemCompanies.objects.all()
     serializer_class = serializers.SystemCompaniesSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+class SystemProductsViewSet(viewsets.ModelViewSet):
+    queryset = models.SystemProducts.objects.all()
+    serializer_class = serializers.SystemProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      

@@ -331,12 +331,10 @@ class ProductsInElaboratedProducts(models.Model):
         db_table = 'products_in_elaborated_products'
 
 
-class Profile(models.Model):
-    name = models.TextField(blank=True, null=True)
-    starts = models.DateTimeField(blank=True, null=True)
-    ends = models.DateTimeField(blank=True, null=True)
-    male = models.BooleanField(blank=True, null=True)
-    birthday = models.DateField(blank=True, null=True)
+class Profiles(models.Model):
+    male = models.BooleanField()
+    birthday = models.DateField()
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
 
     class Meta:
         managed = True
