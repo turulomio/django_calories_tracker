@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from calories_tracker.models import Activities, AdditiveRisks, ProductsFormatsThrough, ElaboratedProductsProductsInThrough, ProductsInElaboratedProducts, Biometrics, Products, Meals, WeightWishes, FoodTypes, Additives, Formats, SystemCompanies, SystemProducts, Companies, ElaboratedProducts
+from calories_tracker.models import Activities, AdditiveRisks, ProductsFormatsThrough, ElaboratedProductsProductsInThrough, Biometrics, Products, Meals, WeightWishes, FoodTypes, Additives, Formats, SystemCompanies, SystemProducts, Companies, ElaboratedProducts
 from django.contrib import admin# Need to import this since auth models get registered on import.
 from django.forms import ModelForm
 
@@ -138,13 +138,6 @@ class ProductsAdmin(admin.ModelAdmin):
     list_filter=['user']
     inlines = (ProductsFormatsInLine,)
 
-    
-class ProductsInElaboratedProductsAdmin(admin.ModelAdmin):
-    model = ProductsInElaboratedProducts
-    list_display = ['products', 'amount',  'elaborated_products']
-    ordering = ['elaborated_products']
-    search_fields = ['elaborated_products']
-    list_filter = ['elaborated_products', 'products']
 
     
 admin.site.site_title = _('Django Calories Tracker')
@@ -167,7 +160,6 @@ admin.site.register(Companies, CompaniesAdmin)
 admin.site.register(ElaboratedProducts, ElaboratedProductsAdmin)
 admin.site.register(Meals, MealsAdmin)
 admin.site.register(Products, ProductsAdmin)
-admin.site.register(ProductsInElaboratedProducts, ProductsInElaboratedProductsAdmin)
     
 #admin.site.site_url = reverse_lazy('home') 
 #admin.site.logout_template=reverse_lazy('home')

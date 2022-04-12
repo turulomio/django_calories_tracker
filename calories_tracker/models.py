@@ -329,16 +329,6 @@ class Meals(models.Model):
     def __str__(self):
         return f"{self.products} ({self.amount}g)"
 
-
-class ProductsInElaboratedProducts(models.Model):
-    products = models.ForeignKey(Products, models.DO_NOTHING)
-    amount = models.DecimalField(max_digits=10, decimal_places=3)
-    elaborated_products = models.ForeignKey("ElaboratedProducts", models.DO_NOTHING)
-    class Meta:
-        managed = True
-        db_table = 'products_in_elaborated_products'
-
-
 class Profiles(models.Model):
     male = models.BooleanField()
     birthday = models.DateField()
