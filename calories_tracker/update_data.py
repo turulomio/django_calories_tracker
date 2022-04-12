@@ -1,4 +1,4 @@
-## Update
+from datetime import datetime
 from decimal import Decimal
 from json import loads
 from urllib import request as urllib_request
@@ -16,6 +16,7 @@ def checks_and_sets_value(d, key):
 
 ## Used in first intallation
 def update_from_code():
+    start=datetime.now()
     with open("calories_tracker/data/system_companies.json") as f:
         process_system_companies(f)
     with open("calories_tracker/data/activities.json") as f:
@@ -34,6 +35,7 @@ def update_from_code():
         process_system_products(p, a)
     with open("calories_tracker/data/catalogs_systemproductsformatsthrough.json") as f:
         process_catalogs_systemproductsformatsthrough(f)
+    print(f"Update catalogs from code took {datetime.now()-start}")
     
 ## Used to update a started app
 def update_from_github():

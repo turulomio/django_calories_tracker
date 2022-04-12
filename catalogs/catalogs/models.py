@@ -65,7 +65,7 @@ class Additives(models.Model):
         managed = True
         db_table = 'additives'
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.id})"
 
 
 class FoodTypes(models.Model):
