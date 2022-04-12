@@ -192,7 +192,6 @@ def process_formats(file_descriptor=None):
         o=Formats()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
-        o.amount=Decimal(checks_and_sets_value(d, "amount"))
         
         qs_before=Formats.objects.filter(pk=d["id"])#Crash if not found
         if len(qs_before)==0:

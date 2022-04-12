@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from calories_tracker.models import Activities, AdditiveRisks, ElaboratedProductsProductsInThrough, ProductsInElaboratedProducts, Biometrics, Products, Meals, WeightWishes, FoodTypes, Additives, Formats, SystemCompanies, SystemProducts, Companies, ElaboratedProducts
+from calories_tracker.models import Activities, AdditiveRisks, ProductsFormatsThrough, ElaboratedProductsProductsInThrough, ProductsInElaboratedProducts, Biometrics, Products, Meals, WeightWishes, FoodTypes, Additives, Formats, SystemCompanies, SystemProducts, Companies, ElaboratedProducts
 from django.contrib import admin# Need to import this since auth models get registered on import.
 from django.forms import ModelForm
 
@@ -124,6 +124,11 @@ class MealsAdmin(admin.ModelAdmin):
     search_fields = ['products', 'user']
     list_filter=['user']
     
+    
+    
+class ProductsFormatsInLine(admin.TabularInline):
+    model = ProductsFormatsThrough
+    extra = 1
 class ProductsAdmin(admin.ModelAdmin):
     model = Products
     form = ProductsAdminForm
@@ -131,7 +136,7 @@ class ProductsAdmin(admin.ModelAdmin):
     ordering = ['name']
     search_fields = ['name', 'system_products']
     list_filter=['user']
-#    inlines = (ProductsInInline,)
+    inlines = (ProductsFormatsInLine,)
 
     
 class ProductsInElaboratedProductsAdmin(admin.ModelAdmin):

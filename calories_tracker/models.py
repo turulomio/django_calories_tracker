@@ -141,16 +141,13 @@ class Companies(models.Model):
         return self.name
 
 class Formats(models.Model):
-    name = models.TextField(blank=True, null=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    name = models.TextField()
 
     class Meta:
         managed = True
         db_table = 'formats'
     def is_fully_equal(self, other):
         if not self.name==other.name:
-            return False
-        if not self.amount==other.amount:
             return False
         return True
         
@@ -275,7 +272,8 @@ class Products(models.Model):
     
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     additives = models.ManyToManyField(Additives, blank=True)
-    formats = models.ManyToManyField(Formats, blank=True)
+    formats = models.ManyToManyField(Formats, through='ProductsFormatsThrough', blank=True)
+
     obsolete = models.BooleanField()
     companies = models.ForeignKey(Companies, models.DO_NOTHING, blank=True, null=True)
     version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
@@ -288,6 +286,11 @@ class Products(models.Model):
         db_table = 'products'
     def __str__(self):
         return self.name
+
+class ProductsFormatsThrough(models.Model):
+    products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
+    formats = models.ForeignKey(Formats, on_delete=models.DO_NOTHING)
+    amount = models.DecimalField(max_digits=10, decimal_places=3)
 
 
 

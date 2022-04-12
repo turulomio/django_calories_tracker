@@ -88,14 +88,13 @@ class SystemCompanies(models.Model):
     def __str__(self):
         return self.name
 
-
 class Formats(models.Model):
-    name = models.TextField(blank=True, null=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=3, blank=False, null=False)
+    name = models.TextField()
 
     class Meta:
         managed = True
         db_table = 'formats'
+        
     def __str__(self):
         return self.name
 
