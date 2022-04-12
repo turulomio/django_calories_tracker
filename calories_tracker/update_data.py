@@ -2,7 +2,7 @@
 from decimal import Decimal
 from json import loads
 from urllib import request as urllib_request
-from calories_tracker.models import Additives, AdditiveRisks, Activities, WeightWishes, FoodTypes, Formats, SystemCompanies, SystemProducts
+from calories_tracker.models import Additives, AdditiveRisks, SystemProductsFormatsThrough,  Activities, WeightWishes, FoodTypes, Formats, SystemCompanies, SystemProducts
 from calories_tracker.reusing.datetime_functions import string2dtaware
 _=str
 
@@ -30,8 +30,10 @@ def update_from_code():
         process_food_types(f)
     with open("calories_tracker/data/formats.json") as f:
         process_formats(f)
-    with open("calories_tracker/data/system_products.json") as p,  open("calories_tracker/data/system_products_additives.json") as a,     open("calories_tracker/data/system_products_formats.json") as f :
-        process_system_products(p, a, f)
+    with open("calories_tracker/data/system_products.json") as p,  open("calories_tracker/data/system_products_additives.json") as a:
+        process_system_products(p, a)
+    with open("calories_tracker/data/catalogs_systemproductsformatsthrough.json") as f:
+        process_catalogs_systemproductsformatsthrough(f)
     
 ## Used to update a started app
 def update_from_github():
@@ -44,6 +46,7 @@ def update_from_github():
     process_food_types()
     process_formats()
     process_system_products()
+    process_catalogs_systemproductsformatsthrough()
     
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
 def process_additive_risks(file_descriptor=None):
@@ -231,18 +234,15 @@ def process_system_companies(file_descriptor=None):
     return r
 
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_system_products(file_descriptor_p=None, file_descriptor_a=None, file_descriptor_f=None):
+def process_system_products(file_descriptor_p=None, file_descriptor_a=None):
     if file_descriptor_p is None:
         response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/system_products.json")
         products =  loads(response.read())
         response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/system_products_additives.json")
         additives =  loads(response.read())
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/system_products_formats.json")
-        formats =  loads(response.read())
     else:
         products=loads(file_descriptor_p.read())
         additives=loads(file_descriptor_a.read())
-        formats=loads(file_descriptor_f.read())
 
     rp={}
     rp["total"]=len(products["rows"])
@@ -287,9 +287,6 @@ def process_system_products(file_descriptor_p=None, file_descriptor_a=None, file
         for da in additives["rows"]:
             if da["systemproducts_id"]==dp['id']:
                 o.additives.add(Additives.objects.filter(pk=da['additives_id'])[0])
-        for df in formats["rows"]:
-            if df["systemproducts_id"]==dp['id']:
-                o.formats.add(Formats.objects.filter(pk=df['formats_id'])[0])
                
         qs_before=SystemProducts.objects.filter(pk=dp["id"])#Crash if not found
         if len(qs_before)==0:
@@ -300,3 +297,27 @@ def process_system_products(file_descriptor_p=None, file_descriptor_a=None, file
         o.save()
     print("SystemProducts", "Total:",  rp["total"], "Logs:", len(rp["logs"]))
     return rp
+
+## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
+def process_catalogs_systemproductsformatsthrough(file_descriptor=None):
+    if file_descriptor is None:
+        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/catalogs_systemproductsformatsthrough.json")
+        data =  loads(response.read())
+    else:
+        data=loads(file_descriptor.read())
+        
+    SystemProductsFormatsThrough.objects.all().delete()#Borra todos ya que se pueden borra en edición en dolthub y no se usan mas que para calculo no hay referencias.
+
+    r={}
+    r["total"]=len(data["rows"])
+    r["logs"]=[]
+    for d in data["rows"]:
+        o=SystemProductsFormatsThrough()
+        o.id=d["id"]
+        o.system_products=SystemProducts.objects.get(pk=d["system_products_id"])
+        o.formats=Formats.objects.get(pk=d["formats_id" ])
+        o.amount=checks_and_sets_value(d, "amount")
+        r["logs"].append({"object":str(o), "log":_("Created")})
+        o.save()
+    print("SystemProductsFormatsThrough", "Total:",  r["total"], "Logs:", len(r["logs"]))
+    return r

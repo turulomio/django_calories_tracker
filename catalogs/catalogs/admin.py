@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from catalogs.models import Activities, AdditiveRisks, WeightWishes, FoodTypes, Additives, Formats, SystemCompanies, SystemProducts
+from catalogs.models import Activities, SystemProductsFormatsThrough, AdditiveRisks, WeightWishes, FoodTypes, Additives, Formats, SystemCompanies, SystemProducts
 #from django.contrib.auth.models import User, Group
 #from django.urls import reverse_lazy
 from django.contrib import admin# Need to import this since auth models get registered on import.
@@ -57,12 +57,22 @@ class SystemCompaniesAdmin(admin.ModelAdmin):
     list_display = ['id','name', 'last', 'obsolete']
     ordering = ['name']
     search_fields = ['name']
+    
+    
+
+    
+class SystemProductsFormatsInLine(admin.TabularInline):
+    model = SystemProductsFormatsThrough
+    extra = 1
+    
 class SystemProductsAdmin(admin.ModelAdmin):
     model = SystemProducts
     list_display = ['id','name', 'system_companies', 'food_types',   'version', 'version_parent']
     ordering = ['name']
     search_fields = ['name']
     form = SystemProductsAdminForm
+    inlines = (SystemProductsFormatsInLine,)
+
 class WeightWishesAdmin(admin.ModelAdmin):
     model = WeightWishes
     list_display = ['id','name']

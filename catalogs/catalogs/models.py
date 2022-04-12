@@ -124,7 +124,7 @@ class SystemProducts(models.Model):
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     additives = models.ManyToManyField(Additives, blank=True)
     obsolete = models.BooleanField()
-    formats = models.ManyToManyField(Formats, blank=True)
+    formats = models.ManyToManyField(Formats, through='SystemProductsFormatsThrough', blank=True)
     
     version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
     version= models.DateTimeField(auto_now_add=True)
@@ -136,3 +136,7 @@ class SystemProducts(models.Model):
     def __str__(self):
         return self.name
 
+class SystemProductsFormatsThrough(models.Model):
+    system_products = models.ForeignKey(SystemProducts, on_delete=models.DO_NOTHING)
+    formats = models.ForeignKey(Formats, on_delete=models.DO_NOTHING)
+    amount = models.DecimalField(max_digits=10, decimal_places=3)

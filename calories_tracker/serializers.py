@@ -59,7 +59,7 @@ class FormatsSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
     class Meta:
         model = models.Formats
-        fields = ('url', 'id', 'name', 'localname', 'amount')
+        fields = ('url', 'id', 'name', 'localname')
 
     def get_localname(self, obj):
         return  _(obj.name)
@@ -68,7 +68,18 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Meals
         fields = ('url', 'id', 'datetime', 'products', 'amount')
+        
+
+
+class ProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ProductsFormatsThrough
+
+        fields = ('id','products',  'amount', 'formats' )
+        
 class ProductsSerializer(serializers.HyperlinkedModelSerializer):
+    formats= ProductsFormatsThroughSerializer(many=True, read_only=True, source="productsformatsthrough_set")
+
     class Meta:
         model = models.Products
         fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent')
@@ -84,7 +95,16 @@ class SystemCompaniesSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Companies
         fields = ('url', 'id', 'name', 'last', 'obsolete')
 
+
+class SystemProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.SystemProductsFormatsThrough
+
+        fields = ('id','system_products',  'amount', 'formats' )
+        
 class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
+    formats= SystemProductsFormatsThroughSerializer(many=True, read_only=True, source="systemproductsformatsthrough_set")
+
     class Meta:
         model = models.SystemProducts
         fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent')
