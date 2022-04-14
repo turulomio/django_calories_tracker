@@ -106,6 +106,13 @@ class BiometricsViewSet(viewsets.ModelViewSet):
     queryset = models.Biometrics.objects.all().order_by("datetime")
     serializer_class = serializers.BiometricsSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    
+    
+
+    def get_queryset(self):
+
+        
+        return models.Biometrics.objects.filter(user=self.request.user).order_by("datetime")
 class CompaniesViewSet(viewsets.ModelViewSet):
     queryset = models.Companies.objects.all()
     serializer_class = serializers.CompaniesSerializer

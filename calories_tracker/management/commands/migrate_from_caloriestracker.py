@@ -34,41 +34,51 @@ class Command(BaseCommand):
         
         user=User.objects.get(pk=1)
         print(user)
+        
+        for user_old in con_old.cursor_rows("select * from users order by id"):
+            user, created = User.objects.get_or_create(
+                first_name=user_old["name"],
+                username=user_old["name"].lower(),
+            )
+            
+            user.set_password(user.username)
+            user.save()
+        
+            for row in tqdm(con_old.cursor_rows("select * from biometrics where users_id=%s order by id", (user_old["id"], )), desc="Biometrics"):
+                p=models.Biometrics()
+                p.weight=row['weight']
+                p.height=row['height']
+                p.datetime=row['datetime']
+                p.activities=models.Activities.objects.get(pk=row['activity'])
+                p.weight_wishes=models.WeightWishes.objects.get(pk=row['weightwish'])
+                p.user=user
+                p.save()
 
-        for row in tqdm(con_old.cursor_rows("select * from biometrics order by id"), desc="Biometrics"):
-            p=models.Biometrics()
-            p.weight=row['weight']
-            p.height=row['height']
-            p.datetime=row['datetime']
-            p.activities=models.Activities.objects.get(pk=row['activity'])
-            p.weight_wishes=models.WeightWishes.objects.get(pk=row['weightwish'])
-            p.user=user
-            p.save()
-
-
-        for row in tqdm(con_old.cursor_rows("select * from elaboratedproducts order by id"), desc="ElaboratedProducts"):
-            row_in=con_old.cursor_rows("select * from products_in_elaboratedproducts where elaboratedproducts_id=%s", (row['id'], ))
-            if self.are_all_system_products(row_in):
-                ep=models.ElaboratedProducts()
-                ep.id=row["id"]
-                ep.name=row["name"]
-                ep.final_amount=row["final_amount"]
-                ep.last=row["last"]
-                ep.food_types=models.FoodTypes.objects.get(pk=row['foodtypes_id'])
-                ep.obsolete=row["obsolete"]
-                ep.user=user
-                ep.save()
-                print("EP", ep.name)
-                
-                for in_ in row_in:
-                    pin=models.ElaboratedProductsProductsInThrough()
-                    sp=models.SystemProducts.objects.get(pk=in_["products_id"])
-                    pin.products=sp.create_and_link_product(user)
-                    
-                    print("P", in_, pin.products.name)
-                    pin.amount=in_["amount"]
-                    pin.elaborated_products=ep
-                    pin.save()
+            
+            if user.id==2:
+                for row in tqdm(con_old.cursor_rows("select * from elaboratedproducts order by id"), desc="ElaboratedProducts"):
+                    row_in=con_old.cursor_rows("select * from products_in_elaboratedproducts where elaboratedproducts_id=%s", (row['id'], ))
+                    if self.are_all_system_products(row_in):
+                        ep=models.ElaboratedProducts()
+                        ep.id=row["id"]
+                        ep.name=row["name"]
+                        ep.final_amount=row["final_amount"]
+                        ep.last=row["last"]
+                        ep.food_types=models.FoodTypes.objects.get(pk=row['foodtypes_id'])
+                        ep.obsolete=row["obsolete"]
+                        ep.user=user
+                        ep.save()
+                        print("EP", ep.name)
+                        
+                        for in_ in row_in:
+                            pin=models.ElaboratedProductsProductsInThrough()
+                            sp=models.SystemProducts.objects.get(pk=in_["products_id"])
+                            pin.products=sp.create_and_link_product(user)
+                            
+                            print("P", in_, pin.products.name)
+                            pin.amount=in_["amount"]
+                            pin.elaborated_products=ep
+                            pin.save()
 
 
 
