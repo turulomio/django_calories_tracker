@@ -25,4 +25,10 @@ router.register(r'weight_wishes', calories_tracker_views.WeightWishesViewSet)
 urlpatterns = [
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
+    
+    path('home/', calories_tracker_views.home, name="home"), #La puso porque fallaba production con apache
+    path('login/', calories_tracker_views.login, name="login"), 
+    path('logout/', calories_tracker_views.logout, name="logout"), 
+    path('time/', calories_tracker_views.Time, name='Time'),
+    path('statistics/', calories_tracker_views.Statistics, name='Statistics'),
 ]

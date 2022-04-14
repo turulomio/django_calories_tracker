@@ -2,10 +2,21 @@
 from calories_tracker import serializers
 from calories_tracker import models
 from decimal import Decimal
+from django.contrib.auth.hashers import check_password
 from rest_framework import viewsets, permissions
+
+from rest_framework.decorators import api_view, permission_classes
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.utils import timezone
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+#from rest_framework import viewsets, permissions, status
+#from calories_tracker.requests_methods import RequestString
 
 
 from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib.auth.models import User # new
 
 from django.utils.translation import gettext_lazy as _
 # Create your views here.
@@ -21,6 +32,46 @@ class MyDjangoJSONEncoder(DjangoJSONEncoder):
         return super().default(o)
         
         
+@api_view(['POST'])
+def login(request):
+    try:
+        user=User.objects.get(username=request.POST.get("username"))
+    except User.DoesNotExist:
+        return Response("Invalid user")
+        
+    password=request.POST.get("password")
+    pwd_valid=check_password(password, user.password)
+    if not pwd_valid:
+        return Response("Wrong password")
+
+    if Token.objects.filter(user=user).exists():#Lo borra
+        token=Token.objects.get(user=user)
+        token.delete()
+    token=Token.objects.create(user=user)
+    return Response(token.key)
+    
+@api_view(['POST'])
+def logout(request):
+    token=Token.objects.get(key=request.POST.get("key"))
+    if token is None:
+        return Response("Invalid token")
+    else:
+        token.delete()
+        return Response("Logged out")
+
+
+
+@csrf_exempt
+@api_view(['GET', ])    
+def home(request):
+    return JsonResponse( True,  encoder=MyDjangoJSONEncoder,     safe=False)
+@csrf_exempt
+@api_view(['GET', ])
+@permission_classes([permissions.IsAuthenticated, ])
+def Time(request):
+    return JsonResponse( timezone.now(), encoder=MyDjangoJSONEncoder,     safe=False)
+    
+    
 class WeightWishesViewSet(viewsets.ModelViewSet):
     queryset = models.WeightWishes.objects.all()
     serializer_class = serializers.WeightWishesSerializer
@@ -52,7 +103,7 @@ class AdditivesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AdditivesSerializer
     permission_classes = [permissions.IsAuthenticated]      
 class BiometricsViewSet(viewsets.ModelViewSet):
-    queryset = models.Biometrics.objects.all()
+    queryset = models.Biometrics.objects.all().order_by("datetime")
     serializer_class = serializers.BiometricsSerializer
     permission_classes = [permissions.IsAuthenticated]      
 class CompaniesViewSet(viewsets.ModelViewSet):
@@ -89,7 +140,35 @@ class SystemCompaniesViewSet(viewsets.ModelViewSet):
     queryset = models.SystemCompanies.objects.all()
     serializer_class = serializers.SystemCompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]      
+
 class SystemProductsViewSet(viewsets.ModelViewSet):
     queryset = models.SystemProducts.objects.all()
     serializer_class = serializers.SystemProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    
+    
+    
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated, ])
+## Stores a filename encoded to base64 in a global variable
+## Global: base64_{name}.{extension}
+## @param only binary data, don't have to include data:image/png;base64 or similar
+## Para guardarlo a ficheros se puede hacer
+##    f=open(f"/tmp/{filename}", "wb")
+##    f.write(b64decode(data))
+##    f.close()
+### @global_ For Example: base64_assetsreport_report_annual_chart.png
+def Binary2Global(request):
+    pass
+    
+    
+
+@csrf_exempt
+@api_view(['GET', ])
+@permission_classes([permissions.IsAuthenticated, ])
+def Statistics(request):
+    r=[]
+    for name, cls in ((_("Activities"), models.Activities), (_("Additive risks"), models.AdditiveRisks), (_("Additives"), models.Additives), (_("Food types"),  models.FoodTypes)):
+        r.append({"name": name, "value":cls.objects.all().count()})
+    return JsonResponse(r, safe=False)

@@ -30,6 +30,17 @@ class BiometricsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Biometrics
         fields = ('url', 'id', 'datetime', 'height', 'weight', 'weight_wishes', 'activities')
+                
+    def create(self, validated_data):
+        validated_data['user']=self.context.get("request").user
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        return created
+#    
+#    ## Update doesn't update blob, only changes metadata
+#    def update(self, instance, validated_data):
+#        validated_data['blob']=instance.blob
+#        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+#        return updated
 class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Companies

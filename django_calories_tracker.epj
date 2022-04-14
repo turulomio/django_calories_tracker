@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-04-12, 12:18:00"
+    "saved": "2022-04-13, 09:07:03"
   },
   "project": {
     "AUTHOR": "",
@@ -51,8 +51,7 @@
     "MIXEDLANGUAGE": false,
     "OTHERS": [
       "README.md",
-      "django_calories_tracker.epj",
-      "catalogs/catalogs/management/commands/migrate_system_data_from_caloriestracker.py\u00e7"
+      "django_calories_tracker.epj"
     ],
     "OTHERTOOLSPARMS": {},
     "PACKAGERSPARMS": {},
@@ -116,7 +115,8 @@
       "catalogs/catalogs/management/commands/migrate_system_data_from_caloriestracker.py",
       "catalogs/catalogs/migrations/0006_remove_formats_amount_alter_formats_name.py",
       "catalogs/catalogs/migrations/0007_remove_systemproducts_formats.py",
-      "catalogs/catalogs/migrations/0008_systemproductsformatsthrough_systemproducts_formats_and_more.py"
+      "catalogs/catalogs/migrations/0008_systemproductsformatsthrough_systemproducts_formats_and_more.py",
+      "calories_tracker/requests_methods.py"
     ],
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
