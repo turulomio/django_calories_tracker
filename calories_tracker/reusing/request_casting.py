@@ -1,9 +1,41 @@
-from calories_tracker.models import Products
-from calories_tracker.reusing.casts import str2bool, string2list_of_integers
-from calories_tracker.reusing.datetime_functions import string2dtaware, string2date
 from decimal import Decimal
+from .casts import str2bool, string2list_of_integers
+from .datetime_functions import string2dtaware, string2date
 from urllib import parse
-    
+
+## Returns a model obect
+def RequestGetUrl(request, field, class_,  default=None):
+    try:
+        r = class_(request, request.GET.get(field))
+    except:
+        r=default
+    return r
+ 
+## Returns a model obect
+def RequestUrl(request, field, class_,  default=None):
+    try:
+        r = class_(request, request.data.get(field))
+    except:
+        r=default
+    return r 
+## Returns a model obect
+def RequestListUrl(request, field, class_,  default=None):
+    try:
+        r=[]
+        for f in request.data.get(field):
+            r.append(class_(request, f))
+    except:
+        r=default
+    return r
+
+def RequestDate(request, field, default=None):
+    try:
+        r = string2date(request.data.get(field))
+    except:
+        r=default
+    return r
+
+
 def RequestBool(request, field, default=None):
     try:
         r = str2bool(str(request.data.get(field)))
@@ -95,28 +127,7 @@ def RequestString(request, field, default=None):
         r=default
     return r
 
-
-def obj_from_url(request, url):
-    ## FALLA EN APACHE
-#    path = urllib.parse.urlparse(url).path
-#    print(path)
-#    resolved_func, unused_args, resolved_kwargs = resolve(path)
-#    print("RESOLVED", resolved_func, unused_args, resolved_kwargs)
-#    class_=resolved_func.cls()
-#    print("CLASS", class_)
-#    class_.request=request
-#    return class_.get_queryset().get(pk=int(resolved_kwargs['pk']))
-
-    parts = parse.urlparse(url).path.split("/")
-    type=parts[len(parts)-3]
-    id=parts[len(parts)-2]
-    if type =="products":
-        class_=Products
-    else:
-        print("obj_from_url not found", url)
-    return class_.objects.get(pk=id)
-    
-def id_from_url(request, url):
+def id_from_url(url):
     ## FALLA EN APACHE
 #    path = urllib.parse.urlparse(url).path
 #    resolved_func, unused_args, resolved_kwargs = resolve(path)
@@ -126,35 +137,6 @@ def id_from_url(request, url):
     path = parse.urlparse(url).path
     parts=path.split("/")
     return int(parts[len(parts)-2])
-
-## Returns a model obect
-def RequestGetUrl(request, field,  default=None):
-    try:
-        r = obj_from_url(request, request.GET.get(field))
-    except:
-        r=default
-    return r
- 
-## Returns a model obect
-def RequestUrl(request, field,  default=None):
-    try:
-        r = obj_from_url(request, request.data.get(field))
-    except:
-        r=default
-    return r 
-## Returns a model obect
-def RequestListUrl(request, field,  default=None):
-    try:
-        r=[]
-        for f in request.data.get(field):
-            r.append(obj_from_url(request, f))
-    except:
-        r=default
-    return r
-
-def RequestDate(request, field, default=None):
-    try:
-        r = string2date(request.data.get(field))
-    except:
-        r=default
-    return r
+    
+def object_from_url(url, class_):
+    return class_.objects.get(pk=id_from_url(url))

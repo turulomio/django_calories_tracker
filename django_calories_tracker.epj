@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-04-13, 09:07:03"
+    "saved": "2022-04-15, 10:09:59"
   },
   "project": {
     "AUTHOR": "",
@@ -116,7 +116,33 @@
       "catalogs/catalogs/migrations/0006_remove_formats_amount_alter_formats_name.py",
       "catalogs/catalogs/migrations/0007_remove_systemproducts_formats.py",
       "catalogs/catalogs/migrations/0008_systemproductsformatsthrough_systemproducts_formats_and_more.py",
-      "calories_tracker/requests_methods.py"
+      "catalogs/update_reusing.py",
+      "catalogs/catalogs/reusing/casts.py",
+      "catalogs/catalogs/reusing/lineal_regression.py",
+      "catalogs/catalogs/reusing/currency.py",
+      "catalogs/catalogs/reusing/percentage.py",
+      "catalogs/catalogs/reusing/github.py",
+      "catalogs/catalogs/reusing/decorators.py",
+      "catalogs/catalogs/reusing/call_by_name.py",
+      "catalogs/catalogs/reusing/datetime_functions.py",
+      "catalogs/catalogs/reusing/listdict_functions.py",
+      "catalogs/catalogs/reusing/libmanagers.py",
+      "catalogs/catalogs/reusing/connection_dj.py",
+      "catalogs/catalogs/reusing/connection_pg.py",
+      "calories_tracker/reusing/casts.py",
+      "calories_tracker/reusing/lineal_regression.py",
+      "calories_tracker/reusing/currency.py",
+      "calories_tracker/reusing/percentage.py",
+      "calories_tracker/reusing/text_inputs.py",
+      "calories_tracker/reusing/github.py",
+      "calories_tracker/reusing/decorators.py",
+      "calories_tracker/reusing/call_by_name.py",
+      "calories_tracker/reusing/datetime_functions.py",
+      "calories_tracker/reusing/listdict_functions.py",
+      "calories_tracker/reusing/libmanagers.py",
+      "calories_tracker/reusing/request_casting.py",
+      "calories_tracker/reusing/connection_dj.py",
+      "calories_tracker/reusing/connection_pg.py"
     ],
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
