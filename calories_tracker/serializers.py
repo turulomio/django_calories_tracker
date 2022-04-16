@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from calories_tracker import models
+from calories_tracker.reusing.request_casting import object_from_url
 
 
 class ActivitiesSerializer(serializers.HyperlinkedModelSerializer):
@@ -94,15 +95,13 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
-    is_deletable = serializers.SerializerMethodField()
-    is_editable = serializers.SerializerMethodField()
     class Meta:
         model = models.ProductsFormatsThrough
 
-        fields = ('products',  'amount', 'formats' , 'is_editable', 'is_deletable')
+        fields = ('amount', 'formats')
         
 class ProductsSerializer(serializers.HyperlinkedModelSerializer):
-    formats= ProductsFormatsThroughSerializer(many=True,  source="productsformatsthrough_set")
+    formats= ProductsFormatsThroughSerializer(many=True, read_only=True, source="productsformatsthrough_set")
     is_deletable = serializers.SerializerMethodField()
     is_editable = serializers.SerializerMethodField()
     uses = serializers.SerializerMethodField()
@@ -113,10 +112,43 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'is_editable', 'is_deletable', 'uses')
         
     def create(self, validated_data):
+        data=self.context.get("request").data
         validated_data['user']=self.context.get("request").user
         validated_data['version']=timezone.now()
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        created.save()
+        for d in data["formats"]:
+            #Create all new
+            th=models.ProductsFormatsThrough()
+            th.amount=d["amount"]
+            th.formats=object_from_url(d["formats"], models.Formats)
+            th.products=created
+            th.save()
+        
         return created
+        
+         
+    def update(self, instance, validated_data):
+        data=self.context.get("request").data
+        
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        updated.save()
+        
+        #Delete all
+        qs=models.ProductsFormatsThrough.objects.filter(products=updated)
+        if len(qs)>0:
+            qs.delete()
+
+        #Create all new
+        for d in data["formats"]:
+            th=models.ProductsFormatsThrough()
+            th.amount=d["amount"]
+            th.formats=object_from_url(d["formats"], models.Formats)
+            th.products=updated
+            th.save()
+        
+        return updated
+
 #
 #    def create(self):
 #        groups_data = validated_data.pop('groups')
