@@ -122,6 +122,7 @@ class SystemCompanies(models.Model):
     class Meta:
         managed = True
         db_table = 'system_companies'
+
     def is_fully_equal(self, other):
         if not self.name==other.name:
             return False
@@ -151,6 +152,7 @@ class SystemCompanies(models.Model):
         p.user=user
         p.save()
         return p
+
 class Companies(models.Model):
     name = models.TextField()
     last = models.DateTimeField(auto_now_add=True)
@@ -163,7 +165,23 @@ class Companies(models.Model):
         db_table = 'companies'
         
     def __str__(self):
-        return self.name
+        return self.named
+        
+    def uses(self):
+        if not hasattr(self, "_uses"):
+            self._uses=Products.objects.filter(companies=self).count()
+        return self._uses
+        
+    def is_editable(self):
+        if self.system_companies is None:
+            return True
+        return False
+        
+    def is_deletable(self):
+        if self.uses()>0:
+            return False
+        return True
+
 
 class Formats(models.Model):
     name = models.TextField()
@@ -388,9 +406,24 @@ class Products(models.Model):
     class Meta:
         managed = True
         db_table = 'products'
+
     def __str__(self):
         return self.name
+        
+    def uses(self):
+        if not hasattr(self, "_uses"):
+            self._uses=Meals.objects.filter(products=self).count() + ProductsFormatsThrough.objects.filter(products=self).count()
+        return self._uses
 
+    def is_editable(self):
+        if self.system_products is None:
+            return True
+        return False
+        
+    def is_deletable(self):
+        if self.uses()>0:
+            return False
+        return True
 
 class ProductsFormatsThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
@@ -398,6 +431,15 @@ class ProductsFormatsThrough(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=3)
 
 
+    def is_editable(self):
+        if self.products.system_products is None:
+            return True
+        return False
+        
+    def is_deletable(self):
+        if self.products.system_products is None:
+            return True
+        return False
 
 class ElaboratedProducts(models.Model):
     name = models.TextField()

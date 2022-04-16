@@ -55,7 +55,7 @@ class Command(BaseCommand):
                 p.save()
 
             
-            if user.id==2:
+            if user_old["id"]==1:
                 for row in tqdm(con_old.cursor_rows("select * from elaboratedproducts order by id"), desc="ElaboratedProducts"):
                     row_in=con_old.cursor_rows("select * from products_in_elaboratedproducts where elaboratedproducts_id=%s", (row['id'], ))
                     if self.are_all_system_products(row_in):

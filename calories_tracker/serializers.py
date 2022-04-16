@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from calories_tracker import models
 
@@ -35,16 +36,26 @@ class BiometricsSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['user']=self.context.get("request").user
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         return created
-#    
-#    ## Update doesn't update blob, only changes metadata
-#    def update(self, instance, validated_data):
-#        validated_data['blob']=instance.blob
-#        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
-#        return updated
+
 class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
+    is_deletable = serializers.SerializerMethodField()
+    is_editable = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Companies
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'system_companies')
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'system_companies', 'is_editable', 'is_deletable')
+        
+    def create(self, validated_data):
+        validated_data['user']=self.context.get("request").user
+        validated_data['last']=timezone.now()
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        return created
+
+    def get_is_deletable(self, o):
+        return o.is_deletable()
+
+    def get_is_editable(self, o):
+        return o.is_editable()
 
 class ElaboratedProductsProductsInThroughSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -83,18 +94,46 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
+    is_deletable = serializers.SerializerMethodField()
+    is_editable = serializers.SerializerMethodField()
     class Meta:
         model = models.ProductsFormatsThrough
 
-        fields = ('id','products',  'amount', 'formats' )
+        fields = ('products',  'amount', 'formats' , 'is_editable', 'is_deletable')
         
 class ProductsSerializer(serializers.HyperlinkedModelSerializer):
-    formats= ProductsFormatsThroughSerializer(many=True, read_only=True, source="productsformatsthrough_set")
+    formats= ProductsFormatsThroughSerializer(many=True,  source="productsformatsthrough_set")
+    is_deletable = serializers.SerializerMethodField()
+    is_editable = serializers.SerializerMethodField()
+    uses = serializers.SerializerMethodField()
+
 
     class Meta:
         model = models.Products
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent')
+        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'is_editable', 'is_deletable', 'uses')
+        
+    def create(self, validated_data):
+        validated_data['user']=self.context.get("request").user
+        validated_data['version']=timezone.now()
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        return created
+#
+#    def create(self):
+#        groups_data = validated_data.pop('groups')
+#        member = Member.objects.create(**validated_data)
+#        for group in groups_data:
+#            memberships_data = group.pop('memberships')
+#            Group.objects.create(member=member, **group)
+#            for memberhip in memberships:
+#                Membership.objects.create(group=group, **memberships)
+    def get_is_deletable(self, o):
+        return o.is_deletable()
 
+    def get_is_editable(self, o):
+        return o.is_editable()
+        
+    def get_uses(self, o):
+        return o.uses()
 
 class ProfilesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -103,7 +142,7 @@ class ProfilesSerializer(serializers.HyperlinkedModelSerializer):
 
 class SystemCompaniesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = models.Companies
+        model = models.SystemCompanies
         fields = ('url', 'id', 'name', 'last', 'obsolete')
 
 

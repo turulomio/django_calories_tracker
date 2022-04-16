@@ -1,6 +1,7 @@
 
 from calories_tracker import serializers
 from calories_tracker import models
+from calories_tracker.reusing.request_casting import RequestGetString, all_args_are_not_none, RequestGetUrl
 from decimal import Decimal
 from django.contrib.auth.hashers import check_password
 from rest_framework import viewsets, permissions
@@ -106,17 +107,16 @@ class BiometricsViewSet(viewsets.ModelViewSet):
     queryset = models.Biometrics.objects.all().order_by("datetime")
     serializer_class = serializers.BiometricsSerializer
     permission_classes = [permissions.IsAuthenticated]      
-    
-    
 
     def get_queryset(self):
-
-        
         return models.Biometrics.objects.filter(user=self.request.user).order_by("datetime")
+
 class CompaniesViewSet(viewsets.ModelViewSet):
     queryset = models.Companies.objects.all()
     serializer_class = serializers.CompaniesSerializer
-    permission_classes = [permissions.IsAuthenticated]      
+    permission_classes = [permissions.IsAuthenticated]
+
+
 class ElaboratedProductsViewSet(viewsets.ModelViewSet):
     queryset = models.ElaboratedProducts.objects.all()
     serializer_class = serializers.ElaboratedProductsSerializer
@@ -129,6 +129,19 @@ class FormatsViewSet(viewsets.ModelViewSet):
     queryset = models.Formats.objects.all()
     serializer_class = serializers.FormatsSerializer
     permission_classes = [permissions.IsAuthenticated]  
+    
+    
+class ProductsFormatsThroughViewSet(viewsets.ModelViewSet):
+    queryset = models.ProductsFormatsThrough.objects.all()
+    serializer_class = serializers.ProductsFormatsThroughSerializer
+    permission_classes = [permissions.IsAuthenticated]  
+    ## api/formats/product=url. Search all formats of a product
+    def get_queryset(self):
+        product=RequestGetUrl(self.request, 'product', models.Products) 
+        if all_args_are_not_none(product):
+            return models.ProductsFormatsThrough.objects.filter(products=product)
+        return self.queryset
+    
 class MealsViewSet(viewsets.ModelViewSet):
     queryset = models.Meals.objects.all()
     serializer_class = serializers.MealsSerializer
@@ -148,11 +161,32 @@ class SystemCompaniesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SystemCompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]      
 
+    ## api/system_companies/search=hol. Search all system companies that desn't hava a company jet with hol
+    def get_queryset(self):
+        search=RequestGetString(self.request, 'search') 
+        if all_args_are_not_none(search):
+            ## Gets system_companies_id already in companies
+            ids_in_companies=models.Companies.objects.filter(user=self.request.user).values("system_companies_id")
+            ## Filter by name and exclude already
+            return models.SystemCompanies.objects.filter(name__icontains=search).exclude(id__in=[o['system_companies_id'] for o in ids_in_companies])
+        return self.queryset
+
+
 class SystemProductsViewSet(viewsets.ModelViewSet):
     queryset = models.SystemProducts.objects.all()
     serializer_class = serializers.SystemProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
+    ## api/system_products/search=hol. Search all system products that desn't hava a product yet with hol
+    def get_queryset(self):
+        search=RequestGetString(self.request, 'search') 
+        if all_args_are_not_none(search):
+            ## Gets system_companies_id already in companies
+            ids_in_products=models.Products.objects.filter(user=self.request.user).values("system_products_id")
+            ## Filter by name and exclude already
+            return models.SystemProducts.objects.filter(name__icontains=search).exclude(id__in=[o['system_products_id'] for o in ids_in_products])
+        return self.queryset
+
     
     
 @csrf_exempt
