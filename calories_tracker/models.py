@@ -294,6 +294,7 @@ class SystemProducts(models.Model):
     def update_linked_product(self, user):
         #Search for system_productst in Products
         qs=Products.objects.filter(system_products=self, user=user)
+        print(qs)
         if len(qs)==0: # Product must be created
             p=Products()
         else:
@@ -323,7 +324,8 @@ class SystemProducts(models.Model):
         p.obsolete=self.obsolete
         if self.system_companies is not None:
             p.companies=self.system_companies.update_linked_company(user)
-        p.version_parent=self.version_parent
+        if self.version_parent is not None:
+            p.version_parent=self.version_parent.update_linked_product(user)
         p.version=self.version
         p.version_description=self.version_description
         p.user=user
@@ -394,6 +396,17 @@ class Products(models.Model):
 
     def __str__(self):
         return self.name
+        
+    def fullname(self):
+        company=""
+        if self.companies is not None:
+            company=f" ({self.companies.name})"
+        version_parent=""
+        if self.version_parent is not None:
+            version_parent=f" v{self.version.date()}"
+        
+        
+        return f"{self.name}{company}{version_parent}"
         
     def uses(self):
         if not hasattr(self, "_uses"):
@@ -534,11 +547,11 @@ class Meals(models.Model):
         return f"{self.products} ({self.amount}g)"
         
     ## name can be, fat, saturated_fat, fiber, sodiumm...
-    def getProductComponent(self, name):
+    def getProductComponent(self, name, decimals=2):
         component=getattr(self.products, name)
         if component is None or self.products.amount==0:
             return None
-        return self.amount*component/self.products.amount
+        return round(self.amount*component/self.products.amount, decimals)
 
 class Profiles(models.Model):
     male = models.BooleanField()

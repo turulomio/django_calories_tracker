@@ -1,7 +1,7 @@
 
 from calories_tracker import serializers
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl
 from decimal import Decimal
 from django.contrib.auth.hashers import check_password
 from django.core.serializers.json import DjangoJSONEncoder
@@ -182,7 +182,20 @@ class SystemProductsViewSet(viewsets.ModelViewSet):
             ## Filter by name and exclude already
             return models.SystemProducts.objects.filter(name__icontains=search).exclude(id__in=[o['system_products_id'] for o in ids_in_products])
         return self.queryset
+    
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated, ])
 
+## Links a systemproduct to a product. No todos los system products están por eso se linka
+def SystemProduct2Product(request):
+    system_products=RequestUrl(request, "system_products", models.SystemProducts)
+    if all_args_are_not_none(system_products):
+        system_products.update_linked_product(request.user)
+        return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
+    return JsonResponse( False, encoder=MyDjangoJSONEncoder,     safe=False)
+    
+    
     
     
 @csrf_exempt

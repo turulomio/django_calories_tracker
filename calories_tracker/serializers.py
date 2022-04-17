@@ -219,7 +219,7 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
         return created
         
     def get_calories(self, o):
-        return o.getProductComponent("calories")
+        return o.getProductComponent("calories", 0)
     def get_fat(self, o):
         return o.getProductComponent("fat")
     def get_protein(self, o):
@@ -262,11 +262,12 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
     is_deletable = serializers.SerializerMethodField()
     is_editable = serializers.SerializerMethodField()
     uses = serializers.SerializerMethodField()
+    fullname = serializers.SerializerMethodField()
 
 
     class Meta:
         model = models.Products
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'is_editable', 'is_deletable', 'uses')
+        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'is_editable', 'is_deletable', 'uses', 'fullname')
         
     def create(self, validated_data):
         data=self.context.get("request").data
@@ -307,6 +308,9 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
             th.save()
         
         return updated
+
+    def get_fullname(self, o):
+        return o.fullname()
 
     def get_is_deletable(self, o):
         return o.is_deletable()

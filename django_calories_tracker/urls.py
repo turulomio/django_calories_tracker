@@ -31,4 +31,5 @@ urlpatterns = [
     path('logout/', calories_tracker_views.logout, name="logout"), 
     path('time/', calories_tracker_views.Time, name='Time'),
     path('statistics/', calories_tracker_views.Statistics, name='Statistics'),
+    path('system_products_to_products/', calories_tracker_views.SystemProduct2Product, name='SystemProduct2Product'),
 ]
