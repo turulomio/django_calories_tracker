@@ -90,9 +90,12 @@ class FormatsSerializer(serializers.HyperlinkedModelSerializer):
 class MealsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Meals
-        fields = ('url', 'id', 'datetime', 'products', 'amount')
-        
+        fields = ('url', 'id', 'datetime', 'products', 'amount')       
 
+    def create(self, validated_data):
+        validated_data['user']=self.context.get("request").user
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        return created
 
 class ProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -149,15 +152,6 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         
         return updated
 
-#
-#    def create(self):
-#        groups_data = validated_data.pop('groups')
-#        member = Member.objects.create(**validated_data)
-#        for group in groups_data:
-#            memberships_data = group.pop('memberships')
-#            Group.objects.create(member=member, **group)
-#            for memberhip in memberships:
-#                Membership.objects.create(group=group, **memberships)
     def get_is_deletable(self, o):
         return o.is_deletable()
 

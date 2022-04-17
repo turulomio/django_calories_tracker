@@ -1,26 +1,19 @@
 
 from calories_tracker import serializers
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import RequestGetString, all_args_are_not_none, RequestGetUrl
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestGetUrl
 from decimal import Decimal
 from django.contrib.auth.hashers import check_password
-from rest_framework import viewsets, permissions
-
-from rest_framework.decorators import api_view, permission_classes
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.utils import timezone
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-#from rest_framework import viewsets, permissions, status
-#from calories_tracker.requests_methods import RequestString
-
-
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User # new
-
+from django.http import JsonResponse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-# Create your views here.
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets, permissions
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
 
 class MyDjangoJSONEncoder(DjangoJSONEncoder):    
     def default(self, o):
@@ -77,17 +70,6 @@ class WeightWishesViewSet(viewsets.ModelViewSet):
     queryset = models.WeightWishes.objects.all()
     serializer_class = serializers.WeightWishesSerializer
     permission_classes = [permissions.IsAuthenticated]      
-#    
-#    def get_queryset(self):
-#        active=RequestGetBool(self.request, 'active')
-#        account_id=RequestGetInteger(self.request, 'account')
-#
-#        if account_id is not None and active is not None:
-#            return self.queryset.filter(accounts_id=account_id,  active=active)
-#        elif active is not None:
-#            return self.queryset.filter(active=active)
-#        else:
-#            return self.queryset.all()
 
 class ActivitiesViewSet(viewsets.ModelViewSet):
     queryset = models.Activities.objects.all()
@@ -147,6 +129,13 @@ class MealsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.MealsSerializer
     permission_classes = [permissions.IsAuthenticated]      
 
+    ## api/formats/product=url. Search all formats of a product
+    def get_queryset(self):
+        day=RequestGetDate(self.request, 'day') 
+        if all_args_are_not_none(day):
+            return models.Meals.objects.filter(user=self.request.user, datetime__date=day).order_by("datetime")
+        return self.queryset
+    
 class ProductsViewSet(viewsets.ModelViewSet):
     queryset = models.Products.objects.all()
     serializer_class = serializers.ProductsSerializer
