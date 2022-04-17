@@ -137,7 +137,7 @@ class SystemCompanies(models.Model):
                 
     ## @param sp SystemProducts to link to Product
     ## Solo debe usarse cuando se linke o se sepa que es un systemproduct
-    def create_and_link_company(self, user):
+    def update_linked_company(self, user):
         #Search for system_productst in Products
         qs=Companies.objects.filter(system_companies=self, user=user)
         if len(qs)==0: # Product must be created
@@ -291,7 +291,7 @@ class SystemProducts(models.Model):
                 
     ## @param sp SystemProducts to link to Product
     ## Solo debe usarse cuando se linke o se sepa que es un systemproduct
-    def create_and_link_product(self, user):
+    def update_linked_product(self, user):
         #Search for system_productst in Products
         qs=Products.objects.filter(system_products=self, user=user)
         if len(qs)==0: # Product must be created
@@ -322,7 +322,7 @@ class SystemProducts(models.Model):
         p.food_types=self.food_types
         p.obsolete=self.obsolete
         if self.system_companies is not None:
-            p.companies=self.system_companies.create_and_link_company(user)
+            p.companies=self.system_companies.update_linked_company(user)
         p.version_parent=self.version_parent
         p.version=self.version
         p.version_description=self.version_description
@@ -333,7 +333,6 @@ class SystemProducts(models.Model):
         p.save()
         
         for f in self.formats.all():
-            print(f)
             spft=SystemProductsFormatsThrough.objects.get(system_products=self, formats=f)
 
             th=ProductsFormatsThrough()
@@ -398,7 +397,7 @@ class Products(models.Model):
         
     def uses(self):
         if not hasattr(self, "_uses"):
-            self._uses=Meals.objects.filter(products=self).count() + ProductsFormatsThrough.objects.filter(products=self).count()
+            self._uses=Meals.objects.filter(products=self).count() + ProductsFormatsThrough.objects.filter(products=self).count() + ElaboratedProductsProductsInThrough.objects.filter(products=self).count()
         return self._uses
 
     def is_editable(self):
@@ -444,8 +443,8 @@ class ElaboratedProducts(models.Model):
         
     def uses(self):
         if not hasattr(self, "_uses"):
-            product_associated=Products.objects.get(elaborated_products=self)
-            self._uses=Meals.objects.filter(products=product_associated).count()
+            product_associated=Products.objects.get(elaborated_products=self, user=self.user)
+            self._uses=Meals.objects.filter(products=product_associated, user=self.user).count()
         return self._uses
         
     def is_deletable(self):
@@ -466,7 +465,7 @@ class ElaboratedProducts(models.Model):
         return True
 
     def update_associated_product(self):
-        qs=Products.objects.filter(elaborated_products=self)
+        qs=Products.objects.filter(elaborated_products=self, user=self.user)
         if len(qs)==0: #Doesn't exist
             p=Products()
         else:
@@ -497,7 +496,7 @@ class ElaboratedProducts(models.Model):
         p.phosphor=self.getElaboratedProductComponent("phosphor")
         p.calcium=self.getElaboratedProductComponent("calcium")
         p.save()
-        
+        return p
         
     ## name can be, fat, saturated_fat, fiber, sodiumm...
     ## @param if Total==False gives component in 100 gramos, else givves component in final_amount gramos
@@ -525,7 +524,7 @@ class Meals(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
     amount = models.DecimalField(max_digits=10, decimal_places=3)
     products = models.ForeignKey(Products, models.DO_NOTHING)
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField()
 
     class Meta:
         managed = True
