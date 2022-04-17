@@ -6,6 +6,7 @@ from calories_tracker.models import Additives, AdditiveRisks, SystemProductsForm
 from calories_tracker.reusing.datetime_functions import string2dtaware
 _=str
 
+from django.contrib.auth.models import User
 
 def checks_and_sets_value(d, key):
     if key not in d:
@@ -297,6 +298,8 @@ def process_system_products(file_descriptor_p=None, file_descriptor_a=None):
             if not o.is_fully_equal(qs_before[0]):
                 rp["logs"].append({"object":str(o), "log":_("Updated")})
         o.save()
+        
+    
     print("SystemProducts", "Total:",  rp["total"], "Logs:", len(rp["logs"]))
     return rp
 
@@ -322,4 +325,10 @@ def process_catalogs_systemproductsformatsthrough(file_descriptor=None):
         r["logs"].append({"object":str(o), "log":_("Created")})
         o.save()
     print("SystemProductsFormatsThrough", "Total:",  r["total"], "Logs:", len(r["logs"]))
+    
+    
+    ## Updates all products links
+    for user in User.objects.all():
+        SystemProducts.update_all_linked_products(user)
+    print("Update_all_linked_products")
     return r

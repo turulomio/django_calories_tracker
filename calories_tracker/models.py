@@ -306,7 +306,6 @@ class SystemProducts(models.Model):
     def update_linked_product(self, user):
         #Search for system_productst in Products
         qs=Products.objects.filter(system_products=self, user=user)
-        print(qs)
         if len(qs)==0: # Product must be created
             p=Products()
         else:
@@ -358,6 +357,18 @@ class SystemProducts(models.Model):
             
         p.save()
         return p
+        
+    @staticmethod
+    def update_all_linked_products( user):
+        
+            ## Gets system_companies_id already in companies
+            system_products_ids_in_products=Products.objects.filter(user=user, system_products__isnull=False).values("system_products_id")
+            print(system_products_ids_in_products)
+            ## Filter by name and exclude already
+            qs=SystemProducts.objects.filter(id__in=system_products_ids_in_products)
+            for sp in qs:
+                sp.update_linked_product(user)
+        
 
 class SystemProductsFormatsThrough(models.Model):
     system_products = models.ForeignKey(SystemProducts, on_delete=models.DO_NOTHING)
