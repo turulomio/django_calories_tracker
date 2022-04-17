@@ -455,7 +455,45 @@ class ElaboratedProducts(models.Model):
         db_table = 'elaborated_products'
     def __str__(self):
         return self.name
+        
+    def uses(self):
+        if not hasattr(self, "_uses"):
+            product_associated=Products.objects.get(elaborated_products=self)
+            self._uses=Meals.objects.filter(products=product_associated).count()
+        return self._uses
+        
+    def is_deletable(self):
+        if self.uses() >0:
+            return False
+        return True
 
+
+    def update_associated_product(self):
+        def products_in_glutenfree(qs):
+            for pi in qs:
+                if pi.products.glutenfree is False:
+                    return False
+            return True
+        
+        
+        qs=Products.objects.filter(elaborated_products=self)
+        if len(qs)==0: #Doesn't exist
+            p=Products()
+        else:
+            p=qs[0]
+        
+        products_in=ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=self)
+            
+        p.name=self.name
+        p.elaborated_products=self
+        p.calories=0
+        p.amount=100
+        p.glutenfree=products_in_glutenfree(products_in)
+        p.obsolete=self.obsolete
+        p.food_types=self.food_types
+        p.user=self.user
+        p.save()
+        
 
 class ElaboratedProductsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)

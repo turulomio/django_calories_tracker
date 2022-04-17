@@ -62,14 +62,64 @@ class ElaboratedProductsProductsInThroughSerializer(serializers.HyperlinkedModel
     class Meta:
         model = models.ElaboratedProductsProductsInThrough
 
-        fields = ('id','products',  'amount', 'elaborated_products' )
+        fields = ('products',  'amount', 'elaborated_products' )
         
 class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
+    is_deletable = serializers.SerializerMethodField()
+    uses = serializers.SerializerMethodField()
     products_in = ElaboratedProductsProductsInThroughSerializer(many=True, read_only=True, source="elaboratedproductsproductsinthrough_set")
     class Meta:
         model = models.ElaboratedProducts
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types', 'final_amount', 'products_in')
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types', 'final_amount', 'products_in', 'uses', 'is_deletable')
+
+    def create(self, validated_data):
+        data=self.context.get("request").data
+        validated_data['user']=self.context.get("request").user
+        validated_data['last']=timezone.now()
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        created.save()
+        for d in data["products_in"]:
+            print(d)
+            #Create all new
+            th=models.ElaboratedProductsProductsInThrough()
+            th.amount=d["amount"]
+            th.products=object_from_url(d["products"], models.Products)
+            th.elaborated_products=created
+            th.save()
+        created.update_associated_product()
+        return created
         
+         
+    def update(self, instance, validated_data):
+        data=self.context.get("request").data
+        validated_data['user']=self.context.get("request").user
+        validated_data['last']=timezone.now()
+        
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        updated.save()
+        
+        #Delete all
+        qs=models.ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=updated)
+        if len(qs)>0:
+            qs.delete()
+
+        #Create all new
+        for d in data["products_in"]:
+            th=models.ElaboratedProductsProductsInThrough()
+            th.amount=d["amount"]
+            th.products=object_from_url(d["products"], models.Products)
+            th.elaborated_products=updated
+            th.save()
+        
+        updated.update_associated_product()
+        return updated
+        
+        
+    def get_is_deletable(self, o):
+        return o.is_deletable()
+        
+    def get_uses(self, o):
+        return o.uses()
 class FoodTypesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
     class Meta:
@@ -133,6 +183,8 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
          
     def update(self, instance, validated_data):
         data=self.context.get("request").data
+        validated_data['user']=self.context.get("request").user
+        validated_data['version']=timezone.now()
         
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
         updated.save()

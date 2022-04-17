@@ -1,7 +1,7 @@
 
 from calories_tracker import serializers
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestGetUrl
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none
 from decimal import Decimal
 from django.contrib.auth.hashers import check_password
 from django.core.serializers.json import DjangoJSONEncoder
@@ -103,6 +103,20 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
     queryset = models.ElaboratedProducts.objects.all()
     serializer_class = serializers.ElaboratedProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        qs_products_in=models.ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=instance)
+        qs_products_in.delete()
+        #Destroy asoociated product
+        qs=models.Products.objects.filter(elaborated_products=instance  )
+        if len(qs)>0:
+            qs[0].delete()
+        self.perform_destroy(instance)
+        return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
+    
+    
 class FoodTypesViewSet(viewsets.ModelViewSet):
     queryset = models.FoodTypes.objects.all()
     serializer_class = serializers.FoodTypesSerializer
@@ -111,18 +125,7 @@ class FormatsViewSet(viewsets.ModelViewSet):
     queryset = models.Formats.objects.all()
     serializer_class = serializers.FormatsSerializer
     permission_classes = [permissions.IsAuthenticated]  
-    
-    
-class ProductsFormatsThroughViewSet(viewsets.ModelViewSet):
-    queryset = models.ProductsFormatsThrough.objects.all()
-    serializer_class = serializers.ProductsFormatsThroughSerializer
-    permission_classes = [permissions.IsAuthenticated]  
-    ## api/formats/product=url. Search all formats of a product
-    def get_queryset(self):
-        product=RequestGetUrl(self.request, 'product', models.Products) 
-        if all_args_are_not_none(product):
-            return models.ProductsFormatsThrough.objects.filter(products=product)
-        return self.queryset
+
     
 class MealsViewSet(viewsets.ModelViewSet):
     queryset = models.Meals.objects.all()

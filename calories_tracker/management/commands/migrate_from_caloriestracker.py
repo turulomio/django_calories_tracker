@@ -68,6 +68,7 @@ class Command(BaseCommand):
                         ep.obsolete=row["obsolete"]
                         ep.user=user
                         ep.save()
+                        ep.update_associated_product()
                         print("EP", ep.name)
                         
                         for in_ in row_in:
