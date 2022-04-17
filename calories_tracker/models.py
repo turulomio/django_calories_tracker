@@ -331,32 +331,18 @@ class SystemProducts(models.Model):
 
         p.additives.set(self.additives.all())
         p.save()
-#        print(dir(self))
-#        print(self.systemproductsformatsthrough_set, self.systemproductsformatsthrough_set.__class__)
-#        print(dir(self.systemproductsformatsthrough_set))
-#        print(dir(self.formats), self.formats.__class__)
+        
         for f in self.formats.all():
             print(f)
             spft=SystemProductsFormatsThrough.objects.get(system_products=self, formats=f)
 
-#            print("-start-")
-#            print(f)
-#            print(f.systemproductsformatsthrough_set.values())
-#            print(p)
-#        print(self.systemproductsformatsthrough_set.all())
-#        for value in self.systemproductsformatsthrough_set.all():
             th=ProductsFormatsThrough()
             th.amount=spft.amount
             th.formats=spft.formats
             th.products=p
             
-            print("PFT", spft.system_products.name,  th.amount, th.formats.name, p)
             th.save()
             
-#        for amount in self.systemproductsformatsthrough_set.list_values():
-#            th=ProductsFormatsThrough()
-#            th.amount=amount
-#            print (th, th.__class__)
         p.save()
         return p
 
@@ -466,34 +452,68 @@ class ElaboratedProducts(models.Model):
         if self.uses() >0:
             return False
         return True
+        
+    def get_products_in(self):
+        if not hasattr(self, "_products_in") :
+            self._products_in=ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=self)
+        return self._products_in
 
+
+    def is_glutenfree(self):
+        for pi in self.get_products_in():
+            if pi.products.glutenfree is False:
+                return False
+        return True
 
     def update_associated_product(self):
-        def products_in_glutenfree(qs):
-            for pi in qs:
-                if pi.products.glutenfree is False:
-                    return False
-            return True
-        
-        
         qs=Products.objects.filter(elaborated_products=self)
         if len(qs)==0: #Doesn't exist
             p=Products()
         else:
             p=qs[0]
-        
-        products_in=ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=self)
-            
+                    
         p.name=self.name
         p.elaborated_products=self
-        p.calories=0
         p.amount=100
-        p.glutenfree=products_in_glutenfree(products_in)
+        p.glutenfree=self.is_glutenfree()
         p.obsolete=self.obsolete
         p.food_types=self.food_types
         p.user=self.user
+        
+        p.calories=self.getElaboratedProductComponent("calories")
+        p.fat=self.getElaboratedProductComponent("fat")
+        p.protein=self.getElaboratedProductComponent("protein")
+        p.carbohydrate=self.getElaboratedProductComponent("carbohydrate")
+        p.calories=self.getElaboratedProductComponent("calories")
+        p.salt=self.getElaboratedProductComponent("salt")
+        p.cholesterol=self.getElaboratedProductComponent("cholesterol")
+        p.sodium=self.getElaboratedProductComponent("sodium")
+        p.potassium=self.getElaboratedProductComponent("potassium")
+        p.fiber=self.getElaboratedProductComponent("fiber")
+        p.sugars=self.getElaboratedProductComponent("sugars")
+        p.saturated_fat=self.getElaboratedProductComponent("saturated_fat")
+        p.ferrum=self.getElaboratedProductComponent("ferrum")
+        p.magnesium=self.getElaboratedProductComponent("magnesium")
+        p.phosphor=self.getElaboratedProductComponent("phosphor")
+        p.calcium=self.getElaboratedProductComponent("calcium")
         p.save()
         
+        
+    ## name can be, fat, saturated_fat, fiber, sodiumm...
+    ## @param if Total==False gives component in 100 gramos, else givves component in final_amount gramos
+    def getElaboratedProductComponent(self, name, total=False):
+        all_pi_component=0
+        for pi in self.get_products_in():
+            pi_product_amount=pi.products.amount
+            pi_product_component=getattr(pi.products, name)
+            if pi_product_component is None or pi_product_amount==0:
+                return None
+            all_pi_component=all_pi_component+ pi.amount*pi_product_component/pi_product_amount
+            
+        if total is True:
+            return round(all_pi_component, 3)
+        else:
+            return round(100*all_pi_component/self.final_amount, 3)
 
 class ElaboratedProductsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
@@ -513,6 +533,13 @@ class Meals(models.Model):
 
     def __str__(self):
         return f"{self.products} ({self.amount}g)"
+        
+    ## name can be, fat, saturated_fat, fiber, sodiumm...
+    def getProductComponent(self, name):
+        component=getattr(self.products, name)
+        if component is None or self.products.amount==0:
+            return None
+        return self.amount*component/self.products.amount
 
 class Profiles(models.Model):
     male = models.BooleanField()

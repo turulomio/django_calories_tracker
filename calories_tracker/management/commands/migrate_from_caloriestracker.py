@@ -68,18 +68,19 @@ class Command(BaseCommand):
                         ep.obsolete=row["obsolete"]
                         ep.user=user
                         ep.save()
-                        ep.update_associated_product()
-                        print("EP", ep.name)
+#                        print("EP", ep.name)
                         
                         for in_ in row_in:
                             pin=models.ElaboratedProductsProductsInThrough()
                             sp=models.SystemProducts.objects.get(pk=in_["products_id"])
                             pin.products=sp.create_and_link_product(user)
                             
-                            print("P", in_, pin.products.name)
+#                            print("P", in_, pin.products.name)
                             pin.amount=in_["amount"]
                             pin.elaborated_products=ep
                             pin.save()
+                            
+                        ep.update_associated_product()
 
 
 
