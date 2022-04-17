@@ -284,9 +284,21 @@ class SystemProducts(models.Model):
             return False
         if not self.version==other.version:
             return False
-        
+
     def __str__(self):
-        return self.name
+        return self.fullname()
+        
+    def fullname(self):
+        company=""
+        if self.system_companies is not None:
+            company=f" ({self.system_companies.name})"
+        version_parent=""
+        if self.version_parent is not None:
+            version_parent=f" v{self.version.date()}"
+        
+        
+        return f"{self.name}{company}{version_parent}"
+        
         
                 
     ## @param sp SystemProducts to link to Product
@@ -395,7 +407,7 @@ class Products(models.Model):
         db_table = 'products'
 
     def __str__(self):
-        return self.name
+        return self.fullname()
         
     def fullname(self):
         company=""
@@ -414,7 +426,7 @@ class Products(models.Model):
         return self._uses
 
     def is_editable(self):
-        if self.system_products is None:
+        if self.system_products is None and self.elaborated_products is None:
             return True
         return False
         
@@ -523,9 +535,9 @@ class ElaboratedProducts(models.Model):
             all_pi_component=all_pi_component+ pi.amount*pi_product_component/pi_product_amount
             
         if total is True:
-            return round(all_pi_component, 3)
+            return all_pi_component
         else:
-            return round(100*all_pi_component/self.final_amount, 3)
+            return 100*all_pi_component/self.final_amount
 
 class ElaboratedProductsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
@@ -551,7 +563,7 @@ class Meals(models.Model):
         component=getattr(self.products, name)
         if component is None or self.products.amount==0:
             return None
-        return round(self.amount*component/self.products.amount, decimals)
+        return self.amount*component/self.products.amount
 
 class Profiles(models.Model):
     male = models.BooleanField()

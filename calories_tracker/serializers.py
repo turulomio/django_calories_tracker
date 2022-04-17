@@ -341,15 +341,19 @@ class SystemProductsFormatsThroughSerializer(serializers.HyperlinkedModelSeriali
 class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
     system_company_name = serializers.SerializerMethodField()
     formats= SystemProductsFormatsThroughSerializer(many=True, read_only=True, source="systemproductsformatsthrough_set")
+    fullname = serializers.SerializerMethodField()
 
     class Meta:
         model = models.SystemProducts
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name')
+        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname')
 
     def get_system_company_name(self, o):
         if o.system_companies is None:
             return None
         return o.system_companies.name
+
+    def get_fullname(self, o):
+        return o.fullname()
 
 class WeightWishesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
