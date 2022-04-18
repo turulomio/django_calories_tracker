@@ -145,7 +145,8 @@ class ProductsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
-        return models.Products.objects.filter(user=self.request.user).order_by("name")
+        return models.Products.objects.select_related("companies").prefetch_related("additives").filter(user=self.request.user).order_by("name")
+
 class ProfilesViewSet(viewsets.ModelViewSet):
     queryset = models.Profiles.objects.all()
     serializer_class = serializers.ProfilesSerializer

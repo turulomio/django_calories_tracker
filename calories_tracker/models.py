@@ -406,7 +406,7 @@ class Products(models.Model):
     elaborated_products= models.ForeignKey("ElaboratedProducts", models.DO_NOTHING, null=True, blank=True)
     
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
-    additives = models.ManyToManyField(Additives, blank=True)
+    additives = models.ManyToManyField(Additives, blank=True, related_name="additives")
     formats = models.ManyToManyField(Formats, through='ProductsFormatsThrough', blank=True)
 
     obsolete = models.BooleanField()
