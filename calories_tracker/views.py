@@ -139,13 +139,23 @@ class MealsViewSet(viewsets.ModelViewSet):
         if all_args_are_not_none(day):
             return models.Meals.objects.filter(user=self.request.user, datetime__date=day).order_by("datetime")
         return self.queryset
-    
+from django.db.models import Prefetch
 class ProductsViewSet(viewsets.ModelViewSet):
     queryset = models.Products.objects.all()
     serializer_class = serializers.ProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
-        return models.Products.objects.select_related("companies").prefetch_related("additives").filter(user=self.request.user).order_by("name")
+        return models.Products.objects.select_related("companies").select_related("system_products").prefetch_related("additives").prefetch_related(
+        Prefetch(
+            'formats',
+            queryset=models.ProductsFormatsThrough.objects.select_related(
+                'products',
+                'formats',
+            ),
+        ),
+    ).filter(user=self.request.user).order_by("name")
+
+
 
 class ProfilesViewSet(viewsets.ModelViewSet):
     queryset = models.Profiles.objects.all()
