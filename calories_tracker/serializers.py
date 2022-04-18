@@ -24,9 +24,14 @@ class AdditiveRisksSerializer(serializers.HyperlinkedModelSerializer):
         return  _(obj.name)
 
 class AdditivesSerializer(serializers.HyperlinkedModelSerializer):
+    fullname = serializers.SerializerMethodField()
     class Meta:
         model = models.Additives
-        fields = ('url', 'id', 'name', 'description', 'additive_risks')
+        fields = ('url', 'id', 'name', 'description', 'additive_risks', 'fullname')
+        
+    def get_fullname(self, o):
+        return o.fullname()
+        
         
 class BiometricsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

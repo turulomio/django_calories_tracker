@@ -84,6 +84,9 @@ class Additives(models.Model):
         
     def __str__(self):
         return self.name
+        
+    def fullname(self):
+        return f"{self.name}: {self.description}"
 
 class Biometrics(models.Model):
     datetime = models.DateTimeField()

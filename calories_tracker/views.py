@@ -1,7 +1,7 @@
 
 from calories_tracker import serializers
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString
 from decimal import Decimal
 from django.contrib.auth.hashers import check_password
 from django.core.serializers.json import DjangoJSONEncoder
@@ -28,21 +28,26 @@ class MyDjangoJSONEncoder(DjangoJSONEncoder):
         
 @api_view(['POST'])
 def login(request):
-    try:
-        user=User.objects.get(username=request.POST.get("username"))
-    except User.DoesNotExist:
-        return Response("Invalid user")
-        
-    password=request.POST.get("password")
-    pwd_valid=check_password(password, user.password)
-    if not pwd_valid:
-        return Response("Wrong password")
+    username=RequestString(request, "username")
+    password=RequestString(request, "password")
+    
+    if all_args_are_not_none(username, password):
+        try:
+            user=User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response("Invalid user")
+            
+        pwd_valid=check_password(password, user.password)
+        if not pwd_valid:
+            return Response("Wrong password")
 
-    if Token.objects.filter(user=user).exists():#Lo borra
-        token=Token.objects.get(user=user)
-        token.delete()
-    token=Token.objects.create(user=user)
-    return Response(token.key)
+        if Token.objects.filter(user=user).exists():#Lo borra
+            token=Token.objects.get(user=user)
+            token.delete()
+        token=Token.objects.create(user=user)
+        return Response(token.key)
+    else:
+        return Response(_("Bad credentials"))
     
 @api_view(['POST'])
 def logout(request):
@@ -53,12 +58,6 @@ def logout(request):
         token.delete()
         return Response("Logged out")
 
-
-
-@csrf_exempt
-@api_view(['GET', ])    
-def home(request):
-    return JsonResponse( True,  encoder=MyDjangoJSONEncoder,     safe=False)
 @csrf_exempt
 @api_view(['GET', ])
 @permission_classes([permissions.IsAuthenticated, ])
@@ -98,7 +97,7 @@ class CompaniesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]
     def get_queryset(self):
-        return models.Companies.objects.filter(user=self.request.user).order_by("name")
+        return models.Companies.objects.select_related("system_companies").filter(user=self.request.user).order_by("name")
 
 
 class ElaboratedProductsViewSet(viewsets.ModelViewSet):
