@@ -14,6 +14,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from django.db.models import Prefetch
 
 class MyDjangoJSONEncoder(DjangoJSONEncoder):    
     def default(self, o):
@@ -105,7 +106,17 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ElaboratedProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
-    
+#    def get_queryset(self):
+#        return models.ElaboratedProducts.objects.prefetch_related(
+#        Prefetch(
+#            "products",
+#            queryset=models.ElaboratedProductsProductsInThrough.objects.select_related(
+#                'products',
+#                "elaborated_products"
+#            ),
+#        ),
+#    ).filter(user=self.request.user).order_by("name")
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         qs_products_in=models.ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=instance)
@@ -139,13 +150,12 @@ class MealsViewSet(viewsets.ModelViewSet):
         if all_args_are_not_none(day):
             return models.Meals.objects.filter(user=self.request.user, datetime__date=day).order_by("datetime")
         return self.queryset
-from django.db.models import Prefetch
 class ProductsViewSet(viewsets.ModelViewSet):
     queryset = models.Products.objects.all()
     serializer_class = serializers.ProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
-        return models.Products.objects.select_related("companies","system_products").prefetch_related("additives").prefetch_related(
+        return models.Products.objects.select_related("companies","system_products", "elaborated_products").prefetch_related("additives").prefetch_related(
         Prefetch(
             'formats',
             queryset=models.ProductsFormatsThrough.objects.select_related(
