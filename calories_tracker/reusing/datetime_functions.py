@@ -327,7 +327,7 @@ def dtaware2string(dt, format):
 ## @param format String in ["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M"]
 ## @return String
 def dtnaive2string(dt, format):
-    allowed=["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M"]
+    allowed=["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M", "JsUtcIso"]
     if dt==None:
         return "None"
     elif format in allowed:
@@ -339,6 +339,8 @@ def dtnaive2string(dt, format):
             return dt.strftime("%Y%m%d %H%M")
         elif format=="%Y%m%d%H%M":
             return dt.strftime("%Y%m%d%H%M")
+        elif format=="JsUtcIso":
+            return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     else:
         error("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 

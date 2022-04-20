@@ -11,6 +11,7 @@
 
 #CAda vez que se crea un producto, se copia y se linka de system_products si existiera 
 
+from calories_tracker.reusing.datetime_functions import dtaware2string
 from django.db import models
 from django.contrib.auth.models import User # new
 
@@ -34,6 +35,12 @@ class Activities(models.Model):
         if not self.multiplier==other.multiplier:
             return False
         return True
+    
+    ## Returns a json string
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "description": {jss(self.description)}, "multiplier": {jss(self.multiplier)} }}"""
+        
+
 
 class AdditiveRisks(models.Model):
     name = models.TextField()
@@ -42,6 +49,9 @@ class AdditiveRisks(models.Model):
         managed = True
         db_table = 'additive_risks'
         
+    ## Returns a json string
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
     def is_fully_equal(self, other):
         if not self.name==other.name:
             return False
@@ -60,6 +70,9 @@ class WeightWishes(models.Model):
         if not self.name==other.name:
             return False
         return True
+    ## Returns a json string
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
         
     def __str__(self):
         return self.name
@@ -73,6 +86,10 @@ class Additives(models.Model):
         managed = True
         db_table = 'additives'
         
+    ## Returns a json string
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "description": {jss(self.description)}, "additive_risks": {jss(self.additive_risks.id)} }}"""
+    
     def is_fully_equal(self, other):
         if not self.name==other.name:
             return False
@@ -113,6 +130,9 @@ class FoodTypes(models.Model):
         if not self.name==other.name:
             return False
         return True
+    ## Returns a json string
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
         
     def __str__(self):
         return self.name
@@ -134,6 +154,9 @@ class SystemCompanies(models.Model):
         if not self.obsolete==other.obsolete:
             return False
         return True
+    ## Returns a json string
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "last": {jss(self.last)}, "obsolete": {jss(self.obsolete)} }}"""
         
     def __str__(self):
         return self.name
@@ -197,6 +220,10 @@ class Formats(models.Model):
             return False
         return True
         
+    ## Returns a json string
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
+
     def __str__(self):
         return self.name
 
@@ -231,6 +258,23 @@ class SystemProducts(models.Model):
     version= models.DateTimeField()
     version_description=models.TextField(blank=True, null=True)
 
+    ## Returns a json string
+    def json(self):
+        system_companies=None if self.system_companies is None else self.system_companies.id
+        food_types=None if self.food_types is None else self.food_types.id
+        version_parent=None if self.version_parent is None else self.version_parent.id
+        
+        additives=""
+        for a in self.additives.all():#Son objetos additives
+            additives=additives+f"""{{ "additives": {jss(a.id)} }},"""
+        additives=additives[:-1]
+        
+        formats=""
+        for spf in self.systemproductsformatsthrough_set.all():#Son objetos additives
+            formats=formats+f"""{{ "formats": {jss(spf.formats.id)}, "amount": {jss(spf.amount)} }},"""
+        formats=formats[:-1]
+        
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "amount": {jss(self.amount)}, "fat": {jss(self.fat)}, "protein": {jss(self.protein)}, "carbohydrate": {jss(self.carbohydrate)}, "calories": {jss(self.calories)}, "salt": {jss(self.salt)}, "cholesterol": {jss(self.cholesterol)}, "sodium": {jss(self.sodium)}, "potassium": {jss(self.potassium)}, "fiber": {jss(self.fiber)}, "sugars": {jss(self.sugars)}, "saturated_fat": {jss(self.saturated_fat)}, "ferrum": {jss(self.ferrum)}, "magnesium": {jss(self.magnesium)}, "phosphor": {jss(self.phosphor)}, "glutenfree": {jss(self.glutenfree)}, "calcium": {jss(self.calcium)}, "system_companies": {jss(system_companies)}, "food_types": {jss(food_types)}, "obsolete": {jss(self.obsolete)}, "version_parent": {jss(version_parent)}, "version": {jss(self.version)}, "version_description": {jss(self.version_description)}, "additives" : [{additives}], formats: [{formats}] }}"""
 
 
     class Meta:
@@ -618,3 +662,22 @@ class eWeightWish:
     Lose=0
     Mantain=1
     Gain=2
+## Converts a value to a json strings, depending its value
+## str >> "str"
+
+def jss(value):
+    if value is None:
+        return "null"
+    elif value.__class__.__name__=="str":
+        return f'"{value}"'
+    elif value.__class__.__name__ in ("int", "float", "Decimal"):
+        return f"{value}"
+    elif value.__class__.__name__=="time":
+        return f'"{value}"'
+    elif value.__class__.__name__=="bool":
+        return f"{str(value).lower()}"
+    elif value.__class__.__name__=="datetime":
+        return f'"{dtaware2string(value, "JsUtcIso")}"'
+    else:
+        print(f"Rare value '{value}' ({value.__class__.__name__}) in jss")
+    
