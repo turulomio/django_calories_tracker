@@ -6,6 +6,7 @@ from decimal import Decimal
 from django.contrib.auth.hashers import check_password
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User # new
+from django.db.models import Count
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -98,7 +99,7 @@ class CompaniesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]
     def get_queryset(self):
-        return models.Companies.objects.select_related("system_companies").filter(user=self.request.user).order_by("name")
+        return models.Companies.objects.select_related("system_companies").filter(user=self.request.user).annotate(uses=Count("products", distinct=True)).order_by("name")
 
 
 class ElaboratedProductsViewSet(viewsets.ModelViewSet):
@@ -150,6 +151,7 @@ class MealsViewSet(viewsets.ModelViewSet):
         if all_args_are_not_none(day):
             return models.Meals.objects.filter(user=self.request.user, datetime__date=day).order_by("datetime")
         return self.queryset
+
 class ProductsViewSet(viewsets.ModelViewSet):
     queryset = models.Products.objects.all()
     serializer_class = serializers.ProductsSerializer
@@ -163,7 +165,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
                 'formats',
             ),
         ),
-    ).filter(user=self.request.user).order_by("name")
+    ).annotate(uses_meals=Count("meals", distinct=True)).filter(user=self.request.user).order_by("name")
 
 
 

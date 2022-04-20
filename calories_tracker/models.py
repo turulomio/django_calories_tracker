@@ -168,22 +168,22 @@ class Companies(models.Model):
         db_table = 'companies'
         
     def __str__(self):
-        return self.named
+        return self.name
+#        
+#    def uses(self):
+#        if not hasattr(self, "_uses"):
+#            self._uses=Products.objects.filter(companies=self).count()
+#        return self._uses
         
-    def uses(self):
-        if not hasattr(self, "_uses"):
-            self._uses=Products.objects.filter(companies=self).count()
-        return self._uses
-        
-    def is_editable(self):
-        if self.system_companies is None:
-            return True
-        return False
-        
-    def is_deletable(self):
-        if self.uses()>0:
-            return False
-        return True
+#    def is_editable(self):
+#        if self.system_companies is None:
+#            return True
+#        return False
+#        
+#    def is_deletable(self):
+#        if self.uses()>0:
+#            return False
+#        return True
 
 
 class Formats(models.Model):
@@ -434,10 +434,10 @@ class Products(models.Model):
         
         return f"{self.name}{company}{version_parent}"
         
-    def uses(self):
-        if not hasattr(self, "_uses"):
-            self._uses=Meals.objects.filter(products=self).count() + ProductsFormatsThrough.objects.filter(products=self).count() + ElaboratedProductsProductsInThrough.objects.filter(products=self).count()
-        return self._uses
+#    def uses(self):
+#        if not hasattr(self, "_uses"):
+#            self._uses=Meals.objects.filter(products=self).count() + ProductsFormatsThrough.objects.filter(products=self).count() + ElaboratedProductsProductsInThrough.objects.filter(products=self).count()
+#        return self._uses
 
     def is_editable(self):
         if self.system_products is None and self.elaborated_products is None:
@@ -480,11 +480,11 @@ class ElaboratedProducts(models.Model):
     def __str__(self):
         return self.name
         
-    def uses(self):
-        if not hasattr(self, "_uses"):
-            product_associated=Products.objects.get(elaborated_products=self, user=self.user)
-            self._uses=Meals.objects.filter(products=product_associated, user=self.user).count()
-        return self._uses
+#    def uses(self):
+#        if not hasattr(self, "_uses"):
+#            product_associated=Products.objects.get(elaborated_products=self, user=self.user)
+#            self._uses=Meals.objects.filter(products=product_associated, user=self.user).count()
+#        return self._uses
         
     def is_deletable(self):
         if self.uses() >0:
