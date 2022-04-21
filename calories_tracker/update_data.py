@@ -18,75 +18,64 @@ def checks_and_sets_value(d, key):
 ## Used in first intallation
 def update_from_code():
     start=datetime.now()
-    with open("calories_tracker/data/system_companies.json") as f:
-        process_system_companies(f)
-    with open("calories_tracker/data/activities.json") as f:
-        process_activities(f)
-    with open("calories_tracker/data/additive_risks.json") as f:
-        process_additive_risks(f)
-    with open("calories_tracker/data/weight_wishes.json") as f:
-        process_weight_wishes(f)
-    with open("calories_tracker/data/additives.json") as f:
-        process_additives(f)
-    with open("calories_tracker/data/food_types.json") as f:
-        process_food_types(f)
-    with open("calories_tracker/data/formats.json") as f:
-        process_formats(f)
-    with open("calories_tracker/data/system_products.json") as p,  open("calories_tracker/data/system_products_additives.json") as a:
-        process_system_products(p, a)
-    with open("calories_tracker/data/catalogs_systemproductsformatsthrough.json") as f:
-        process_catalogs_systemproductsformatsthrough(f)
+    with open("calories_tracker/data/catalogs.json") as f:
+        data= process_catalogs(f)
+        
+    r={}
+    r=process_activities(r,data)
+    r=process_additive_risks(r,data)
+    r=process_weight_wishes(r,data)
+    r=process_additives(r,data)
+    r=process_food_types(r,data)
+    r=process_formats(r,data)
+    r=process_system_products(r,data)
     print(f"Update catalogs from code took {datetime.now()-start}")
     
 ## Used to update a started app
 def update_from_github():
+    start=datetime.now()
+    r={}
+    data=process_catalogs()
+    r=process_activities(r,data)
+    r=process_additive_risks(r,data)
+    r=process_weight_wishes(r,data)
+    r=process_additives(r,data)
+    r=process_food_types(r,data)
+    r=process_formats(r,data)
+    r=process_system_products(r,data)
+    print(f"Update catalogs from code took {datetime.now()-start}")
     
-    process_system_companies()
-    process_activities()
-    process_additive_risks()
-    process_weight_wishes()
-    process_additives()
-    process_food_types()
-    process_formats()
-    process_system_products()
-    process_catalogs_systemproductsformatsthrough()
-    
-## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_additive_risks(file_descriptor=None):
+    ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
+def process_catalogs(file_descriptor=None):
     if file_descriptor is None:
         response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/additive_risks.json")
         data =  loads(response.read())
     else:
         data=loads(file_descriptor.read())
-
-    r={}
-    r["total"]=len(data["rows"])
+    return data
+    
+## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
+def process_additive_risks(r, data):
+    r["total_additive_risks"]=len(data["additive_risks"])
     r["logs"]=[]
-    for d in data["rows"]:
+    for d in data["additive_risks"]:
         o=AdditiveRisks()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         try:
             before=AdditiveRisks.objects.get(pk=d["id"])#Crash if not found
             if not o.is_fully_equal(before):
-                r["logs"].append({"object":str(o), "log":_("Updated")})
+                r["logs"].append({"object":str(o), "log":_("Updated additive risks")})
         except:
-            r["logs"].append({"object":str(o), "log":_("Created")})
+            r["logs"].append({"object":str(o), "log":_("Created additive risks")})
         o.save()
-    print("AdditiveRisks", "Total:",  r["total"], "Logs:", len(r["logs"]))
+    print("AdditiveRisks", "Total:",  r["total_additive_risks"], "Logs:", len(r["logs"]))
     return r        
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_weight_wishes(file_descriptor=None):
-    if file_descriptor is None:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/weight_wishes.json")
-        data =  loads(response.read())
-    else:
-        data=loads(file_descriptor.read())
-
-    r={}
-    r["total"]=len(data["rows"])
+def process_weight_wishes(r,data):
+    r["total_weight_wishes"]=len(data["weight_wishes"])
     r["logs"]=[]
-    for d in data["rows"]:
+    for d in data["weight_wishes"]:
         o=WeightWishes()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
@@ -97,20 +86,13 @@ def process_weight_wishes(file_descriptor=None):
         except:
             r["logs"].append({"object":str(o), "log":_("Created")})
         o.save()
-    print("WeightWishes", "Total:",  r["total"], "Logs:", len(r["logs"]))
+    print("WeightWishes", "Total:",  r["total_weight_wishes"], "Logs:", len(r["logs"]))
     return r    
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_activities(file_descriptor=None):
-    if file_descriptor is None:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/activities.json")
-        data =  loads(response.read())
-    else:
-        data=loads(file_descriptor.read())
-
-    r={}
-    r["total"]=len(data["rows"])
+def process_activities(r,data):
+    r["total_activities"]=len(data["activities"])
     r["logs"]=[]
-    for d in data["rows"]:
+    for d in data["activities"]:
         o=Activities()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
@@ -124,21 +106,14 @@ def process_activities(file_descriptor=None):
             if not o.is_fully_equal(qs_before[0]):
                 r["logs"].append({"object":str(o), "log":_("Updated")})
         o.save()
-    print("Activities", "Total:",  r["total"], "Logs:", len(r["logs"]))
+    print("Activities", "Total:",  r["total_activities"], "Logs:", len(r["logs"]))
     return r
 
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_additives(file_descriptor=None):
-    if file_descriptor is None:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/additives.json")
-        data =  loads(response.read())
-    else:
-        data=loads(file_descriptor.read())
-
-    r={}
-    r["total"]=len(data["rows"])
+def process_additives(r,data):
+    r["total_additives"]=len(data["additives"])
     r["logs"]=[]
-    for d in data["rows"]:
+    for d in data["additives"]:
         o=Additives()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
@@ -156,20 +131,13 @@ def process_additives(file_descriptor=None):
             if not o.is_fully_equal(qs_before[0]):
                 r["logs"].append({"object":str(o), "log":_("Updated")})
         o.save()
-    print("Additives", "Total:",  r["total"], "Logs:", len(r["logs"]))
+    print("Additives", "Total:",  r["total_additives"], "Logs:", len(r["logs"]))
     return r
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_food_types(file_descriptor=None):
-    if file_descriptor is None:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/food_types.json")
-        data =  loads(response.read())
-    else:
-        data=loads(file_descriptor.read())
-
-    r={}
-    r["total"]=len(data["rows"])
+def process_food_types(r,data):
+    r["total_food_types"]=len(data["food_types"])
     r["logs"]=[]
-    for d in data["rows"]:
+    for d in data["food_types"]:
         o=FoodTypes()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
@@ -181,20 +149,13 @@ def process_food_types(file_descriptor=None):
             if not o.is_fully_equal(qs_before[0]):
                 r["logs"].append({"object":str(o), "log":_("Updated")})
         o.save()
-    print("FoodTypes", "Total:",  r["total"], "Logs:", len(r["logs"]))
+    print("FoodTypes", "Total:",  r["total_food_types"], "Logs:", len(r["logs"]))
     return r
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_formats(file_descriptor=None):
-    if file_descriptor is None:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/formats.json")
-        data =  loads(response.read())
-    else:
-        data=loads(file_descriptor.read())
-
-    r={}
-    r["total"]=len(data["rows"])
+def process_formats(r,data):
+    r["total_formats"]=len(data["formats"])
     r["logs"]=[]
-    for d in data["rows"]:
+    for d in data["formats"]:
         o=Formats()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
@@ -206,20 +167,13 @@ def process_formats(file_descriptor=None):
             if not o.is_fully_equal(qs_before[0]):
                 r["logs"].append({"object":str(o), "log":_("Updated")})
         o.save()
-    print("Formats", "Total:",  r["total"], "Logs:", len(r["logs"]))
+    print("Formats", "Total:",  r["total_formats"], "Logs:", len(r["logs"]))
     return r
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_system_companies(file_descriptor=None):
-    if file_descriptor is None:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/system_companies.json")
-        data =  loads(response.read())
-    else:
-        data=loads(file_descriptor.read())
-
-    r={}
-    r["total"]=len(data["rows"])
+def process_system_companies(r,data):
+    r["total_system_companies"]=len(data["system_companies"])
     r["logs"]=[]
-    for d in data["rows"]:
+    for d in data["system_companies"]:
         o=SystemCompanies()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
@@ -233,24 +187,15 @@ def process_system_companies(file_descriptor=None):
             if not o.is_fully_equal(qs_before[0]):
                 r["logs"].append({"object":str(o), "log":_("Updated")})
         o.save()
-    print("SystemCompanies", "Total:",  r["total"], "Logs:", len(r["logs"]))
+    print("SystemCompanies", "Total:",  r["total_system_companies"], "Logs:", len(r["logs"]))
     return r
 
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_system_products(file_descriptor_p=None, file_descriptor_a=None):
-    if file_descriptor_p is None:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/system_products.json")
-        products =  loads(response.read())
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/system_products_additives.json")
-        additives =  loads(response.read())
-    else:
-        products=loads(file_descriptor_p.read())
-        additives=loads(file_descriptor_a.read())
+def process_system_products(r, data):
 
-    rp={}
-    rp["total"]=len(products["rows"])
-    rp["logs"]=[]
-    for dp in products["rows"]:
+    r["total_system_products"]=len(data["system_products"])
+    r["logs"]=[]
+    for dp in data["system_products"]:
         o=SystemProducts()
         o.id=dp['id']
         o.name = dp['name']
@@ -271,60 +216,42 @@ def process_system_products(file_descriptor_p=None, file_descriptor_a=None):
         o.phosphor=checks_and_sets_value(dp, "phosphor")
         o.calcium=checks_and_sets_value(dp, "calcium")
         o.glutenfree=bool(dp['glutenfree'])
-        system_companies_id=checks_and_sets_value(dp,  'system_companies_id')
+        system_companies_id=checks_and_sets_value(dp,  'system_companies')
         if system_companies_id is None:
             o.system_companies=None
         else:
-            o.system_companies=SystemCompanies.objects.filter(pk=dp["system_companies_id"])[0]
-        o.food_types=FoodTypes.objects.filter(pk=dp["food_types_id"])[0]
+            o.system_companies=SystemCompanies.objects.filter(pk=dp["system_companies"])[0]
+        o.food_types=FoodTypes.objects.filter(pk=dp["food_types"])[0]
         o.obsolete=bool(dp["obsolete"])
-        o.version=string2dtaware(dp['version'], "%Y-%m-%d %H:%M:%S.", "UTC")
+        o.version=string2dtaware(dp['version'], "JsUtcIso", "UTC")
         o.version_description=checks_and_sets_value(dp, "version_description")
-        version_parent_id=checks_and_sets_value(dp,  'version_parent_id')
+        version_parent_id=checks_and_sets_value(dp,  'version_parent')
         if version_parent_id is None:
             o.version_parent=None
         else:
-            o.version_parent=SystemProducts.objects.filter(pk=dp["version_parent_id"])[0]
+            o.version_parent=SystemProducts.objects.filter(pk=dp["version_parent"])[0]
         
         o.save()
-        for da in additives["rows"]:
-            if da["systemproducts_id"]==dp['id']:
-                o.additives.add(Additives.objects.filter(pk=da['additives_id'])[0])
+        for da in dp["additives"]:
+                o.additives.add(Additives.objects.filter(pk=da['additives'])[0])
+                o.save()
                
         qs_before=SystemProducts.objects.filter(pk=dp["id"])#Crash if not found
         if len(qs_before)==0:
-            rp["logs"].append({"object":str(o), "log":_("Created")})
+            r["logs"].append({"object":str(o), "log":_("Created")})
         else:
             if not o.is_fully_equal(qs_before[0]):
-                rp["logs"].append({"object":str(o), "log":_("Updated")})
-        o.save()
-        
-    
-    print("SystemProducts", "Total:",  rp["total"], "Logs:", len(rp["logs"]))
-    return rp
+                r["logs"].append({"object":str(o), "log":_("Updated")})
 
-## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
-def process_catalogs_systemproductsformatsthrough(file_descriptor=None):
-    if file_descriptor is None:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/catalogs_systemproductsformatsthrough.json")
-        data =  loads(response.read())
-    else:
-        data=loads(file_descriptor.read())
-        
-    SystemProductsFormatsThrough.objects.all().delete()#Borra todos ya que se pueden borra en edición en dolthub y no se usan mas que para calculo no hay referencias.
-
-    r={}
-    r["total"]=len(data["rows"])
-    r["logs"]=[]
-    for d in data["rows"]:
-        o=SystemProductsFormatsThrough()
-        o.id=d["id"]
-        o.system_products=SystemProducts.objects.get(pk=d["system_products_id"])
-        o.formats=Formats.objects.get(pk=d["formats_id" ])
-        o.amount=checks_and_sets_value(d, "amount")
-        r["logs"].append({"object":str(o), "log":_("Created")})
-        o.save()
-    print("SystemProductsFormatsThrough", "Total:",  r["total"], "Logs:", len(r["logs"]))
+        for df in dp["formats"]:
+            o=SystemProductsFormatsThrough()
+            o.id=df["id"]
+            o.system_products=SystemProducts.objects.get(pk=dp["id"])
+            o.formats=Formats.objects.get(pk=df["formats" ])
+            o.amount=checks_and_sets_value(df, "amount")
+            r["logs"].append({"object":str(o), "log":_("Created")})
+            o.save()
+    print("SystemProducts", "Total:",  r["total_system_products"], "Logs:", len(r["logs"]))
     
     
     ## Updates all products links

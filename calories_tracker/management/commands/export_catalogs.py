@@ -35,7 +35,7 @@ class Command(BaseCommand):
     "formats": {qs_to_json(qs_formats)}
     "weight_wishes": {qs_to_json(qs_weight_wishes)}
     "system_companies": {qs_to_json(qs_system_companies)}
-    "system_products": {qs_to_json(qs_system_products)}
+    "system_products": {qs_to_json(qs_system_products, end_coma="False")}
 }}
 """
         with open("calories_tracker/data/catalogs.json", "w") as f:

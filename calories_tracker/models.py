@@ -274,7 +274,7 @@ class SystemProducts(models.Model):
             formats=formats+f"""{{ "id": {jss(spf.id)}, "formats": {jss(spf.formats.id)}, "amount": {jss(spf.amount)} }},"""
         formats=formats[:-1]
         
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "amount": {jss(self.amount)}, "fat": {jss(self.fat)}, "protein": {jss(self.protein)}, "carbohydrate": {jss(self.carbohydrate)}, "calories": {jss(self.calories)}, "salt": {jss(self.salt)}, "cholesterol": {jss(self.cholesterol)}, "sodium": {jss(self.sodium)}, "potassium": {jss(self.potassium)}, "fiber": {jss(self.fiber)}, "sugars": {jss(self.sugars)}, "saturated_fat": {jss(self.saturated_fat)}, "ferrum": {jss(self.ferrum)}, "magnesium": {jss(self.magnesium)}, "phosphor": {jss(self.phosphor)}, "glutenfree": {jss(self.glutenfree)}, "calcium": {jss(self.calcium)}, "system_companies": {jss(system_companies)}, "food_types": {jss(food_types)}, "obsolete": {jss(self.obsolete)}, "version_parent": {jss(version_parent)}, "version": {jss(self.version)}, "version_description": {jss(self.version_description)}, "additives" : [{additives}], formats: [{formats}] }}"""
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "amount": {jss(self.amount)}, "fat": {jss(self.fat)}, "protein": {jss(self.protein)}, "carbohydrate": {jss(self.carbohydrate)}, "calories": {jss(self.calories)}, "salt": {jss(self.salt)}, "cholesterol": {jss(self.cholesterol)}, "sodium": {jss(self.sodium)}, "potassium": {jss(self.potassium)}, "fiber": {jss(self.fiber)}, "sugars": {jss(self.sugars)}, "saturated_fat": {jss(self.saturated_fat)}, "ferrum": {jss(self.ferrum)}, "magnesium": {jss(self.magnesium)}, "phosphor": {jss(self.phosphor)}, "glutenfree": {jss(self.glutenfree)}, "calcium": {jss(self.calcium)}, "system_companies": {jss(system_companies)}, "food_types": {jss(food_types)}, "obsolete": {jss(self.obsolete)}, "version_parent": {jss(version_parent)}, "version": {jss(self.version)}, "version_description": {jss(self.version_description)}, "additives" : [{additives}], "formats": [{formats}] }}"""
 
 
     class Meta:
@@ -410,7 +410,6 @@ class SystemProducts(models.Model):
         
             ## Gets system_companies_id already in companies
             system_products_ids_in_products=Products.objects.filter(user=user, system_products__isnull=False).values("system_products_id")
-            print(system_products_ids_in_products)
             ## Filter by name and exclude already
             qs=SystemProducts.objects.filter(id__in=system_products_ids_in_products)
             for sp in qs:
