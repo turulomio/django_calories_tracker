@@ -265,12 +265,12 @@ class SystemProducts(models.Model):
         version_parent=None if self.version_parent is None else self.version_parent.id
         
         additives=""
-        for a in self.additives.all():#Son objetos additives
+        for a in self.additives.all().order_by("id"):#Son objetos additives
             additives=additives+f"""{{ "additives": {jss(a.id)} }},"""
         additives=additives[:-1]
         
         formats=""
-        for spf in self.systemproductsformatsthrough_set.all():#Son objetos additives
+        for spf in self.systemproductsformatsthrough_set.all().order_by("id"):#Son objetos additives
             formats=formats+f"""{{ "id": {jss(spf.id)}, "formats": {jss(spf.formats.id)}, "amount": {jss(spf.amount)} }},"""
         formats=formats[:-1]
         

@@ -97,7 +97,7 @@ def process_activities(r,data):
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         o.description=checks_and_sets_value(d, "description")
-        o.multiplier=Decimal(checks_and_sets_value(d, "multiplier"))
+        o.multiplier=checks_and_sets_value(d, "multiplier")
             
         qs_before=Activities.objects.filter(pk=d["id"])#Crash if not found
         if len(qs_before)==0:
@@ -118,11 +118,11 @@ def process_additives(r,data):
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         o.description=checks_and_sets_value(d, "description")
-        additive_risks_id=checks_and_sets_value(d,  'additive_risks_id')
+        additive_risks_id=checks_and_sets_value(d,  'additive_risks')
         if additive_risks_id is None:
             o.additive_risks=None
         else:
-            o.additive_risks=AdditiveRisks.objects.filter(pk=d["additive_risks_id"])[0]
+            o.additive_risks=AdditiveRisks.objects.filter(pk=d["additive_risks"])[0]
         
         qs_before=Additives.objects.filter(pk=d["id"])#Crash if not found
         if len(qs_before)==0:
