@@ -25,6 +25,7 @@ router.register(r'weight_wishes', calories_tracker_views.WeightWishesViewSet)
 urlpatterns = [
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
+    path('catalog_manager/', calories_tracker_views.CatalogManager, name='CatalogManager'),
     
     path('login/', calories_tracker_views.login, name="login"), 
     path('logout/', calories_tracker_views.logout, name="logout"), 

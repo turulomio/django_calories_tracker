@@ -335,6 +335,46 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
         model = models.SystemProducts
         fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname')
 
+    def create(self, validated_data):
+        request=self.context.get("request")
+        validated_data['version']=timezone.now()
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        created.save()
+        for d in request.data["formats"]:
+            #Create all new
+            th=models.SystemProductsFormatsThrough()
+            th.amount=d["amount"]
+            th.formats=object_from_url(d["formats"], models.Formats)
+            th.system_products=created
+            th.save()
+        created.update_linked_product(request.user)
+        
+        return created
+        
+         
+    def update(self, instance, validated_data):
+        request=self.context.get("request")
+        validated_data['version']=timezone.now()
+        
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        updated.save()
+        
+        #Delete all
+        qs=models.SystemProductsFormatsThrough.objects.filter(system_products=updated)
+        if len(qs)>0:
+            qs.delete()
+
+        #Create all new
+        for d in request.data["formats"]:
+            th=models.SystemProductsFormatsThrough()
+            th.amount=d["amount"]
+            th.formats=object_from_url(d["formats"], models.Formats)
+            th.system_products=updated
+            th.save()
+        updated.update_linked_product(request.user)
+        
+        return updated
+
     def get_system_company_name(self, o):
         if o.system_companies is None:
             return None

@@ -3,6 +3,7 @@ from calories_tracker import serializers
 from calories_tracker import models
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString
 from decimal import Decimal
+from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User # new
@@ -28,6 +29,12 @@ class MyDjangoJSONEncoder(DjangoJSONEncoder):
         return super().default(o)
         
         
+
+@csrf_exempt
+@permission_classes([permissions.IsAuthenticated, ])
+def CatalogManager(request):
+    return JsonResponse( settings.CATALOG_MANAGER, encoder=MyDjangoJSONEncoder, safe=False)
+
 @api_view(['POST'])
 def login(request):
     username=RequestString(request, "username")
