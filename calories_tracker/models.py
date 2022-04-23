@@ -12,6 +12,8 @@
 #CAda vez que se crea un producto, se copia y se linka de system_products si existiera 
 
 from calories_tracker.reusing.datetime_functions import dtaware2string
+from datetime import date, timedelta
+from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User # new
 
@@ -104,7 +106,18 @@ class Additives(models.Model):
         
     def fullname(self):
         return f"{self.name}: {self.description}"
-
+    
+def get_profile(user):
+    try:
+        return user.profiles
+    except:
+        profile=Profiles()
+        profile.birthday=date(1900, 1, 1)
+        profile.male=True
+        profile.user=user
+        profile.save()
+        return profile
+    
 class Biometrics(models.Model):
     datetime = models.DateTimeField()
     weight = models.DecimalField(max_digits=10, decimal_places=2)
@@ -116,9 +129,83 @@ class Biometrics(models.Model):
     class Meta:
         managed = True
         db_table = 'biometrics'
+
     def __str__(self):
         return str(self.datetime)
+    
+    ##basal metabolic rate
+    def bmr(self):
+        if hasattr(self, "_bmr") is False:
+            profile=get_profile(self.user)
+            if profile.male is True:
+                self._bmr= self.activities.multiplier*(Decimal(10)*self.weight + Decimal(6.25)*self.height - Decimal(5)*profile.age() + 5)
+            else: #female
+                self._bmr= self.activity.multiplier*(Decimal(10)*self.weight + Decimal(6.25)*self.height - Decimal(5)*profile.age() - 161)
+        return self._bmr
 
+    ##    https://www.healthline.com/nutrition/how-much-protein-per-day#average-needs
+    ## If you’re at a healthy weight, don't lift weights and don't exercise much, then aiming for 0.36–0.6 grams per pound (0.8–1.3 gram per kg) is a reasonable estimate.
+    ##
+    ##This amounts to:
+    ##
+    ##56–91 grams per day for the average male.
+    ##46–75 grams per day for the average female.
+    ##
+    ## But given that there is no evidence of harm and a significant evidence of benefit, it’s likely better for most people to err on the side of more protein rather than less.
+    def recommended_protein(self):
+        return self.bmr()*Decimal(0.175)/Decimal(4)
+
+
+    ## The Mediterranean diet includes a wide variety of plant and animal foods such as fish, meat, eggs, dairy, extra virgin olive oil, fruits, vegetables, legumes and whole grains.
+    ## 
+    ## It typically provides 35–40% of calories from fat, including plenty of monounsaturated fat from olive oil.
+    ##
+    ## Here are a few examples of suggested daily fat ranges for a Mediterranean diet, based on different calorie goals:
+    ##
+    ##     1,500 calories: About 58–67 grams of fat per day.
+    ##     2,000 calories: About 78–89 grams of fat per day.
+    ##     2,500 calories: About 97–111 grams of fat per day.
+    ## Segun https://www.tuasaude.com/es/calorias-de-los-alimentos/ cada gramo grasa tiene 9 calorias
+    ## 60% hidratos, 17.5% proteínas y 22.5% de grasas. SERA SELECCIONABLE
+    def recommended_fat(self):
+        return self.bmr()*Decimal(0.225)/Decimal(9)
+
+    def recommended_carbohydrate(self):
+        return self.bmr()*Decimal(0.60)/Decimal(4)
+        
+    ## Recomendación de la OMS para el consumo de azúcar
+    ## Pronto hará tres años que la Organización Mundial de la Salud (OMS) publicó un documento con recomendaciones y directrices sobre el consumo de azúcar en adultos y niños, y lo dejó bien claro:
+    ## Tanto para los adultos como para los niños, el consumo de azúcares libres se debería reducir a menos del 10% de la ingesta calórica total. Una reducción por debajo del 5% de la ingesta calórica total produciría beneficios adicionales para la salud.”
+    def recommended_sugars(self):
+        return self.bmr()*Decimal(0.05)/Decimal(4)
+
+
+    def recommended_fiber(self):
+        return Decimal(25)
+
+    # Índice de masa corporal
+    def imc(self):
+        return self.weight/((self.height/100)**2)
+    
+    ## https://www.seedo.es/index.php/pacientes/calculo-imc
+    def imc_comment(self):
+        imc=self.imc()
+        if imc <18.5:
+            return "Peso insuficiente"
+        elif imc<24.9:
+            return "Peso normal"
+        elif imc<26.9:
+            return "Sobrepeso grado I"
+        elif imc<29.9:
+            return "Sobrepeso grado II (preobesidad)"
+        elif imc<34.9:
+            return "Obesidad grado I"
+        elif imc<39.9:
+            return "Obesidad grado II"
+        elif imc<50:
+            return "Obesidad grado III (mórbida)"
+        elif imc>=50:
+            return "Obesidad grado IV (extrema)"
 
 class FoodTypes(models.Model):
     name = models.TextField(blank=False, null=False)
@@ -625,13 +712,15 @@ class Meals(models.Model):
 class Profiles(models.Model):
     male = models.BooleanField()
     birthday = models.DateField()
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
+    user = models.OneToOneField(User,on_delete=models.DO_NOTHING,primary_key=True,)
 
     class Meta:
         managed = True
         db_table = 'profiles'
 
 
+    def age(self):
+        return (date.today() - self.birthday) // timedelta(days=365.2425)
 
 class eAdditiveRisk:
     NotEvaluated=100
@@ -679,4 +768,3 @@ def jss(value):
         return f'"{dtaware2string(value, "JsUtcIso")}"'
     else:
         print(f"Rare value '{value}' ({value.__class__.__name__}) in jss")
-    

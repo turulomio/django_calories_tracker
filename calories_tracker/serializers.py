@@ -34,14 +34,40 @@ class AdditivesSerializer(serializers.HyperlinkedModelSerializer):
         
         
 class BiometricsSerializer(serializers.HyperlinkedModelSerializer):
+    bmr = serializers.SerializerMethodField()
+    imc = serializers.SerializerMethodField()
+    imc_comment = serializers.SerializerMethodField()
+    recommended_carbohydrate = serializers.SerializerMethodField()
+    recommended_fat = serializers.SerializerMethodField()
+    recommended_fiber = serializers.SerializerMethodField()
+    recommended_protein = serializers.SerializerMethodField()
+    recommended_sugars = serializers.SerializerMethodField()
     class Meta:
         model = models.Biometrics
-        fields = ('url', 'id', 'datetime', 'height', 'weight', 'weight_wishes', 'activities')
+        fields = ('url', 'id', 'datetime', 'height', 'weight', 'weight_wishes', 'activities', 'bmr', 'imc', 'imc_comment', 'recommended_carbohydrate', 'recommended_fat', 'recommended_fiber', 'recommended_protein', 'recommended_sugars')
                 
     def create(self, validated_data):
         validated_data['user']=self.context.get("request").user
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         return created
+        
+    def get_bmr(self, o):
+        return o.bmr()
+        
+    def get_imc(self, o):
+        return o.imc()
+    def get_imc_comment(self, o):
+        return o.imc_comment()
+    def get_recommended_carbohydrate(self, o):
+        return o.recommended_carbohydrate()
+    def get_recommended_fat(self, o):
+        return o.recommended_fat()
+    def get_recommended_fiber(self, o):
+        return o.recommended_fiber()
+    def get_recommended_protein(self, o):
+        return o.recommended_protein()
+    def get_recommended_sugars(self, o):
+        return o.recommended_sugars()
 
 class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
 #    is_deletable = serializers.SerializerMethodField()

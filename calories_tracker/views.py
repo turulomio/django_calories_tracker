@@ -93,13 +93,14 @@ class AdditivesViewSet(viewsets.ModelViewSet):
     queryset = models.Additives.objects.all()
     serializer_class = serializers.AdditivesSerializer
     permission_classes = [permissions.IsAuthenticated]      
+
 class BiometricsViewSet(viewsets.ModelViewSet):
     queryset = models.Biometrics.objects.all().order_by("datetime")
     serializer_class = serializers.BiometricsSerializer
     permission_classes = [permissions.IsAuthenticated]      
 
     def get_queryset(self):
-        return models.Biometrics.objects.filter(user=self.request.user).order_by("datetime")
+        return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user).order_by("datetime")
 
 class CompaniesViewSet(viewsets.ModelViewSet):
     queryset = models.Companies.objects.all()
