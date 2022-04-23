@@ -1,12 +1,13 @@
 
 from calories_tracker import serializers
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool
 from decimal import Decimal
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User # new
+from django.db import transaction
 from django.db.models import Count
 from django.http import JsonResponse
 from django.utils import timezone
@@ -246,6 +247,27 @@ def Binary2Global(request):
     pass
     
     
+@csrf_exempt
+@api_view(['GET', 'POST'])
+@permission_classes([permissions.IsAuthenticated, ])
+@transaction.atomic
+def Settings(request):
+    p=models.get_profile(request.user)
+    if request.method == 'GET':
+        r={}
+        r['birthday']=p.birthday
+        r['male']=p.male
+        return JsonResponse( r, encoder=MyDjangoJSONEncoder,     safe=False)
+    elif request.method == 'POST':
+        #Personal settings
+        birthday=RequestDate(request,"birthday")
+        male=RequestBool(request, "male")
+        if all_args_are_not_none(birthday, male):
+            p.birthday=birthday
+            p.male=male
+            p.save()
+            return JsonResponse(True, safe=False)
+        return JsonResponse(False, safe=False)
 
 @csrf_exempt
 @api_view(['GET', ])
