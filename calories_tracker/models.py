@@ -140,7 +140,7 @@ class Biometrics(models.Model):
             if profile.male is True:
                 self._bmr= self.activities.multiplier*(Decimal(10)*self.weight + Decimal(6.25)*self.height - Decimal(5)*profile.age() + 5)
             else: #female
-                self._bmr= self.activity.multiplier*(Decimal(10)*self.weight + Decimal(6.25)*self.height - Decimal(5)*profile.age() - 161)
+                self._bmr= self.activities.multiplier*(Decimal(10)*self.weight + Decimal(6.25)*self.height - Decimal(5)*profile.age() - 161)
         return self._bmr
 
     ##    https://www.healthline.com/nutrition/how-much-protein-per-day#average-needs

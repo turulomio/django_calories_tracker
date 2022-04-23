@@ -103,7 +103,7 @@ class BiometricsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         day=RequestGetDate(self.request, "day")
         if all_args_are_not_none(day):        
-            return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user, datetime__date__lte=day).order_by("datetime")
+            return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user, datetime__date__lte=day).order_by("-datetime")[:1]
         return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user).order_by("datetime")
 
 class CompaniesViewSet(viewsets.ModelViewSet):
@@ -255,6 +255,10 @@ def Settings(request):
     p=models.get_profile(request.user)
     if request.method == 'GET':
         r={}
+        r['first_name']=request.user.first_name
+        r['last_name']=request.user.last_name
+        r['last_login']=request.user.last_login     
+        r['email']=request.user.email     
         r['birthday']=p.birthday
         r['male']=p.male
         return JsonResponse( r, encoder=MyDjangoJSONEncoder,     safe=False)
@@ -262,10 +266,17 @@ def Settings(request):
         #Personal settings
         birthday=RequestDate(request,"birthday")
         male=RequestBool(request, "male")
-        if all_args_are_not_none(birthday, male):
+        last_name=RequestString(request, "last_name")
+        first_name=RequestString(request, "first_name")
+        email=RequestString(request, "email")
+        if all_args_are_not_none(birthday, male, first_name, last_name, email):
             p.birthday=birthday
             p.male=male
             p.save()
+            request.user.first_name=first_name
+            request.user.last_name=last_name
+            request.user.email=email
+            request.user.save()
             return JsonResponse(True, safe=False)
         return JsonResponse(False, safe=False)
 
