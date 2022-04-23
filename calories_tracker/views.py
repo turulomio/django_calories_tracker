@@ -100,6 +100,9 @@ class BiometricsViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]      
 
     def get_queryset(self):
+        day=RequestGetDate(self.request, "day")
+        if all_args_are_not_none(day):        
+            return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user, datetime__date__lte=day).order_by("datetime")
         return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user).order_by("datetime")
 
 class CompaniesViewSet(viewsets.ModelViewSet):
