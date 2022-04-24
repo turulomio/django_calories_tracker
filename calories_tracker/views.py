@@ -187,7 +187,7 @@ class ProfilesViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]      
     
 class SystemCompaniesViewSet(viewsets.ModelViewSet):
-    queryset = models.SystemCompanies.objects.all()
+    queryset = models.SystemCompanies.objects.all().order_by("name")
     serializer_class = serializers.SystemCompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]      
 

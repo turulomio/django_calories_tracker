@@ -345,7 +345,21 @@ class SystemCompaniesSerializer(serializers.HyperlinkedModelSerializer):
         model = models.SystemCompanies
         fields = ('url', 'id', 'name', 'last', 'obsolete')
 
-
+    def create(self, validated_data):
+        validated_data['last']=timezone.now()
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        created.save()
+        return created
+        
+         
+    def update(self, instance, validated_data):
+        validated_data['last']=timezone.now()
+        
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        updated.save()
+       
+        return updated
+        
 class SystemProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.SystemProductsFormatsThrough
