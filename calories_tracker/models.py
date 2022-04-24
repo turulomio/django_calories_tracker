@@ -479,8 +479,14 @@ class SystemProducts(models.Model):
         p.additives.set(self.additives.all())
         p.save()
         
+        ## Delete old formats
+        ProductsFormatsThrough.objects.filter(products=p).delete()
+        
+        ## Refresh system products formats
         for f in self.formats.all():
             spft=SystemProductsFormatsThrough.objects.get(system_products=self, formats=f)
+            
+            
 
             th=ProductsFormatsThrough()
             th.amount=spft.amount

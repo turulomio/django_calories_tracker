@@ -1,5 +1,4 @@
 from datetime import datetime
-from decimal import Decimal
 from json import loads
 from urllib import request as urllib_request
 from calories_tracker.models import Additives, AdditiveRisks, SystemProductsFormatsThrough,  Activities, WeightWishes, FoodTypes, Formats, SystemCompanies, SystemProducts
@@ -244,7 +243,11 @@ def process_system_products(r, data):
                 r["logs"].append({"object":str(o), "log":_("Updated")})
 
         for df in dp["formats"]:
-            o=SystemProductsFormatsThrough()
+            qs_sp=SystemProductsFormatsThrough.objects.filter(pk=df["id"])
+            if len(qs_sp)==0:
+                o=SystemProductsFormatsThrough()
+            else:
+                o=qs_sp[0]
             o.id=df["id"]
             o.system_products=SystemProducts.objects.get(pk=dp["id"])
             o.formats=Formats.objects.get(pk=df["formats" ])

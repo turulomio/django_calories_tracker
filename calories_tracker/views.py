@@ -191,14 +191,18 @@ class SystemCompaniesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SystemCompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]      
 
+    ## api/system_products/search_not_in=hol. Search all system products that desn't hava a product yet with hol
     ## api/system_companies/search=hol. Search all system companies that desn't hava a company jet with hol
     def get_queryset(self):
+        search_not_in=RequestGetString(self.request, 'search_not_in') 
         search=RequestGetString(self.request, 'search') 
-        if all_args_are_not_none(search):
+        if all_args_are_not_none(search_not_in):
             ## Gets system_companies_id already in companies
             ids_in_companies=models.Companies.objects.filter(user=self.request.user).values("system_companies_id")
             ## Filter by name and exclude already
             return models.SystemCompanies.objects.filter(name__icontains=search).exclude(id__in=[o['system_companies_id'] for o in ids_in_companies])
+        if all_args_are_not_none(search):
+            return models.SystemCompanies.objects.filter(name__icontains=search).order_by("name")
         return self.queryset
 
 
@@ -207,14 +211,18 @@ class SystemProductsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SystemProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
-    ## api/system_products/search=hol. Search all system products that desn't hava a product yet with hol
+    ## api/system_products/search_not_in=hol. Search all system products that desn't hava a product yet with hol
+    ## api/system_products/search=hol. Search all system products that contains search string in name
     def get_queryset(self):
+        search_not_in=RequestGetString(self.request, 'search_not_in') 
         search=RequestGetString(self.request, 'search') 
-        if all_args_are_not_none(search):
+        if all_args_are_not_none(search_not_in):
             ## Gets system_companies_id already in companies
             ids_in_products=models.Products.objects.filter(user=self.request.user).values("system_products_id")
             ## Filter by name and exclude already
-            return models.SystemProducts.objects.filter(name__icontains=search).exclude(id__in=[o['system_products_id'] for o in ids_in_products])
+            return models.SystemProducts.objects.filter(name__icontains=search).exclude(id__in=[o['system_products_id'] for o in ids_in_products]).order_by("name")
+        if all_args_are_not_none(search):
+            return models.SystemProducts.objects.filter(name__icontains=search).order_by("name")
         return self.queryset
     
 @csrf_exempt
