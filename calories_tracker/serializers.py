@@ -311,6 +311,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
             th.products=created
             th.save()
         
+        created.uses_meals=0#Needed to create although is read-only
         return created
         
          
@@ -341,6 +342,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         return o.fullname()
         
     def get_is_deletable(self, o):
+        print(dir(o), o)
         if o.uses_meals>0:
             return False
         return True
