@@ -169,6 +169,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
+        
         return models.Products.objects.select_related("companies","system_products", "elaborated_products").prefetch_related("additives").prefetch_related(
         Prefetch(
             'formats',

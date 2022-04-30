@@ -279,21 +279,7 @@ class Companies(models.Model):
         
     def __str__(self):
         return self.name
-#        
-#    def uses(self):
-#        if not hasattr(self, "_uses"):
-#            self._uses=Products.objects.filter(companies=self).count()
-#        return self._uses
-        
-#    def is_editable(self):
-#        if self.system_companies is None:
-#            return True
-#        return False
-#        
-#    def is_deletable(self):
-#        if self.uses()>0:
-#            return False
-#        return True
+
 
 
 class Formats(models.Model):
