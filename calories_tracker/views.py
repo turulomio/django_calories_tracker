@@ -237,6 +237,18 @@ def SystemProduct2Product(request):
         return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
     return JsonResponse( False, encoder=MyDjangoJSONEncoder,     safe=False)
     
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated, ])
+
+## Links a systemproduct to a product. No todos los system products están por eso se linka
+def SystemCompany2Company(request):
+    system_companies=RequestUrl(request, "system_companies", models.SystemCompanies)
+    if all_args_are_not_none(system_companies):
+        system_companies.update_linked_company(request.user)
+        return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
+    return JsonResponse( False, encoder=MyDjangoJSONEncoder,     safe=False)
+    
     
     
     

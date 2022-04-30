@@ -27,6 +27,7 @@ def update_from_code():
     r=process_additives(r,data)
     r=process_food_types(r,data)
     r=process_formats(r,data)
+    r=process_system_companies(r,data)
     r=process_system_products(r,data)
     print(f"Update catalogs from code took {datetime.now()-start}")
     
@@ -41,6 +42,7 @@ def update_from_github():
     r=process_additives(r,data)
     r=process_food_types(r,data)
     r=process_formats(r,data)
+    r=process_system_companies(r,data)
     r=process_system_products(r,data)
     print(f"Update catalogs from code took {datetime.now()-start}")
     
@@ -176,7 +178,7 @@ def process_system_companies(r,data):
         o=SystemCompanies()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
-        o.last=string2dtaware(d['last'], "%Y-%m-%d %H:%M:%S.", "UTC")
+        o.last=string2dtaware(d['last'], "JsUtcIso", "UTC")
         o.obsolete=bool(int(d["obsolete"]))
         
         qs_before=SystemCompanies.objects.filter(pk=d["id"])#Crash if not found

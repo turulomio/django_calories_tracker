@@ -72,7 +72,8 @@ class BiometricsSerializer(serializers.HyperlinkedModelSerializer):
 class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
 #    is_deletable = serializers.SerializerMethodField()
 #    is_editable = serializers.SerializerMethodField()
-    uses=serializers.IntegerField()
+#    is_editable = serializers.SerializerMethodField()
+    uses=serializers.IntegerField(read_only=True)
 
     class Meta:
         model = models.Companies
@@ -282,7 +283,7 @@ class ProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
         
 class ProductsSerializer(serializers.HyperlinkedModelSerializer):
     formats= ProductsFormatsThroughSerializer(many=True, read_only=True, source="productsformatsthrough_set")
-    uses_meals = serializers.IntegerField()
+    uses_meals = serializers.IntegerField(read_only=True)
     fullname = serializers.SerializerMethodField()
     
 

@@ -33,4 +33,5 @@ urlpatterns = [
     path('settings/', calories_tracker_views.Settings, name='Settings'),
     path('statistics/', calories_tracker_views.Statistics, name='Statistics'),
     path('system_products_to_products/', calories_tracker_views.SystemProduct2Product, name='SystemProduct2Product'),
+    path('system_companies_to_companies/', calories_tracker_views.SystemCompany2Company, name='SystemCompany2Company'),
 ]
