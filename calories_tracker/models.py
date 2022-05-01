@@ -279,7 +279,16 @@ class Companies(models.Model):
         
     def __str__(self):
         return self.name
-
+        
+    def is_editable(self):
+        if self.system_companies is None:
+            return True
+        return False
+        
+    def is_deletable(self):
+        if self.uses()>0:
+            return False
+        return True
 
 
 class Formats(models.Model):
@@ -561,15 +570,15 @@ class Products(models.Model):
 #            self._uses=Meals.objects.filter(products=self).count() + ProductsFormatsThrough.objects.filter(products=self).count() + ElaboratedProductsProductsInThrough.objects.filter(products=self).count()
 #        return self._uses
 
-    def is_editable(self):
-        if self.system_products is None and self.elaborated_products is None:
-            return True
-        return False
-        
-    def is_deletable(self):
-        if self.uses()>0:
-            return False
-        return True
+#    def is_editable(self):
+#        if self.system_products is None and self.elaborated_products is None:
+#            return True
+#        return False
+#        
+#    def is_deletable(self):
+#        if self.uses()>0:
+#            return False
+#        return True
 
 class ProductsFormatsThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)

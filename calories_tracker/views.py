@@ -170,15 +170,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
         
-        return models.Products.objects.select_related("companies","system_products", "elaborated_products").prefetch_related("additives").prefetch_related(
-        Prefetch(
-            'formats',
-            queryset=models.ProductsFormatsThrough.objects.select_related(
-                'products',
-                'formats',
-            ),
-        ),
-    ).annotate(uses_meals=Count("meals", distinct=True)).filter(user=self.request.user).order_by("name")
+        return models.Products.objects.select_related("companies","system_products", "elaborated_products").prefetch_related("additives").prefetch_related("productsformatsthrough_set").annotate(uses_meals=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
 
 
@@ -208,22 +200,23 @@ class SystemCompaniesViewSet(viewsets.ModelViewSet):
 
 
 class SystemProductsViewSet(viewsets.ModelViewSet):
-    queryset = models.SystemProducts.objects.all()
+    queryset = models.SystemProducts.objects.select_related("system_companies").prefetch_related("additives").prefetch_related("systemproductsformatsthrough_set").all()
     serializer_class = serializers.SystemProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
     ## api/system_products/search_not_in=hol. Search all system products that desn't hava a product yet with hol
     ## api/system_products/search=hol. Search all system products that contains search string in name
     def get_queryset(self):
+        print(dir(self.queryset[0]), self.queryset[0].__class__)
         search_not_in=RequestGetString(self.request, 'search_not_in') 
         search=RequestGetString(self.request, 'search') 
         if all_args_are_not_none(search_not_in):
             ## Gets system_companies_id already in companies
             ids_in_products=models.Products.objects.filter(user=self.request.user).values("system_products_id")
             ## Filter by name and exclude already
-            return models.SystemProducts.objects.filter(name__icontains=search).exclude(id__in=[o['system_products_id'] for o in ids_in_products]).order_by("name")
+            return self.queryset.filter(name__icontains=search).exclude(id__in=[o['system_products_id'] for o in ids_in_products]).order_by("name")
         if all_args_are_not_none(search):
-            return models.SystemProducts.objects.filter(name__icontains=search).order_by("name")
+            return self.queryset.filter(name__icontains=search).order_by("name")
         return self.queryset
     
 @csrf_exempt

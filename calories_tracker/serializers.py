@@ -82,6 +82,7 @@ class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['user']=self.context.get("request").user
         validated_data['last']=timezone.now()
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        created.uses=0#Needed to create although is read-only
         return created
 
     def get_is_deletable(self, o):
@@ -342,13 +343,12 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         return o.fullname()
         
     def get_is_deletable(self, o):
-        print(dir(o), o)
         if o.uses_meals>0:
             return False
         return True
 
     def get_is_editable(self, o):
-        if o.system_products is None:
+        if o.system_products is None or o.elaborated_products is None:
             return True
         return False
 
