@@ -149,4 +149,5 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CATALOG_MANAGER = True
+# Only developers should set CATALOG_MANAGER = True
+CATALOG_MANAGER = False
