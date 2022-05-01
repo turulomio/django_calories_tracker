@@ -611,11 +611,11 @@ class ElaboratedProducts(models.Model):
     def __str__(self):
         return self.name
         
-#    def uses(self):
-#        if not hasattr(self, "_uses"):
-#            product_associated=Products.objects.get(elaborated_products=self, user=self.user)
-#            self._uses=Meals.objects.filter(products=product_associated, user=self.user).count()
-#        return self._uses
+    def uses(self):
+        if not hasattr(self, "_uses"):
+            product_associated=Products.objects.get(elaborated_products=self, user=self.user)
+            self._uses=Meals.objects.filter(products=product_associated, user=self.user).count()
+        return self._uses
         
     def is_deletable(self):
         if self.uses() >0:

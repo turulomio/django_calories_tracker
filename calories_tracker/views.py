@@ -17,7 +17,6 @@ from rest_framework import viewsets, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from django.db.models import Prefetch
 
 class MyDjangoJSONEncoder(DjangoJSONEncoder):    
     def default(self, o):
@@ -107,11 +106,11 @@ class BiometricsViewSet(viewsets.ModelViewSet):
         return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user).order_by("datetime")
 
 class CompaniesViewSet(viewsets.ModelViewSet):
-    queryset = models.Companies.objects.all()
+    queryset = models.Companies.objects.select_related("system_companies").all()
     serializer_class = serializers.CompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]
     def get_queryset(self):
-        return models.Companies.objects.select_related("system_companies").filter(user=self.request.user).annotate(uses=Count("products", distinct=True)).order_by("name")
+        return self.queryset.filter(user=self.request.user).annotate(uses=Count("products", distinct=True)).order_by("name")
 
 
 class ElaboratedProductsViewSet(viewsets.ModelViewSet):
@@ -119,16 +118,9 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ElaboratedProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
-#    def get_queryset(self):
-#        return models.ElaboratedProducts.objects.prefetch_related(
-#        Prefetch(
-#            "products",
-#            queryset=models.ElaboratedProductsProductsInThrough.objects.select_related(
-#                'products',
-#                "elaborated_products"
-#            ),
-#        ),
-#    ).filter(user=self.request.user).order_by("name")
+    def get_queryset(self):
+#        print(dir(self.queryset[0]), self.queryset[0].__class__)
+        return self.queryset.filter(user=self.request.user).order_by("name")
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -170,7 +162,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
         
-        return models.Products.objects.select_related("companies","system_products", "elaborated_products").prefetch_related("additives").prefetch_related("productsformatsthrough_set").annotate(uses_meals=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
+        return models.Products.objects.select_related("companies","system_products", "elaborated_products").prefetch_related("additives").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
 
 
@@ -207,7 +199,6 @@ class SystemProductsViewSet(viewsets.ModelViewSet):
     ## api/system_products/search_not_in=hol. Search all system products that desn't hava a product yet with hol
     ## api/system_products/search=hol. Search all system products that contains search string in name
     def get_queryset(self):
-        print(dir(self.queryset[0]), self.queryset[0].__class__)
         search_not_in=RequestGetString(self.request, 'search_not_in') 
         search=RequestGetString(self.request, 'search') 
         if all_args_are_not_none(search_not_in):

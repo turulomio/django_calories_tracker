@@ -119,11 +119,12 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
     phosphor = serializers.SerializerMethodField()
     calcium = serializers.SerializerMethodField()
     glutenfree = serializers.SerializerMethodField()
+    is_deletable = serializers.SerializerMethodField()
     class Meta:
         model = models.ElaboratedProducts
         fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types', 'final_amount', 'products_in', 'calories', 
         'fat', 'protein', 'carbohydrate', 'salt', 'cholesterol', 'sodium', 'potassium', 'fiber', 'sugars', 
-        'saturated_fat', 'ferrum', 'magnesium', 'phosphor', 'calcium', 'glutenfree')
+        'saturated_fat', 'ferrum', 'magnesium', 'phosphor', 'calcium', 'glutenfree', 'is_deletable')
 
     def create(self, validated_data):
         data=self.context.get("request").data
@@ -201,6 +202,9 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
     def get_glutenfree(self, o):
         return o.is_glutenfree()
         
+    def get_is_deletable(self, o):
+        return o.is_deletable()
+
 class FoodTypesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
     class Meta:
@@ -287,7 +291,7 @@ class ProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
         
 class ProductsSerializer(serializers.HyperlinkedModelSerializer):
     formats= ProductsFormatsThroughSerializer(many=True, read_only=True, source="productsformatsthrough_set")
-    uses_meals = serializers.IntegerField(read_only=True)
+    uses = serializers.IntegerField(read_only=True)
     fullname = serializers.SerializerMethodField()
     
 
@@ -296,7 +300,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Products
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'fullname', 'uses_meals', 'is_editable', 'is_deletable')
+        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'fullname', 'uses', 'is_editable', 'is_deletable')
         
     def create(self, validated_data):
         data=self.context.get("request").data
@@ -312,7 +316,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
             th.products=created
             th.save()
         
-        created.uses_meals=0#Needed to create although is read-only
+        created.uses=0#Needed to create although is read-only
         return created
         
          
@@ -343,7 +347,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         return o.fullname()
         
     def get_is_deletable(self, o):
-        if o.uses_meals>0:
+        if o.uses>0:
             return False
         return True
 
