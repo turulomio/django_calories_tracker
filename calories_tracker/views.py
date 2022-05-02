@@ -1,21 +1,21 @@
 
 from calories_tracker import serializers
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
 from decimal import Decimal
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User # new
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count#, Prefetch
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, permissions
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 
 class MyDjangoJSONEncoder(DjangoJSONEncoder):    
@@ -114,12 +114,18 @@ class CompaniesViewSet(viewsets.ModelViewSet):
 
 
 class ElaboratedProductsViewSet(viewsets.ModelViewSet):
-    queryset = models.ElaboratedProducts.objects.all()
+    queryset = models.ElaboratedProducts.objects.all()    
+#    queryset = models.ElaboratedProducts.objects.prefetch_related(
+#        Prefetch(
+#            'products_in',
+#            queryset=models.ElaboratedProductsProductsInThrough.objects.select_related("products", "elaborated_products").all(),
+#        ),
+#    ).all()
     serializer_class = serializers.ElaboratedProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
     def get_queryset(self):
-#        print(dir(self.queryset[0]), self.queryset[0].__class__)
+        #print(dir(self.queryset[0]), self.queryset[0].__class__)
         return self.queryset.filter(user=self.request.user).order_by("name")
 
     def destroy(self, request, *args, **kwargs):
@@ -156,12 +162,21 @@ class MealsViewSet(viewsets.ModelViewSet):
             return models.Meals.objects.filter(user=self.request.user, datetime__date=day).order_by("datetime")
         return self.queryset
 
+    ## delete_several. meals as an array
+    @action(detail=False, methods=['post'])
+    def delete_several(self, request):
+        meals=RequestListUrl(request, "meals", models.Meals)
+        if all_args_are_not_none(meals):
+            for meal in meals:
+                meal.delete()
+            return Response('Meals.delete_several success')
+        return Response('Meals.delete_several failure')
+
 class ProductsViewSet(viewsets.ModelViewSet):
     queryset = models.Products.objects.all()
     serializer_class = serializers.ProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
-        
         return models.Products.objects.select_related("companies","system_products", "elaborated_products").prefetch_related("additives").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
 
