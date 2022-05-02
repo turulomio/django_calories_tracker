@@ -565,6 +565,11 @@ class Products(models.Model):
         
         return f"{self.name}{company}{version_parent}"
         
+    def additives_risk(self):
+        for a in self.additives:
+            print(a)
+        return None
+        
 #    def uses(self):
 #        if not hasattr(self, "_uses"):
 #            self._uses=Meals.objects.filter(products=self).count() + ProductsFormatsThrough.objects.filter(products=self).count() + ElaboratedProductsProductsInThrough.objects.filter(products=self).count()
