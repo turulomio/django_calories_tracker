@@ -242,7 +242,7 @@ def string2date(iso, format="YYYY-MM-DD"):
         error("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 
 def string2dtnaive(s, format):
-    allowed=["%Y%m%d%H%M","%Y-%m-%d %H:%M:%S","%d/%m/%Y %H:%M","%d %m %H:%M %Y","%Y-%m-%d %H:%M:%S.","%H:%M:%S"]
+    allowed=["%Y%m%d%H%M","%Y-%m-%d %H:%M:%S","%d/%m/%Y %H:%M","%d %m %H:%M %Y","%Y-%m-%d %H:%M:%S.","%H:%M:%S", '%b %d %H:%M:%S']
     if format in allowed:
         if format=="%Y%m%d%H%M":
             dat=datetime.strptime( s, format )
@@ -264,6 +264,9 @@ def string2dtnaive(s, format):
             tod=date.today()
             a=s.split(":")
             return datetime(tod.year, tod.month, tod.day, int(a[0]), int(a[1]), int(a[2]))
+        if format=='%b %d %H:%M:%S': #Apr 26 07:50:44. Year is missing so I set to current
+            s=f"{date.today().year} {s}"
+            return datetime.strptime(s, '%Y %b %d %H:%M:%S')
     else:
         error("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 

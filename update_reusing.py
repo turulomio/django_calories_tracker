@@ -26,11 +26,11 @@ if args.local==False:
     download_from_github("turulomio", "reusingcode", "python/datetime_functions.py", "calories_tracker/reusing")
     download_from_github("turulomio", "reusingcode", "python/text_inputs.py", "calories_tracker/reusing")
     download_from_github("turulomio", "reusingcode", "python/libmanagers.py", "calories_tracker/reusing")
+    download_from_github("turulomio", "django_moneymoney", "moneymoney/views_login.py", "calories_tracker/reusing")
     download_from_github("turulomio", "django_moneymoney", "moneymoney/request_casting.py", "calories_tracker/reusing")
 
 replace_in_file("calories_tracker/reusing/casts.py", "from currency", "from .currency")
 replace_in_file("calories_tracker/reusing/casts.py", "from percentage", "from .percentage")
-
 replace_in_file("calories_tracker/reusing/listdict_functions.py", "from casts", "from .casts")
-
 replace_in_file("calories_tracker/reusing/request_casting.py", ".reusing", "")
+replace_in_file("calories_tracker/reusing/views_login.py", "moneymoney", "")

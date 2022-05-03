@@ -36,10 +36,10 @@ def list2string(lista):
             return resultado[:-2]
 
 ## Reverse function of list2string where class is a str
-def string2list_of_strings(s):
+def string2list_of_strings(s, separator=", "):
     arr=[]
     if s!="":
-        arrs=s.split(", ")
+        arrs=s.split(separator)
         for a in arrs:
             arr.append(a[1:-1])
     return arr

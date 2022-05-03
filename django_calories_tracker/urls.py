@@ -4,6 +4,7 @@ from django.contrib import admin# Need to import this since auth models get regi
 from rest_framework import routers
 
 from calories_tracker import views as calories_tracker_views
+from calories_tracker.reusing import views_login as calories_tracker_views_login
 router = routers.DefaultRouter()
 router.register(r'activities', calories_tracker_views.ActivitiesViewSet)
 router.register(r'additive_risks', calories_tracker_views.AdditiveRisksViewSet)
@@ -27,8 +28,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('catalog_manager/', calories_tracker_views.CatalogManager, name='CatalogManager'),
     
-    path('login/', calories_tracker_views.login, name="login"), 
-    path('logout/', calories_tracker_views.logout, name="logout"), 
+    path('login/', calories_tracker_views_login.login, name="login"), 
+    path('logout/', calories_tracker_views_login.logout, name="logout"), 
     path('time/', calories_tracker_views.Time, name='Time'),
     path('settings/', calories_tracker_views.Settings, name='Settings'),
     path('statistics/', calories_tracker_views.Statistics, name='Statistics'),
