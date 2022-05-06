@@ -293,6 +293,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
     formats= ProductsFormatsThroughSerializer(many=True, read_only=True, source="productsformatsthrough_set")
     uses = serializers.IntegerField(read_only=True)
     fullname = serializers.SerializerMethodField()
+    additives_risk = serializers.SerializerMethodField()
     
 
     is_deletable = serializers.SerializerMethodField()
@@ -300,7 +301,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Products
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'fullname', 'uses', 'is_editable', 'is_deletable')
+        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'fullname', 'uses', 'is_editable', 'is_deletable', 'additives_risk')
         
     def create(self, validated_data):
         data=self.context.get("request").data
@@ -355,6 +356,9 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         if o.system_products is None or o.elaborated_products is None:
             return True
         return False
+        
+    def get_additives_risk(self, o):
+        return o.additives_risk()
 
 class ProfilesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

@@ -566,9 +566,12 @@ class Products(models.Model):
         return f"{self.name}{company}{version_parent}"
         
     def additives_risk(self):
-        for a in self.additives:
-            print(a)
-        return None
+        r=0
+        for a in self.additives.all():
+            if a.additive_risks.id>r:
+                r=a.additive_risks.id
+                
+        return r
         
 #    def uses(self):
 #        if not hasattr(self, "_uses"):
