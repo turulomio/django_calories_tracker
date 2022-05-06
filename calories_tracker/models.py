@@ -623,14 +623,15 @@ class ElaboratedProducts(models.Model):
     class Meta:
         managed = True
         db_table = 'elaborated_products'
+        
     def __str__(self):
         return self.name
         
-    def uses(self):
-        if not hasattr(self, "_uses"):
-            product_associated=Products.objects.get(elaborated_products=self, user=self.user)
-            self._uses=Meals.objects.filter(products=product_associated, user=self.user).count()
-        return self._uses
+#    def uses(self):
+#        if not hasattr(self, "_uses"):
+#            product_associated=Products.objects.get(elaborated_products=self, user=self.user)
+#            self._uses=Meals.objects.filter(products=product_associated, user=self.user).count()
+#        return self._uses
         
     def is_deletable(self):
         if self.uses() >0:
@@ -639,7 +640,8 @@ class ElaboratedProducts(models.Model):
         
     def get_products_in(self):
         if not hasattr(self, "_products_in") :
-            self._products_in=ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=self)
+            self._products_in=ElaboratedProductsProductsInThrough.objects.select_related("products").prefetch_related("products__additives__additive_risks").filter(elaborated_products=self)
+            print(dir(self._products_in[0]), self._products_in[0])
         return self._products_in
 
 
@@ -697,7 +699,15 @@ class ElaboratedProducts(models.Model):
         if total is True:
             return all_pi_component
         else:
-            return 100*all_pi_component/self.final_amount
+            return 100*all_pi_component/self.final_amount     
+            
+    def additives_risk(self):
+        r=0
+        for pi in self.get_products_in():
+            ar=pi.products.additives_risk()
+            if ar>r:
+                r=ar
+        return r
 
 class ElaboratedProductsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)

@@ -119,12 +119,14 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
     phosphor = serializers.SerializerMethodField()
     calcium = serializers.SerializerMethodField()
     glutenfree = serializers.SerializerMethodField()
-#    is_deletable = serializers.SerializerMethodField()
+    additives_risk = serializers.SerializerMethodField()
+    fullname = serializers.SerializerMethodField()
+
     class Meta:
         model = models.ElaboratedProducts
         fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types', 'final_amount', 'products_in', 'calories', 
         'fat', 'protein', 'carbohydrate', 'salt', 'cholesterol', 'sodium', 'potassium', 'fiber', 'sugars', 
-        'saturated_fat', 'ferrum', 'magnesium', 'phosphor', 'calcium', 'glutenfree')
+        'saturated_fat', 'ferrum', 'magnesium', 'phosphor', 'calcium', 'glutenfree', 'additives_risk', "fullname")
 
     def create(self, validated_data):
         data=self.context.get("request").data
@@ -202,8 +204,12 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
     def get_glutenfree(self, o):
         return o.is_glutenfree()
         
-#    def get_is_deletable(self, o):
-#        return o.is_deletable()
+    def get_additives_risk(self, o):
+        return o.additives_risk()
+    ## For common development with products and system_products
+    def get_fullname(self, o):
+        return o.name
+
 
 class FoodTypesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
