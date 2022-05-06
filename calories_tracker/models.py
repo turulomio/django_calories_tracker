@@ -626,13 +626,7 @@ class ElaboratedProducts(models.Model):
         
     def __str__(self):
         return self.name
-        
-#    def uses(self):
-#        if not hasattr(self, "_uses"):
-#            product_associated=Products.objects.get(elaborated_products=self, user=self.user)
-#            self._uses=Meals.objects.filter(products=product_associated, user=self.user).count()
-#        return self._uses
-        
+
     def is_deletable(self):
         if self.uses() >0:
             return False
@@ -641,7 +635,6 @@ class ElaboratedProducts(models.Model):
     def get_products_in(self):
         if not hasattr(self, "_products_in") :
             self._products_in=ElaboratedProductsProductsInThrough.objects.select_related("products").prefetch_related("products__additives__additive_risks").filter(elaborated_products=self)
-            print(dir(self._products_in[0]), self._products_in[0])
         return self._products_in
 
 
