@@ -172,7 +172,7 @@ class SystemCompaniesViewSet(viewsets.ModelViewSet):
 
 
 class SystemProductsViewSet(viewsets.ModelViewSet):
-    queryset = models.SystemProducts.objects.select_related("system_companies").prefetch_related("additives").prefetch_related("systemproductsformatsthrough_set").all()
+    queryset = models.SystemProducts.objects.select_related("system_companies").prefetch_related("additives",  "additives__additive_risks","systemproductsformatsthrough_set").all()
     serializer_class = serializers.SystemProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     

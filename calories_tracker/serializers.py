@@ -395,10 +395,11 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
     system_company_name = serializers.SerializerMethodField()
     formats= SystemProductsFormatsThroughSerializer(many=True, read_only=True, source="systemproductsformatsthrough_set")
     fullname = serializers.SerializerMethodField()
+    additives_risk = serializers.SerializerMethodField()
 
     class Meta:
         model = models.SystemProducts
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname')
+        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname', 'additives_risk')
 
     def create(self, validated_data):
         request=self.context.get("request")
@@ -447,6 +448,9 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_fullname(self, o):
         return o.fullname()
+
+    def get_additives_risk(self, o):
+        return o.additives_risk()
 
 class WeightWishesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()

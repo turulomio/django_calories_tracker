@@ -502,7 +502,14 @@ class SystemProducts(models.Model):
             qs=SystemProducts.objects.filter(id__in=system_products_ids_in_products)
             for sp in qs:
                 sp.update_linked_product(user)
-        
+                
+    def additives_risk(self):
+        r=0
+        for a in self.additives.all():
+            if a.additive_risks.id>r:
+                r=a.additive_risks.id
+                
+        return r
 
 class SystemProductsFormatsThrough(models.Model):
     system_products = models.ForeignKey(SystemProducts, on_delete=models.DO_NOTHING)
