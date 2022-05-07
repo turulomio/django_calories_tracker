@@ -32,6 +32,7 @@ urlpatterns = [
     path('login/', calories_tracker_views_login.login, name="login"), 
     path('logout/', calories_tracker_views_login.logout, name="logout"), 
     path('maintenance/catalogs/update/', calories_tracker_views.MaintenanceCatalogsUpdate, name='MaintenanceCatalogsUpdate'),
+    path('meals/ranking/', calories_tracker_views.MealsRanking, name='MealsRanking'),
     path('time/', calories_tracker_views.Time, name='Time'),
     path('settings/', calories_tracker_views.Settings, name='Settings'),
     path('statistics/', calories_tracker_views.Statistics, name='Statistics'),

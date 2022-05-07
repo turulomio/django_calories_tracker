@@ -1,5 +1,6 @@
 from calories_tracker import serializers
 from calories_tracker import models
+from calories_tracker.reusing.listdict_functions import listdict_order_by
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
 from calories_tracker.update_data import update_from_data
 from datetime import datetime
@@ -9,6 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.db.models import Count, Min
 from django.http import JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
@@ -323,7 +325,7 @@ def Curiosities(request):
             sel_p=p
             sel_cal=tmp_cal
     r.append({
-        "question":_("Which is the product with highest calories in 100 gramos?"), 
+        "question":_("Which is the product with highest calories in 100 g?"), 
         "answer":_("The product with highest calories is '{0}' with {1} calories.").format(sel_p.fullname(), round(sel_cal, 0))
     })
 
@@ -389,4 +391,26 @@ def Curiosities(request):
             "answer": _("My median weight is {} kg").format(median_), 
         })
         
+    return JsonResponse(r, safe=False)
+
+@csrf_exempt
+@api_view(['GET', ])
+@permission_classes([permissions.IsAuthenticated, ])
+def MealsRanking(request):
+    from_date=RequestGetDate(request, "from_date")
+    qs_meals=models.Meals.objects.select_related("products").filter(user=request.user)
+    if from_date is not None:
+        qs_meals=qs_meals.filter(datetime__date__gte=from_date)
+    dict_meals_by_day_amount={}
+    for m in qs_meals:
+        dict_meals_by_day_amount[m.products.id]=dict_meals_by_day_amount.get(m.products.id, 0)+m.amount
+
+    r=[]
+    for key, value in dict_meals_by_day_amount.items():
+        r.append({
+            "product": request.build_absolute_uri(reverse('products-detail', args=(key, ))), 
+            "amount": value, 
+        })
+
+    r=listdict_order_by(r, "amount", reverse=True)
     return JsonResponse(r, safe=False)
