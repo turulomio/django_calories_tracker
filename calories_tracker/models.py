@@ -580,20 +580,13 @@ class Products(models.Model):
                 
         return r
         
-#    def uses(self):
-#        if not hasattr(self, "_uses"):
-#            self._uses=Meals.objects.filter(products=self).count() + ProductsFormatsThrough.objects.filter(products=self).count() + ElaboratedProductsProductsInThrough.objects.filter(products=self).count()
-#        return self._uses
 
-#    def is_editable(self):
-#        if self.system_products is None and self.elaborated_products is None:
-#            return True
-#        return False
-#        
-#    def is_deletable(self):
-#        if self.uses()>0:
-#            return False
-#        return True
+    ## name can be, fat, saturated_fat, fiber, sodiumm...
+    def getProductComponentIn100g(self, name, decimals=2):
+        component=getattr(self, name)
+        if component is None or self.amount==0:
+            return None
+        return component*100/self.amount
 
 class ProductsFormatsThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)

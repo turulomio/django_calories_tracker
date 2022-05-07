@@ -16,6 +16,7 @@ from json import loads
 from rest_framework import viewsets, permissions,  status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
+from statistics import median
 from urllib import request as urllib_request
 
 class MyDjangoJSONEncoder(DjangoJSONEncoder):    
@@ -296,7 +297,15 @@ def MaintenanceCatalogsUpdate(request):
 def Curiosities(request):
     r=[]
     
-    if models.Meals.objects.filter(user=request.user).count()>0:
+    qs_products=models.Products.objects.filter(user=request.user)
+    qs_meals=models.Meals.objects.select_related("products").filter(user=request.user)
+    dict_meals_by_day_calories={}
+    qs_biometrics=models.Biometrics.objects.filter(user=request.user).order_by("datetime")
+    for m in qs_meals:
+        dict_meals_by_day_calories[str(m.datetime.date())]=dict_meals_by_day_calories.get(str(m.datetime.date()), 0)+m.getProductComponent("calories")
+    
+    
+    if len(qs_meals)>0:
         value=models.Meals.objects.filter(user=request.user).aggregate(Min("datetime"))["datetime__min"]
         print(value)
         r.append({
@@ -304,50 +313,80 @@ def Curiosities(request):
             "answer": _("The first data is from {0}").format(value)
         })
         
+        
+        
+    sel_p=None
+    sel_cal=0
+    for p in qs_products:
+        tmp_cal=p.getProductComponentIn100g("calories")
+        if tmp_cal>sel_cal:
+            sel_p=p
+            sel_cal=tmp_cal
     r.append({
         "question":_("Which is the product with highest calories in 100 gramos?"), 
-        "answer":_("The product with highest calories is {} with {} calories.")
+        "answer":_("The product with highest calories is '{0}' with {1} calories.").format(sel_p.fullname(), round(sel_cal, 0))
     })
-#        selected=None
-#        amount=0
-#        for product in self.mem.data.products.arr:
-#            productamount=product.component_in_100g(eProductComponent.Calories)
-#            if productamount>amount:
-#                selected=product
-#                amount=productamount
-#        c.setText(self.tr(.format(selected.fullName(), selected.component_in_100g(eProductComponent.Calories))))
-#        self.layout.addWidget(c)
-#
 
-#        if num_meals>0:
-#            c=wdgCuriosity(self.mem)
-#            c.setTitle(self.tr("Which is the meal with highest calories I had eaten?"))
-#            c.setText(self.tr("The meal with the highest calories I ate was '{}' with '{}' calories. I ate at {}.").format(*self.query_meal_with_the_highest_calories()))
-#            self.layout.addWidget(c)
-#
-#            c=wdgCuriosity(self.mem)
-#            c.setTitle(self.tr("When did I take the highest calories amount in a day?"))
-#            c.setText(self.tr("The day I took the highest amount of calories was {} and I took {}.").format(*self.query_day_i_took_the_highest_amount_of_calories()))
-#            self.layout.addWidget(c)
-#        
-#        self.addSeparator()
-#        
-#        c=wdgCuriosity(self.mem)
-#        dt, weight=self.mem.con.cursor_one_row("select datetime, max(weight) from biometrics where users_id=%s group by datetime order by max(weight) desc limit 1", (self.mem.user.id, ))
-#        c.setTitle(self.tr("When did I have my highest weight?"))
-#        c.setText(self.tr("My highest weight was {} at {}").format(weight, dt))
-#        self.layout.addWidget(c)
-#        
-#        c=wdgCuriosity(self.mem)
-#        dt, weight=self.mem.con.cursor_one_row("select datetime, min(weight) from biometrics where users_id=%s group by datetime order by min(weight) limit 1", (self.mem.user.id, ))
-#        c.setTitle(self.tr("When did I have my lowest weight?"))
-#        c.setText(self.tr("My lowest weight was {} at {}").format(weight, dt))
-#        self.layout.addWidget(c)
-#
-#        c=wdgCuriosity(self.mem)
-#        weight=self.mem.con.cursor_one_field("select percentile_disc(0.5) within group (order by weight) from biometrics where users_id=%s;", (self.mem.user.id, ))
-#        c.setTitle(self.tr("Which is my median weight?"))
-#        c.setText(self.tr("My median weight is {}").format(weight))
-#        self.layout.addWidget(c)
 
+    if len(qs_meals)>0:
+        sel_m=None
+        sel_cal=0
+        for m in qs_meals:
+            tmp_cal=m.getProductComponent("calories")
+            if tmp_cal>sel_cal:
+                sel_m=m
+                sel_cal=tmp_cal
+        r.append({
+            "question":_("Which is the meal with highest calories I had eaten?"), 
+            "answer": _("The meal with the highest calories I ate was '{}' with '{}' calories. I ate {}g at {}.").format(sel_m.products.fullname(), round(sel_cal, 0), round(sel_m.amount, 0), sel_m.datetime), 
+        })
+        
+        
+        
+    if len(qs_meals)>0:
+        sel_key=""
+        sel_value=0
+        for key, value in dict_meals_by_day_calories.items():
+            if value>sel_value:
+                sel_key=key
+                sel_value=value 
+        r.append({
+            "question":_("When did I take the highest calories amount in a day?"), 
+            "answer": _("The day I took the highest amount of calories was '{}' and I took {}.").format(sel_key, round(sel_value, 0)), 
+        })
+
+
+    if len(qs_biometrics)>0:
+        sel_b=None
+        sel_weight=0
+        for b in qs_biometrics:
+            if b.weight>sel_weight:
+                sel_b=b
+                sel_weight=b.weight
+        r.append({
+            "question":_("When did I have my highest weight?"), 
+            "answer": _("My highest weight was {} kg at {}").format(sel_weight, sel_b.datetime), 
+        })
+        
+
+    if len(qs_biometrics)>0:
+        sel_b=None
+        sel_weight=10000
+        for b in qs_biometrics:
+            if b.weight<sel_weight:
+                sel_b=b
+                sel_weight=b.weight
+        r.append({
+            "question":_("When did I have my lowest weight?"), 
+            "answer": _("My lowest weight was {} kg at {}").format(sel_weight, sel_b.datetime), 
+        })
+        
+        
+    if len(qs_biometrics)>0:
+        median_=median([b.weight for b in qs_biometrics])
+        r.append({
+            "question":_("Which is my median weight?"), 
+            "answer": _("My median weight is {} kg").format(median_), 
+        })
+        
     return JsonResponse(r, safe=False)
