@@ -19,23 +19,19 @@ def update_from_code():
     start=datetime.now()
     with open("calories_tracker/data/catalogs.json") as f:
         data= process_catalogs(f)
-        
-    r={}
-    r=process_activities(r,data)
-    r=process_additive_risks(r,data)
-    r=process_weight_wishes(r,data)
-    r=process_additives(r,data)
-    r=process_food_types(r,data)
-    r=process_formats(r,data)
-    r=process_system_companies(r,data)
-    r=process_system_products(r,data)
+    update_from_data(data)
     print(f"Update catalogs from code took {datetime.now()-start}")
     
 ## Used to update a started app
 def update_from_github():
     start=datetime.now()
-    r={}
     data=process_catalogs()
+    update_from_data(data)
+    print(f"Update catalogs from code took {datetime.now()-start}")
+    
+## Used to update a started app
+def update_from_data(data):
+    r={}
     r=process_activities(r,data)
     r=process_additive_risks(r,data)
     r=process_weight_wishes(r,data)
@@ -44,12 +40,11 @@ def update_from_github():
     r=process_formats(r,data)
     r=process_system_companies(r,data)
     r=process_system_products(r,data)
-    print(f"Update catalogs from code took {datetime.now()-start}")
     
     ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
 def process_catalogs(file_descriptor=None):
     if file_descriptor is None:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/additive_risks.json")
+        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/catalgs.json")
         data =  loads(response.read())
     else:
         data=loads(file_descriptor.read())

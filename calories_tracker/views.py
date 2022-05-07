@@ -1,7 +1,8 @@
-
 from calories_tracker import serializers
 from calories_tracker import models
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
+from calories_tracker.update_data import update_from_data
+from datetime import datetime
 from decimal import Decimal
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
@@ -11,9 +12,11 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import viewsets, permissions
+from json import loads
+from rest_framework import viewsets, permissions,  status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
+from urllib import request as urllib_request
 
 class MyDjangoJSONEncoder(DjangoJSONEncoder):    
     def default(self, o):
@@ -273,3 +276,32 @@ def Statistics(request):
     for name, cls in ((_("Activities"), models.Activities), (_("Additive risks"), models.AdditiveRisks), (_("Additives"), models.Additives), (_("Food types"),  models.FoodTypes)):
         r.append({"name": name, "value":cls.objects.all().count()})
     return JsonResponse(r, safe=False)
+
+
+@csrf_exempt
+@api_view(['POST', ])
+@permission_classes([permissions.IsAuthenticated, ])
+@transaction.atomic
+def MaintenanceCatalogsUpdate(request):
+    start=datetime.now()
+    auto=RequestBool(request, "auto", False) ## Uses automatic request with settings globals investing.com   
+    if auto is True:
+        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/catalogs.json")
+        data =  loads(response. read())
+        update_from_data(data)
+    else:
+        # if not GET, then proceed
+        if "json_file1" not in request.FILES:
+            return Response({'status': 'You must upload a file'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            json_file = request.FILES["json_file1"]
+            
+        if not json_file.name.endswith('.json'):
+            return Response({'status': 'File has not .json extension'}, status=status.HTTP_404_NOT_FOUND)
+
+        data=loads(json_file.read())
+        update_from_data(data)
+
+    print(f"Update catalogs took {datetime.now()-start}")
+
+    return JsonResponse( True, encoder=MyDjangoJSONEncoder, safe=False)
