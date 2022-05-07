@@ -7,7 +7,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
-from django.db.models import Count#, Prefetch
+from django.db.models import Count, Min
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -217,24 +217,6 @@ def SystemCompany2Company(request):
         return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
     return JsonResponse( False, encoder=MyDjangoJSONEncoder,     safe=False)
     
-    
-    
-    
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated, ])
-## Stores a filename encoded to base64 in a global variable
-## Global: base64_{name}.{extension}
-## @param only binary data, don't have to include data:image/png;base64 or similar
-## Para guardarlo a ficheros se puede hacer
-##    f=open(f"/tmp/{filename}", "wb")
-##    f.write(b64decode(data))
-##    f.close()
-### @global_ For Example: base64_assetsreport_report_annual_chart.png
-def Binary2Global(request):
-    pass
-    
-    
 @csrf_exempt
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.IsAuthenticated, ])
@@ -305,3 +287,67 @@ def MaintenanceCatalogsUpdate(request):
     print(f"Update catalogs took {datetime.now()-start}")
 
     return JsonResponse( True, encoder=MyDjangoJSONEncoder, safe=False)
+    
+    
+
+@csrf_exempt
+@api_view(['GET', ])
+@permission_classes([permissions.IsAuthenticated, ])
+def Curiosities(request):
+    r=[]
+    
+    if models.Meals.objects.filter(user=request.user).count()>0:
+        value=models.Meals.objects.filter(user=request.user).aggregate(Min("datetime"))["datetime__min"]
+        print(value)
+        r.append({
+            "question":_("Since when there is data in the database?"), 
+            "answer": _("The first data is from {0}").format(value)
+        })
+        
+    r.append({
+        "question":_("Which is the product with highest calories in 100 gramos?"), 
+        "answer":_("The product with highest calories is {} with {} calories.")
+    })
+#        selected=None
+#        amount=0
+#        for product in self.mem.data.products.arr:
+#            productamount=product.component_in_100g(eProductComponent.Calories)
+#            if productamount>amount:
+#                selected=product
+#                amount=productamount
+#        c.setText(self.tr(.format(selected.fullName(), selected.component_in_100g(eProductComponent.Calories))))
+#        self.layout.addWidget(c)
+#
+
+#        if num_meals>0:
+#            c=wdgCuriosity(self.mem)
+#            c.setTitle(self.tr("Which is the meal with highest calories I had eaten?"))
+#            c.setText(self.tr("The meal with the highest calories I ate was '{}' with '{}' calories. I ate at {}.").format(*self.query_meal_with_the_highest_calories()))
+#            self.layout.addWidget(c)
+#
+#            c=wdgCuriosity(self.mem)
+#            c.setTitle(self.tr("When did I take the highest calories amount in a day?"))
+#            c.setText(self.tr("The day I took the highest amount of calories was {} and I took {}.").format(*self.query_day_i_took_the_highest_amount_of_calories()))
+#            self.layout.addWidget(c)
+#        
+#        self.addSeparator()
+#        
+#        c=wdgCuriosity(self.mem)
+#        dt, weight=self.mem.con.cursor_one_row("select datetime, max(weight) from biometrics where users_id=%s group by datetime order by max(weight) desc limit 1", (self.mem.user.id, ))
+#        c.setTitle(self.tr("When did I have my highest weight?"))
+#        c.setText(self.tr("My highest weight was {} at {}").format(weight, dt))
+#        self.layout.addWidget(c)
+#        
+#        c=wdgCuriosity(self.mem)
+#        dt, weight=self.mem.con.cursor_one_row("select datetime, min(weight) from biometrics where users_id=%s group by datetime order by min(weight) limit 1", (self.mem.user.id, ))
+#        c.setTitle(self.tr("When did I have my lowest weight?"))
+#        c.setText(self.tr("My lowest weight was {} at {}").format(weight, dt))
+#        self.layout.addWidget(c)
+#
+#        c=wdgCuriosity(self.mem)
+#        weight=self.mem.con.cursor_one_field("select percentile_disc(0.5) within group (order by weight) from biometrics where users_id=%s;", (self.mem.user.id, ))
+#        c.setTitle(self.tr("Which is my median weight?"))
+#        c.setText(self.tr("My median weight is {}").format(weight))
+#        self.layout.addWidget(c)
+
+    return JsonResponse(r, safe=False)
