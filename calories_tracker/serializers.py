@@ -359,9 +359,9 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         return True
 
     def get_is_editable(self, o):
-        if o.system_products is None or o.elaborated_products is None:
-            return True
-        return False
+        if o.system_products is not None or o.elaborated_products is not None:
+            return False
+        return True
         
     def get_additives_risk(self, o):
         return o.additives_risk()
