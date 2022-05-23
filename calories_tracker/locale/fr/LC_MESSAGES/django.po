@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 10:14+0000\n"
+"POT-Creation-Date: 2022-05-23 18:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -591,78 +591,78 @@ msgstr ""
 msgid "Created"
 msgstr ""
 
-#: calories_tracker/views.py:261
+#: calories_tracker/views.py:266
 msgid "Activities"
 msgstr ""
 
-#: calories_tracker/views.py:261
+#: calories_tracker/views.py:266
 msgid "Additive risks"
 msgstr ""
 
-#: calories_tracker/views.py:261
+#: calories_tracker/views.py:266
 msgid "Additives"
 msgstr ""
 
-#: calories_tracker/views.py:261
+#: calories_tracker/views.py:266
 msgid "Food types"
 msgstr ""
 
-#: calories_tracker/views.py:314
+#: calories_tracker/views.py:319
 msgid "Since when there is data in the database?"
 msgstr ""
 
-#: calories_tracker/views.py:315
+#: calories_tracker/views.py:320
 #, python-brace-format
 msgid "The first data is from {0}"
 msgstr ""
 
-#: calories_tracker/views.py:328
+#: calories_tracker/views.py:333
 msgid "Which is the product with highest calories in 100 g?"
 msgstr ""
 
-#: calories_tracker/views.py:329
+#: calories_tracker/views.py:334
 #, python-brace-format
 msgid "The product with highest calories is '{0}' with {1} calories."
 msgstr ""
 
-#: calories_tracker/views.py:342
+#: calories_tracker/views.py:347
 msgid "Which is the meal with highest calories I had eaten?"
 msgstr ""
 
-#: calories_tracker/views.py:343
+#: calories_tracker/views.py:348
 msgid ""
 "The meal with the highest calories I ate was '{}' with '{}' calories. I ate "
 "{}g at {}."
 msgstr ""
 
-#: calories_tracker/views.py:356
+#: calories_tracker/views.py:361
 msgid "When did I take the highest calories amount in a day?"
 msgstr ""
 
-#: calories_tracker/views.py:357
+#: calories_tracker/views.py:362
 msgid "The day I took the highest amount of calories was '{}' and I took {}."
 msgstr ""
 
-#: calories_tracker/views.py:369
+#: calories_tracker/views.py:374
 msgid "When did I have my highest weight?"
 msgstr ""
 
-#: calories_tracker/views.py:370
+#: calories_tracker/views.py:375
 msgid "My highest weight was {} kg at {}"
 msgstr ""
 
-#: calories_tracker/views.py:382
+#: calories_tracker/views.py:387
 msgid "When did I have my lowest weight?"
 msgstr ""
 
-#: calories_tracker/views.py:383
+#: calories_tracker/views.py:388
 msgid "My lowest weight was {} kg at {}"
 msgstr ""
 
-#: calories_tracker/views.py:390
+#: calories_tracker/views.py:395
 msgid "Which is my median weight?"
 msgstr ""
 
-#: calories_tracker/views.py:391
+#: calories_tracker/views.py:396
 msgid "My median weight is {} kg"
 msgstr ""

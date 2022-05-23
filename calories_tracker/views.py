@@ -59,6 +59,11 @@ class AdditiveRisksViewSet(viewsets.ModelViewSet):
     queryset = models.AdditiveRisks.objects.all()
     serializer_class = serializers.AdditiveRisksSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    
+    def get_queryset(self):
+        print(self.request)
+        print(self.request._request.headers)
+        return self.queryset
 
 class AdditivesViewSet(viewsets.ModelViewSet):
     queryset = models.Additives.objects.all()
