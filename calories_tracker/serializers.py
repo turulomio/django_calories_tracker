@@ -349,7 +349,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
             th.save()
         
         return updated
-
+        
     def get_fullname(self, o):
         return o.fullname()
         

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 14:59+0000\n"
+"POT-Creation-Date: 2022-05-23 10:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,11 +20,11 @@ msgstr ""
 
 #: calories_tracker/admin.py:152 calories_tracker/admin.py:153
 msgid "Django Calories Tracker"
-msgstr ""
+msgstr "Django Calories Tracker"
 
 #: calories_tracker/admin.py:154
 msgid "My Django Calories Tracker administration"
-msgstr ""
+msgstr "Mi administración de Django Calories Tracker"
 
 #: calories_tracker/hardcoded_strings.py:2
 msgid "Alcohol-free beer"
@@ -40,7 +40,7 @@ msgstr "Manzana"
 
 #: calories_tracker/hardcoded_strings.py:5
 msgid "Bacon"
-msgstr ""
+msgstr "Beicon"
 
 #: calories_tracker/hardcoded_strings.py:6
 msgid "Bag"
@@ -104,19 +104,19 @@ msgstr "Coliflor"
 
 #: calories_tracker/hardcoded_strings.py:21
 msgid "Cherimoya"
-msgstr ""
+msgstr "Chirimoya"
 
 #: calories_tracker/hardcoded_strings.py:22
 msgid "Chestnuts"
-msgstr ""
+msgstr "Castañas"
 
 #: calories_tracker/hardcoded_strings.py:23
 msgid "Chicken. Raw"
-msgstr ""
+msgstr "Pollo crudo"
 
 #: calories_tracker/hardcoded_strings.py:24
 msgid "Chips"
-msgstr ""
+msgstr "Patatas fritas"
 
 #: calories_tracker/hardcoded_strings.py:25
 msgid "Churros"
@@ -124,7 +124,7 @@ msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:26
 msgid "Cola Cao Original"
-msgstr ""
+msgstr "Cola Cao Original"
 
 #: calories_tracker/hardcoded_strings.py:27
 msgid "Cookie"
@@ -132,36 +132,36 @@ msgstr "Galleta"
 
 #: calories_tracker/hardcoded_strings.py:28
 msgid "Croissant"
-msgstr ""
+msgstr "Cruasán"
 
 #: calories_tracker/hardcoded_strings.py:29
 msgid "Dairy products"
-msgstr ""
+msgstr "Productos lácteos"
 
 #: calories_tracker/hardcoded_strings.py:30
 msgid "Diet drinks"
-msgstr ""
+msgstr "Bebidas dietéticas"
 
 #: calories_tracker/hardcoded_strings.py:31
 msgid "Drained can"
-msgstr ""
+msgstr "Lata escurrida"
 
 #: calories_tracker/hardcoded_strings.py:32
 msgid "Drained small can"
-msgstr ""
+msgstr "Pequeña lata escurrida"
 
 #: calories_tracker/hardcoded_strings.py:33
 msgid "Dry nuts"
-msgstr ""
+msgstr "Nueces"
 
 #: calories_tracker/hardcoded_strings.py:34
 msgid "Duck foie grass mousse"
-msgstr ""
+msgstr "Mousse de foie grass de pato"
 
 #: calories_tracker/hardcoded_strings.py:35
 #: calories_tracker/hardcoded_strings.py:36
 msgid "Eggs"
-msgstr ""
+msgstr "Huevos"
 
 #: calories_tracker/hardcoded_strings.py:37
 msgid "Extra active"
@@ -169,23 +169,23 @@ msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:38
 msgid "Extra virgin olive oil"
-msgstr ""
+msgstr "Aceite de oliva extra virgen"
 
 #: calories_tracker/hardcoded_strings.py:39
 msgid "Fish"
-msgstr ""
+msgstr "Pescado"
 
 #: calories_tracker/hardcoded_strings.py:40
 msgid "Fried eggs"
-msgstr ""
+msgstr "Huevos fritos"
 
 #: calories_tracker/hardcoded_strings.py:41
 msgid "Fried peanuts"
-msgstr ""
+msgstr "Cacahuetes fritos"
 
 #: calories_tracker/hardcoded_strings.py:42
 msgid "Fruit"
-msgstr ""
+msgstr "Fruta"
 
 #: calories_tracker/hardcoded_strings.py:43
 msgid "Gain weight"
@@ -196,10 +196,8 @@ msgid "Garlic"
 msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:45
-#, fuzzy
-#| msgid "Gains"
 msgid "Gin"
-msgstr "Ganancias"
+msgstr "Ginebra"
 
 #: calories_tracker/hardcoded_strings.py:46
 msgid "Goat cheese"
@@ -207,35 +205,35 @@ msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:47
 msgid "Grape"
-msgstr ""
+msgstr "Uva"
 
 #: calories_tracker/hardcoded_strings.py:48
 msgid "Green asparagus"
-msgstr ""
+msgstr "Espárragos verdes"
 
 #: calories_tracker/hardcoded_strings.py:49
 msgid "Green pepper"
-msgstr ""
+msgstr "Pimiento verde"
 
 #: calories_tracker/hardcoded_strings.py:50
 msgid "Ham croquettes"
-msgstr ""
+msgstr "Croquetas de jamón"
 
 #: calories_tracker/hardcoded_strings.py:51
 msgid "Ham"
-msgstr ""
+msgstr "Jamón"
 
 #: calories_tracker/hardcoded_strings.py:52
 msgid "High"
-msgstr ""
+msgstr "Alto"
 
 #: calories_tracker/hardcoded_strings.py:53
 msgid "Homemade food"
-msgstr ""
+msgstr "Comida casera"
 
 #: calories_tracker/hardcoded_strings.py:54
 msgid "Honey"
-msgstr ""
+msgstr "Miel"
 
 #: calories_tracker/hardcoded_strings.py:55
 msgid "Huevos de codorniz"
@@ -243,43 +241,43 @@ msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:56
 msgid "Ice cream"
-msgstr ""
+msgstr "Helado"
 
 #: calories_tracker/hardcoded_strings.py:57
 msgid "Jam"
-msgstr ""
+msgstr "Mermelada"
 
 #: calories_tracker/hardcoded_strings.py:58
 msgid "Kiwi"
-msgstr ""
+msgstr "Kiwi"
 
 #: calories_tracker/hardcoded_strings.py:59
 msgid "Lambrusco wine"
-msgstr ""
+msgstr "Vino Lambrusco"
 
 #: calories_tracker/hardcoded_strings.py:60
 msgid "Leek"
-msgstr ""
+msgstr "Puerro"
 
 #: calories_tracker/hardcoded_strings.py:61
 msgid "Legumes"
-msgstr ""
+msgstr "Legúmbres"
 
 #: calories_tracker/hardcoded_strings.py:62
 msgid "Lentils"
-msgstr ""
+msgstr "Lentejas"
 
 #: calories_tracker/hardcoded_strings.py:63
 msgid "Lightly active"
-msgstr ""
+msgstr "Ligeramente activo"
 
 #: calories_tracker/hardcoded_strings.py:64
 msgid "Little bag"
-msgstr ""
+msgstr "Bolsa pequeña"
 
 #: calories_tracker/hardcoded_strings.py:65
 msgid "Little stick"
-msgstr ""
+msgstr "Palito"
 
 #: calories_tracker/hardcoded_strings.py:66
 msgid "Lose weight"
@@ -287,7 +285,7 @@ msgstr "Perder peso"
 
 #: calories_tracker/hardcoded_strings.py:67
 msgid "Low"
-msgstr ""
+msgstr "Bajo"
 
 #: calories_tracker/hardcoded_strings.py:68
 msgid "Mango"
@@ -299,20 +297,20 @@ msgstr "Mantener peso"
 
 #: calories_tracker/hardcoded_strings.py:70
 msgid "Mascarpone cheese"
-msgstr ""
+msgstr "Queso Mascarpone"
 
 #: calories_tracker/hardcoded_strings.py:71
 msgid "Mayonnaise"
-msgstr ""
+msgstr "Mahonesa"
 
 #: calories_tracker/hardcoded_strings.py:72
 msgid "Meat"
-msgstr ""
+msgstr "Carne"
 
 #: calories_tracker/hardcoded_strings.py:73
 #: calories_tracker/hardcoded_strings.py:74
 msgid "Medium"
-msgstr ""
+msgstr "Medio"
 
 #: calories_tracker/hardcoded_strings.py:75
 msgid "Menestra de verduras"
@@ -324,7 +322,7 @@ msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:77
 msgid "Moderately active"
-msgstr ""
+msgstr "Moderadamente activo"
 
 #: calories_tracker/hardcoded_strings.py:78
 msgid "Mushrooms (Fungi)"
@@ -332,31 +330,31 @@ msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:79
 msgid "Nectarine"
-msgstr ""
+msgstr "Nectarina"
 
 #: calories_tracker/hardcoded_strings.py:80
 msgid "No risk"
-msgstr ""
+msgstr "Sin riesgo"
 
 #: calories_tracker/hardcoded_strings.py:81
 msgid "Not evaluated"
-msgstr ""
+msgstr "No evaluado"
 
 #: calories_tracker/hardcoded_strings.py:82
 msgid "Oils and fats"
-msgstr ""
+msgstr "Aceites y grasas"
 
 #: calories_tracker/hardcoded_strings.py:83
 msgid "Onion"
-msgstr ""
+msgstr "Cebolla"
 
 #: calories_tracker/hardcoded_strings.py:84
 msgid "Orange"
-msgstr ""
+msgstr "Naranja"
 
 #: calories_tracker/hardcoded_strings.py:85
 msgid "Package"
-msgstr ""
+msgstr "Paquete"
 
 #: calories_tracker/hardcoded_strings.py:86
 msgid "Palmera de chocolate"
@@ -364,23 +362,23 @@ msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:87
 msgid "Panettone"
-msgstr ""
+msgstr "Panettone"
 
 #: calories_tracker/hardcoded_strings.py:88
 msgid "Pear"
-msgstr ""
+msgstr "Pera"
 
 #: calories_tracker/hardcoded_strings.py:89
 msgid "Peppers from Padrón"
-msgstr ""
+msgstr "Pimientos de Padrón"
 
 #: calories_tracker/hardcoded_strings.py:90
 msgid "Persimmon"
-msgstr ""
+msgstr "Persimón"
 
 #: calories_tracker/hardcoded_strings.py:91
 msgid "Pill"
-msgstr ""
+msgstr "Pastilla"
 
 #: calories_tracker/hardcoded_strings.py:92
 msgid "Plantain"
@@ -388,153 +386,148 @@ msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:93
 msgid "Pork ribs"
-msgstr ""
+msgstr "Chuletas de cerdo"
 
 #: calories_tracker/hardcoded_strings.py:94
 msgid "Prawns"
-msgstr ""
+msgstr "Langostinos"
 
 #: calories_tracker/hardcoded_strings.py:95
 msgid "Processed foods"
-msgstr ""
+msgstr "Comida procesada"
 
 #: calories_tracker/hardcoded_strings.py:96
 msgid "Pumpkin"
 msgstr ""
 
 #: calories_tracker/hardcoded_strings.py:97
-#: calories_tracker/hardcoded_strings.py:98
-msgid "REUSEME"
-msgstr ""
-
-#: calories_tracker/hardcoded_strings.py:99
 msgid "Roast lamb"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:100
+#: calories_tracker/hardcoded_strings.py:98
 msgid "Rum"
-msgstr ""
+msgstr "Ron"
 
-#: calories_tracker/hardcoded_strings.py:101
+#: calories_tracker/hardcoded_strings.py:99
 msgid "Salt"
-msgstr ""
+msgstr "Sal"
 
-#: calories_tracker/hardcoded_strings.py:102
+#: calories_tracker/hardcoded_strings.py:100
 msgid "Sandwich loaf"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:103
+#: calories_tracker/hardcoded_strings.py:101
 msgid "Saturn peach"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:104
+#: calories_tracker/hardcoded_strings.py:102
 msgid "Sedentary"
-msgstr ""
+msgstr "Sedentario"
+
+#: calories_tracker/hardcoded_strings.py:103
+msgid "Slice"
+msgstr "Rebanada"
+
+#: calories_tracker/hardcoded_strings.py:104
+msgid "Soups and infusions"
+msgstr "Sopas e infusiones"
 
 #: calories_tracker/hardcoded_strings.py:105
-msgid "Slice"
-msgstr ""
+msgid "Spanish omelette"
+msgstr "Tortilla española"
 
 #: calories_tracker/hardcoded_strings.py:106
-msgid "Soups and infusions"
-msgstr ""
+msgid "Spices"
+msgstr "Especias"
 
 #: calories_tracker/hardcoded_strings.py:107
-msgid "Spanish omelette"
-msgstr ""
+msgid "Strawberries"
+msgstr "Fresas"
 
 #: calories_tracker/hardcoded_strings.py:108
-msgid "Spices"
-msgstr ""
+msgid "Strawberry jam"
+msgstr "Mermelada de fresa"
 
 #: calories_tracker/hardcoded_strings.py:109
-msgid "Strawberries"
-msgstr ""
+msgid "Sugar"
+msgstr "Azúcar"
 
 #: calories_tracker/hardcoded_strings.py:110
-msgid "Strawberry jam"
-msgstr ""
+msgid "Sugary drinks"
+msgstr "Bebidas azucaradas"
 
 #: calories_tracker/hardcoded_strings.py:111
-msgid "Sugar"
-msgstr ""
+msgid "Sunflower oil"
+msgstr "Aceite de girasol"
 
 #: calories_tracker/hardcoded_strings.py:112
-msgid "Sugary drinks"
-msgstr ""
+msgid "Sweet corn"
+msgstr "Maíz dulce"
 
 #: calories_tracker/hardcoded_strings.py:113
-msgid "Sunflower oil"
-msgstr ""
+msgid "Sweets"
+msgstr "Dulces"
 
 #: calories_tracker/hardcoded_strings.py:114
-msgid "Sweet corn"
-msgstr ""
+msgid "Tangerines"
+msgstr "Mandarinas"
 
 #: calories_tracker/hardcoded_strings.py:115
-msgid "Sweets"
-msgstr ""
-
-#: calories_tracker/hardcoded_strings.py:116
-msgid "Tangerines"
-msgstr ""
-
-#: calories_tracker/hardcoded_strings.py:117
 msgid "Thick Crust Pizza with cheese"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:118
+#: calories_tracker/hardcoded_strings.py:116
 msgid "Toast"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:119
+#: calories_tracker/hardcoded_strings.py:117
 msgid "Tray"
-msgstr ""
+msgstr "Bandeja"
+
+#: calories_tracker/hardcoded_strings.py:118
+msgid "Uncooked potato"
+msgstr "Papata cruda"
+
+#: calories_tracker/hardcoded_strings.py:119
+msgid "Uncooked rice"
+msgstr "Arroz crudo"
 
 #: calories_tracker/hardcoded_strings.py:120
-msgid "Uncooked potato"
-msgstr ""
+msgid "Unit"
+msgstr "Unidad"
 
 #: calories_tracker/hardcoded_strings.py:121
-msgid "Uncooked rice"
-msgstr ""
-
-#: calories_tracker/hardcoded_strings.py:122
-msgid "Unit"
-msgstr ""
-
-#: calories_tracker/hardcoded_strings.py:123
 msgid "Vacuum container"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:124
+#: calories_tracker/hardcoded_strings.py:122
 msgid "Vegetables"
-msgstr ""
+msgstr "Verduras"
 
-#: calories_tracker/hardcoded_strings.py:125
+#: calories_tracker/hardcoded_strings.py:123
 msgid "Very active"
-msgstr ""
+msgstr "Muy activo"
+
+#: calories_tracker/hardcoded_strings.py:124
+#: calories_tracker/hardcoded_strings.py:125
+msgid "Water"
+msgstr "Agua"
 
 #: calories_tracker/hardcoded_strings.py:126
+msgid "White bread"
+msgstr "Pan blanco"
+
 #: calories_tracker/hardcoded_strings.py:127
-msgid "Water"
-msgstr ""
+msgid "White wine"
+msgstr "Vino blanco"
 
 #: calories_tracker/hardcoded_strings.py:128
-msgid "White bread"
-msgstr ""
+msgid "Whole milk"
+msgstr "Leche entera"
 
 #: calories_tracker/hardcoded_strings.py:129
-msgid "White wine"
-msgstr ""
-
-#: calories_tracker/hardcoded_strings.py:130
-msgid "Whole milk"
-msgstr ""
-
-#: calories_tracker/hardcoded_strings.py:131
 msgid "Zucchini"
-msgstr ""
+msgstr "Calabacín"
 
 #: calories_tracker/reusing/connection_pg.py:176
 msgid "Write the password for {}"
@@ -576,632 +569,100 @@ msgstr "Por favor introduzca '{}' o '{}'"
 msgid "Press a key to continue..."
 msgstr "Pulse una tecla para continuar..."
 
-#: calories_tracker/update_data.py:69
+#: calories_tracker/update_data.py:64
 msgid "Updated additive risks"
 msgstr ""
 
-#: calories_tracker/update_data.py:71
+#: calories_tracker/update_data.py:66
 msgid "Created additive risks"
 msgstr ""
 
-#: calories_tracker/update_data.py:86 calories_tracker/update_data.py:108
-#: calories_tracker/update_data.py:133 calories_tracker/update_data.py:151
-#: calories_tracker/update_data.py:169 calories_tracker/update_data.py:189
-#: calories_tracker/update_data.py:245
+#: calories_tracker/update_data.py:81 calories_tracker/update_data.py:103
+#: calories_tracker/update_data.py:128 calories_tracker/update_data.py:146
+#: calories_tracker/update_data.py:164 calories_tracker/update_data.py:184
+#: calories_tracker/update_data.py:240
 msgid "Updated"
-msgstr ""
+msgstr "Actualizado"
 
-#: calories_tracker/update_data.py:88 calories_tracker/update_data.py:105
-#: calories_tracker/update_data.py:130 calories_tracker/update_data.py:148
-#: calories_tracker/update_data.py:166 calories_tracker/update_data.py:186
-#: calories_tracker/update_data.py:242 calories_tracker/update_data.py:257
+#: calories_tracker/update_data.py:83 calories_tracker/update_data.py:100
+#: calories_tracker/update_data.py:125 calories_tracker/update_data.py:143
+#: calories_tracker/update_data.py:161 calories_tracker/update_data.py:181
+#: calories_tracker/update_data.py:237 calories_tracker/update_data.py:252
 msgid "Created"
-msgstr ""
+msgstr "Creado"
 
-#: calories_tracker/views.py:273
+#: calories_tracker/views.py:261
 msgid "Activities"
-msgstr ""
+msgstr "Actividades"
 
-#: calories_tracker/views.py:273
+#: calories_tracker/views.py:261
 msgid "Additive risks"
-msgstr ""
+msgstr "Riesgos del additivo"
 
-#: calories_tracker/views.py:273
+#: calories_tracker/views.py:261
 msgid "Additives"
-msgstr ""
+msgstr "Additivos"
 
-#: calories_tracker/views.py:273
+#: calories_tracker/views.py:261
 msgid "Food types"
+msgstr "Tipos de comida"
+
+#: calories_tracker/views.py:314
+msgid "Since when there is data in the database?"
 msgstr ""
 
-#~ msgid "Assets report"
-#~ msgstr "Informe de patrimonio"
-
-#~ msgid "This is an automatic generated report from Money Money"
-#~ msgstr "Este informe está generado automáticamento por Money Money"
-
-#~ msgid "Assets Report"
-#~ msgstr "Informe de patrimonio"
-
-#~ msgid "Generated by MoneyMoney-{}"
-#~ msgstr "Generado por MoneyMoney-{}"
-
-#~ msgid "About Money Money"
-#~ msgstr "Acerca de Money Money"
-
-#~ msgid "Personal settings"
-#~ msgstr "Preferencias personales"
-
+#: calories_tracker/views.py:315
 #, python-brace-format
-#~ msgid "Your user currency is set to {c}."
-#~ msgstr "Tu divisa se ha establecido a {c}."
+msgid "The first data is from {0}"
+msgstr "El primer dato es de {0}"
 
+#: calories_tracker/views.py:328
+msgid "Which is the product with highest calories in 100 g?"
+msgstr ""
+
+#: calories_tracker/views.py:329
 #, python-brace-format
-#~ msgid "Your local time zone is set to {request.local_zone}."
-#~ msgstr "Tu zona horaria se ha establecido a {request.local_zone}."
-
-#~ msgid "Assets"
-#~ msgstr "Patrimonio"
-
-#, python-brace-format
-#~ msgid "Total assets of the user are {vTotal}."
-#~ msgstr "El patrimonio total del usuario es {vTotal}."
-
-#~ msgid "more"
-#~ msgstr "más"
-
-#~ msgid "less"
-#~ msgstr "menos"
-
-#~ msgid ""
-#~ "At last year end you had {vTotalLastYear}, so it's a {Percentage(vTotal-"
-#~ "vTotalLastYear, vTotalLastYear)} {moreorless} of the total assets at the "
-#~ "end of the last year."
-#~ msgstr ""
-#~ "Al final del año pasado tenías {vTotalLastYear}, lo que es un "
-#~ "{Percentage(vTotal-vTotalLastYear, vTotalLastYear)} {moreorless} de lo "
-#~ "que tenías en ese momento"
-
-#~ msgid "Assets by bank"
-#~ msgstr "Patrimonio por banco"
-
-#~ msgid "Bank"
-#~ msgstr "Banco"
-
-#~ msgid "Accounts balance"
-#~ msgstr "Saldo de las cuentas"
-
-#~ msgid "Investments balance"
-#~ msgstr "Saldo de las inversiones"
-
-#~ msgid "Total balance"
-#~ msgstr "Saldo total"
-
-#~ msgid "Total"
-#~ msgstr "Total"
-
-#~ msgid "Assets current year evolution"
-#~ msgstr "Evolución patrimonial del año actual"
-
-#~ msgid "Month"
-#~ msgstr "Mes"
-
-#~ msgid "Annual percentage"
-#~ msgstr "Porcentaje anual"
-
-#~ msgid "Month diff"
-#~ msgstr "Diferencia mensual"
-
-#~ msgid "Assets current year detail"
-#~ msgstr "Detalle del año actual del patrimonio"
-
-#~ msgid "Incomes"
-#~ msgstr "Ingresos"
-
-#~ msgid "Expenses"
-#~ msgstr "Gastos"
-
-#~ msgid "Dividends"
-#~ msgstr "Dividendos"
-
-#~ msgid ""
-#~ "Up to date you have got {vTotal_gains_dividends_net} (net gains + net "
-#~ "dividends) what represents a {Percentage(vTotal_gains_dividends_net, "
-#~ "vTotalLastYear)} of the total assets at the end of the last year."
-#~ msgstr ""
-#~ "Hasta la fecha has conseguido {vTotal_gains_dividends_net} (ganancias "
-#~ "netas + dividendos netos) lo que representa un "
-#~ "{Percentage(vTotal_gains_dividends_net, vTotalLastYear)} del patrimonio "
-#~ "total al final del año pasado."
-
-#~ msgid "Assets graphical evolution"
-#~ msgstr "Gráfica de la evolución del patrimonio"
-
-#~ msgid "Current year investment gains group by product type"
-#~ msgstr ""
-#~ "Ganancias de inversión del año actual agrupadas por tipo de producto"
-
-#~ msgid "Name"
-#~ msgstr "Nombre"
-
-#~ msgid "Gross gains"
-#~ msgstr "Ganancias brutas"
-
-#~ msgid "Gross dividends"
-#~ msgstr "Dividendos brutos"
-
-#~ msgid "Net gains"
-#~ msgstr "Ganancias netas"
-
-#~ msgid "Net dividends"
-#~ msgstr "Dividendos netos"
-
-#, python-brace-format
-#~ msgid "Gross gains + Gross dividends = {vTotal_gains_dividends_gross}."
-#~ msgstr ""
-#~ "Ganancias brutas + Dividendos brutos = {vTotal_gains_dividends_gross}."
-
-#, python-brace-format
-#~ msgid "Net gains + Net dividends = {vTotal_gains_dividends_net}."
-#~ msgstr "Ganancias netas + Dividendos netos = {vTotal_gains_dividends_net}."
-
-#~ msgid "Current Accounts"
-#~ msgstr "Cuentas actuales"
-
-#~ msgid "Number"
-#~ msgstr "Número"
-
-#~ msgid "Balance account"
-#~ msgstr "Saldo de las cuentas"
-
-#~ msgid "Balance user currency"
-#~ msgstr "Saldo en la divisa de usuario"
-
-#~ msgid "Current investments"
-#~ msgstr "Inversiones actuales"
-
-#~ msgid "Investments list"
-#~ msgstr "Listado de inversiones"
-
-#~ msgid "Next list is sorted by the distance in percent to the selling point."
-#~ msgstr ""
-#~ "La lista siguiente está ordenada por la distancia en porcentage al punto "
-#~ "de venta."
-
-#~ msgid "Invested"
-#~ msgstr "Invertido"
-
-#~ msgid "Balance"
-#~ msgstr "Saldo"
-
-#~ msgid "% invested"
-#~ msgstr "% invertido"
-
-#~ msgid "% selling point"
-#~ msgstr "% punto de venta"
-
-#~ msgid ""
-#~ "Investment gains (positive minus negative results): {gains_positives} - {-"
-#~ "gains_negatives} are {gains}."
-#~ msgstr ""
-#~ "Las ganancias de inversión (resultados positivos menos negativos): "
-#~ "{gains_positives} - {-gains_negatives} son {gains}."
-
-#~ msgid "Current investment operations"
-#~ msgstr "Operaciones de inversión actuales"
-
-#~ msgid "Date and time"
-#~ msgstr "Fecha y hora"
-
-#~ msgid "Operation type"
-#~ msgstr "Tipo de operación"
-
-#~ msgid "Shares"
-#~ msgstr "Acciones"
-
-#~ msgid "Price"
-#~ msgstr "Precio"
-
-#~ msgid "% total"
-#~ msgstr "% total"
-
-#~ msgid "Investments group by variable percentage"
-#~ msgstr "Inversiones agrupadas por el porcentaje variable"
-
-#~ msgid "Investments group by investment type"
-#~ msgstr "Inversiones agrupadas por el tipo de inversión"
-
-#~ msgid "Investments group by leverage"
-#~ msgstr "Inversiones agrupadas por el apalancamiento"
-
-#~ msgid "Investments group by investment product"
-#~ msgstr "Inversiones agrupadas por el producto de inversión"
-
-#~ msgid "Investments group by Call/Put/Inline"
-#~ msgstr "Inversiones agrupadas por Call/Put/Inline"
-
-#~ msgid "Investments orders"
-#~ msgstr "Órdenes de las inversiones"
-
-#~ msgid "Date"
-#~ msgstr "Fecha"
-
-#~ msgid "Expiration"
-#~ msgstr "Expiración"
-
-#~ msgid "Investment"
-#~ msgstr "Inversión"
-
-#~ msgid "Amount"
-#~ msgstr "Cantidad"
-
-#, fuzzy, python-format
-#~| msgid "% from current price"
-#~ msgid "% from current price"
-#~ msgstr "% desde el precio actual"
-
-#~ msgid "Dividend estimations report"
-#~ msgstr "Informe de estimaciones de dividendos"
-
-#~ msgid "Current price"
-#~ msgstr "Precio actual"
-
-#~ msgid "DPS"
-#~ msgstr "DPA"
-
-#~ msgid "Estimated"
-#~ msgstr "Estimado"
-
-#~ msgid "% Annual"
-#~ msgstr "% Anual"
-
-#~ msgid ""
-#~ "If I keep this investment during a year, I'll get "
-#~ "{Currency(listdict_sum(dict_reportdividends,'estimated'),c)}"
-#~ msgstr ""
-#~ "Si mantengo esta inversión durante un año, conseguiré "
-#~ "{Currency(listdict_sum(dict_reportdividends,'estimated'),c)}"
-
-#~ msgid "Historical investments ranking"
-#~ msgstr "Clasificación histórica de inversiones"
-
-#~ msgid "Ranking"
-#~ msgstr "Clasificación"
-
-#~ msgid "Current net gains"
-#~ msgstr "Ganancias netas actuales"
-
-#~ msgid "Historical net gains"
-#~ msgstr "Ganancias netas históricas"
-
-#~ msgid "Dividend"
-#~ msgstr "Dividendo"
-
-#~ msgid "Account"
-#~ msgstr "Cuenta"
-
-#~ msgid "Added shares"
-#~ msgstr "Añadido de acciones"
-
-#~ msgid "Adjustments. Negative"
-#~ msgstr "Ajustes. Negativos"
-
-#~ msgid "Adjustments. Positive"
-#~ msgstr "Ajustes. Positivos"
-
-#~ msgid "Amsterdam Stock Exchange"
-#~ msgstr "Bolsa de Ámsterdam"
-
-#~ msgid "Attendance bonus"
-#~ msgstr "Prima de asistencia"
-
-#~ msgid "Bank commissions"
-#~ msgstr "Comisiones bancarias"
-
-#~ msgid "Belgium Stock Exchange"
-#~ msgstr "Bolsa de Bélgica"
-
-#~ msgid "Bonds. Coupon collection"
-#~ msgstr "Renta fija. Cobro de cupón"
-
-#~ msgid "Bonds. Running coupon collection"
-#~ msgstr "Renta fija. Cobro del cupón corrido"
-
-#~ msgid "Bonds. Running coupon payment"
-#~ msgstr "Renta fija. Pago del cupón corrido"
-
-#~ msgid "CFD"
-#~ msgstr "CFD"
-
-#~ msgid "Cash"
-#~ msgstr "Efectivo"
-
-#~ msgid "Credit card billing"
-#~ msgstr "Tarjeta de crédito. Facturación"
-
-#~ msgid "Credit card refund"
-#~ msgstr "Tarjeta de crédito. Devolución"
-
-#~ msgid "Currency"
-#~ msgstr "Divisa"
-
-#~ msgid "Custody commission"
-#~ msgstr "Comisión de custodia"
-
-#~ msgid "Deposit"
-#~ msgstr "Depósito"
-
-#~ msgid "Derivative management"
-#~ msgstr "Gestión de derivados"
-
-#~ msgid "Derivatives. Daily adjustment"
-#~ msgstr "Derivados. Ajuste diario"
-
-#~ msgid "Derivatives. Daily guarantee"
-#~ msgstr "Derivados. Garantía diaria"
-
-#~ msgid "Derivatives. Operation commission"
-#~ msgstr "Derivados. Comisión de la operación"
-
-#~ msgid "Derivatives. Swaps"
-#~ msgstr "Derivados. Swaps"
-
-#~ msgid "Dividends. Sale of rights"
-#~ msgstr "Dividendos. Venta de derechos"
-
-#~ msgid "ETF"
-#~ msgstr "ETF"
-
-#~ msgid "Expense"
-#~ msgstr "Gasto"
-
-#~ msgid "Fund"
-#~ msgstr "Fondo de inversión"
-
-#~ msgid "Future"
-#~ msgstr "Futuro"
-
-#~ msgid "Gasoline"
-#~ msgstr "Gasolina"
-
-#~ msgid "Income"
-#~ msgstr "Ingreso"
-
-#~ msgid "Index"
-#~ msgstr "Índice"
-
-#~ msgid "Initiating bank account"
-#~ msgstr "Iniciando cuenta bancaria"
-
-#~ msgid "Leisure"
-#~ msgstr "Ocio"
-
-#~ msgid "Leverage x10"
-#~ msgstr "Apalancamiento x10"
-
-#~ msgid "Leverage x100"
-#~ msgstr "Apalancamiento x100"
-
-#~ msgid "Leverage x2"
-#~ msgstr "Apalancamiento x2"
-
-#~ msgid "Leverage x20"
-#~ msgstr "Apalancamiento x20"
-
-#~ msgid "Leverage x200"
-#~ msgstr "Apalancamiento x200"
-
-#~ msgid "Leverage x25"
-#~ msgstr "Apalancamiento x25"
-
-#~ msgid "Leverage x3"
-#~ msgstr "Apalancamiento x3"
-
-#~ msgid "Leverage x4"
-#~ msgstr "Apalancamiento x4"
-
-#~ msgid "Leverage x5"
-#~ msgstr "Apalancamiento x5"
-
-#~ msgid "Leverage x50"
-#~ msgstr "Apalancamiento x50"
-
-#~ msgid "Leverage x500"
-#~ msgstr "Apalancamiento x500"
-
-#~ msgid "Madrid Stock Exchange"
-#~ msgstr "Bolsa de Madrid"
-
-#~ msgid "Not listed on official markets"
-#~ msgstr "No listado en mercados oficiales"
-
-#~ msgid "Paris Stock Exchange"
-#~ msgstr "Bolsa de París"
-
-#~ msgid "Paysheet"
-#~ msgstr "Nómina"
-
-#~ msgid "Pension plan"
-#~ msgstr "Plan de pensiones"
-
-#~ msgid "Personal Management"
-#~ msgstr "Gestión personal"
-
-#~ msgid "Private bond"
-#~ msgstr "Renta fija privada"
-
-#~ msgid "Public bond"
-#~ msgstr "Renta fija pública"
-
-#~ msgid "Purchase investment product"
-#~ msgstr "Compra de producto de inversión"
-
-#~ msgid "Purchase of shares"
-#~ msgstr "Compra de acciones"
-
-#~ msgid "Restaurant"
-#~ msgstr "Restaurante"
-
-#~ msgid "Rollover Paid"
-#~ msgstr "Rollover pagado"
-
-#~ msgid "Rollover Received"
-#~ msgstr "Rollover recibido"
-
-#~ msgid "Sale investment product"
-#~ msgstr "Venta de producto de inversión"
-
-#~ msgid "Sale of shares"
-#~ msgstr "Venta de acciones"
-
-#~ msgid "Share"
-#~ msgstr "Acción"
-
-#~ msgid "Shares addition"
-#~ msgstr "Añadido de acciones"
-
-#~ msgid "Supermarket"
-#~ msgstr "Supermercado"
-
-#~ msgid "Taxes. Paid"
-#~ msgstr "Impuestos. Pagados"
-
-#~ msgid "Taxes. Returned"
-#~ msgstr "Impuestos. Devueltos"
-
-#~ msgid "Tokyo Stock Exchange"
-#~ msgstr "Bolsa de Tokio"
-
-#~ msgid "Transfer of funds"
-#~ msgstr "Transferencia de fondos"
-
-#~ msgid "Transfer of shares destiny"
-#~ msgstr "Transferencia de acciones. Destino"
-
-#~ msgid "Transfer of shares origin"
-#~ msgstr "Transferencia de acciones. Origen"
-
-#~ msgid "Transfer"
-#~ msgstr "Transferencia"
-
-#~ msgid "Transfer. Destination"
-#~ msgstr "Transferencia. Destino"
-
-#~ msgid "Transfer. Origin"
-#~ msgstr "Transferencia. Origen"
-
-#~ msgid "Unknown"
-#~ msgstr "Desconocido"
-
-#~ msgid "Variable leverage"
-#~ msgstr "Apalancamiento variable"
-
-#~ msgid "Warrant"
-#~ msgstr "Warrant"
-
-#~ msgid "Without leverage"
-#~ msgstr "Sin apalancamiento"
-
-#~ msgid "Adding quotes from Investing.com portfolio"
-#~ msgstr "Añadiendo cotizaciones desde la cartera de Investing.com"
-
-#~ msgid "Insuficient data"
-#~ msgstr "Datos insuficientes"
-
-#~ msgid "Call"
-#~ msgstr "Call"
-
-#~ msgid "Put"
-#~ msgstr "Put"
-
-#~ msgid "Inline"
-#~ msgstr "Inline"
-
-#~ msgid "Pairs in same account"
-#~ msgstr "Pares en la misma cuenta"
-
-#~ msgid "Product ranges"
-#~ msgstr "Rangos de productos"
-
-#~ msgid "Generic"
-#~ msgstr "Genérico"
-
-#~ msgid "{}: {} shares. Amount: {}. Comission: {}. Taxes: {}"
-#~ msgstr "{}: {} acciones. Importe: {}. Comisión: {}. Impuestos: {}"
-
-#~ msgid "Transfer to {}"
-#~ msgstr "Transferencia a {}"
-
-#~ msgid "Transfer received from {}"
-#~ msgstr "Transferencia recibida de {}"
-
-#~ msgid "Comission transfering {} from {} to {}"
-#~ msgstr "Comisión al transferir {} de {} a {}"
-
-#~ msgid "From {}. Gross {}. Net {}."
-#~ msgstr "Desde {}. Bruto {}. Neto {}."
-
-#~ msgid "Error decoding dividend comment"
-#~ msgstr "Error al decodificar el comentario del dividendo"
-
-#~ msgid "Billing {} movements of {}"
-#~ msgstr "Facturando {} movimientos de {}"
-
-#~ msgid "Error decoding credit card billing comment"
-#~ msgstr ""
-#~ "Error al decodificar el comentario de la facturación de la tarjeta de "
-#~ "crédito"
-
-#~ msgid "Refund of {} payment of which had an amount of {}"
-#~ msgstr "Devolución de {} pagos con un importe de {}"
-
-#~ msgid "Strategy was not found"
-#~ msgstr "No se ha encontrado la estrategia"
-
-#~ msgid "January"
-#~ msgstr "Enero"
-
-#~ msgid "February"
-#~ msgstr "Febrero"
-
-#~ msgid "March"
-#~ msgstr "Marzo"
-
-#~ msgid "April"
-#~ msgstr "Abril"
-
-#~ msgid "May"
-#~ msgstr "Mayo"
-
-#~ msgid "June"
-#~ msgstr "Junio"
-
-#~ msgid "July"
-#~ msgstr "Julio"
-
-#~ msgid "August"
-#~ msgstr "Agosto"
-
-#~ msgid "September"
-#~ msgstr "Septiembre"
-
-#~ msgid "October"
-#~ msgstr "Octubre"
-
-#~ msgid "November"
-#~ msgstr "Noviembre"
-
-#~ msgid "December"
-#~ msgstr "Diciembre"
-
-#~ msgid "Accounts"
-#~ msgstr "Cuentas"
-
-#~ msgid "Accounts operations"
-#~ msgstr "Operaciones de cuentas"
-
-#~ msgid "Banks"
-#~ msgstr "Bancos"
-
-#~ msgid "Concept"
-#~ msgstr "Concepto"
+msgid "The product with highest calories is '{0}' with {1} calories."
+msgstr ""
+
+#: calories_tracker/views.py:342
+msgid "Which is the meal with highest calories I had eaten?"
+msgstr ""
+
+#: calories_tracker/views.py:343
+msgid ""
+"The meal with the highest calories I ate was '{}' with '{}' calories. I ate "
+"{}g at {}."
+msgstr ""
+
+#: calories_tracker/views.py:356
+msgid "When did I take the highest calories amount in a day?"
+msgstr ""
+
+#: calories_tracker/views.py:357
+msgid "The day I took the highest amount of calories was '{}' and I took {}."
+msgstr ""
+
+#: calories_tracker/views.py:369
+msgid "When did I have my highest weight?"
+msgstr ""
+
+#: calories_tracker/views.py:370
+msgid "My highest weight was {} kg at {}"
+msgstr ""
+
+#: calories_tracker/views.py:382
+msgid "When did I have my lowest weight?"
+msgstr ""
+
+#: calories_tracker/views.py:383
+msgid "My lowest weight was {} kg at {}"
+msgstr ""
+
+#: calories_tracker/views.py:390
+msgid "Which is my median weight?"
+msgstr "¿Cuál es mi peso mediano?"
+
+#: calories_tracker/views.py:391
+msgid "My median weight is {} kg"
+msgstr ""

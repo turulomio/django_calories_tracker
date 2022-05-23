@@ -16,6 +16,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User # new
+from django.utils.translation import gettext as _
 
 class Activities(models.Model):
     name = models.TextField()
@@ -426,7 +427,7 @@ class SystemProducts(models.Model):
             version_parent=f" v{self.version.date()}"
         
         
-        return f"{self.name}{company}{version_parent}"
+        return f"{_(self.name)}{company}{version_parent}"
         
         
                 
@@ -570,7 +571,7 @@ class Products(models.Model):
             version_parent=f" v{self.version.date()}"
         
         
-        return f"{self.name}{company}{version_parent}"
+        return f"{_(self.name)}{company}{version_parent}"
         
     def additives_risk(self):
         r=0
