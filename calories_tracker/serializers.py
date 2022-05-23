@@ -21,7 +21,6 @@ class AdditiveRisksSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'name', 'localname')
 
     def get_localname(self, obj):
-        print(obj.name, _(obj.name))
         return  _(obj.name)
 
 class AdditivesSerializer(serializers.HyperlinkedModelSerializer):
