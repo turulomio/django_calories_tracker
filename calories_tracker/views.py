@@ -193,7 +193,11 @@ class SystemProductsViewSet(viewsets.ModelViewSet):
             ## Filter by name and exclude already
             return self.queryset.filter(name__icontains=search).exclude(id__in=[o['system_products_id'] for o in ids_in_products]).order_by("name")
         if all_args_are_not_none(search):
-            return self.queryset.filter(name__icontains=search).order_by("name")
+            ids=[]
+            for p in self.queryset:
+                if search.lower() in _(p.name).lower():
+                    ids.append(p.id)
+            return self.queryset.filter(id__in=ids).order_by("name")
         return self.queryset
     
 @csrf_exempt
