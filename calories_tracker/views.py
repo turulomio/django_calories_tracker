@@ -1,7 +1,7 @@
 from calories_tracker import serializers
 from calories_tracker import models
 from calories_tracker.reusing.listdict_functions import listdict_order_by
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
 from calories_tracker.update_data import update_from_data
 from datetime import datetime
 from decimal import Decimal
@@ -86,17 +86,10 @@ class CompaniesViewSet(viewsets.ModelViewSet):
 
 class ElaboratedProductsViewSet(viewsets.ModelViewSet):
     queryset = models.ElaboratedProducts.objects.all()    
-#    queryset = models.ElaboratedProducts.objects.prefetch_related(
-#        Prefetch(
-#            'products_in',
-#            queryset=models.ElaboratedProductsProductsInThrough.objects.select_related("products", "elaborated_products").all(),
-#        ),
-#    ).all()
     serializer_class = serializers.ElaboratedProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
     def get_queryset(self):
-        #print(dir(self.queryset[0]), self.queryset[0].__class__)
         return self.queryset.filter(user=self.request.user).order_by("name")
 
     def destroy(self, request, *args, **kwargs):
@@ -142,6 +135,43 @@ class MealsViewSet(viewsets.ModelViewSet):
                 meal.delete()
             return Response('Meals.delete_several success')
         return Response('Meals.delete_several failure')
+
+
+## No modifica el contenido del producto sino su uso
+## GET Shows statistics of future transfer
+## POST Make transfer
+@csrf_exempt
+@api_view(['POST', 'GET'])
+@permission_classes([permissions.IsAuthenticated, ])
+@transaction.atomic
+def ProductsDataTransfer(request):
+    if request.method=="GET":
+        product_from=RequestGetUrl(request, "product_from", models.Products)
+        product_to=RequestGetUrl(request, "product_to", models.Products)
+    
+        if all_args_are_not_none(product_from, product_to):
+            r=[]
+            for p in (product_from, product_to):
+                r.append({
+                    "product": request.build_absolute_uri(reverse('products-detail', args=(p.id, ))), 
+                    "products_in": models.ElaboratedProductsProductsInThrough.objects.filter(products=p).count(), 
+                    "meals": models.Meals.objects.filter(products=p).count(),
+                })
+            print(r)
+            return JsonResponse( r, encoder=MyDjangoJSONEncoder, safe=False)
+    else:# request.method=="POST":
+        product_from=RequestUrl(request, "product_from", models.Products)
+        product_to=RequestUrl(request, "product_to", models.Products)
+    
+        if all_args_are_not_none(product_from, product_to):
+            for pi in models.ElaboratedProductsProductsInThrough.objects.filter(products=product_from):
+                pi.products=product_to
+                pi.save()
+            for m in models.Meals.objects.filter(products=product_from):
+                pi.products=product_to
+                pi.save()            
+            return JsonResponse( True, encoder=MyDjangoJSONEncoder, safe=False)
+
 
 class ProductsViewSet(viewsets.ModelViewSet):
     queryset = models.Products.objects.all()
