@@ -48,7 +48,7 @@ msgstr "Bolsa"
 
 #: calories_tracker/hardcoded_strings.py:7
 msgid "Banana"
-msgstr "Plátanno"
+msgstr "Banana"
 
 #: calories_tracker/hardcoded_strings.py:8
 msgid "Bar"
