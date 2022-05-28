@@ -1,7 +1,8 @@
-## This file belongs to https://github.com/turulomio/django_ project. If you want to reuse it pleuse copy with this reference
+## This file belongs to https://github.com/turulomio/django_moneymoney project. If you want to reuse it pleuse copy with this reference
 
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
+from django.utils import timezone
 from .request_casting import all_args_are_not_none, RequestString
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
@@ -26,6 +27,9 @@ def login(request):
             token=Token.objects.get(user=user)
             token.delete()
         token=Token.objects.create(user=user)
+        
+        user.last_login=timezone.now()
+        user.save()
         return Response(token.key)
     else:
         return Response("Wrong credentials")
