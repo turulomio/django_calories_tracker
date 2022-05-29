@@ -366,10 +366,6 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
     def get_additives_risk(self, o):
         return o.additives_risk()
 
-class ProfilesSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = models.Profiles
-        fields = ('url', 'id', 'birthday', 'male')
 
 class SystemCompaniesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

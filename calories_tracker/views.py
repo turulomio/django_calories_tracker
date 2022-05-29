@@ -46,6 +46,9 @@ def Time(request):
     
     
 class WeightWishesViewSet(viewsets.ModelViewSet):
+    """
+        ** GET /api/weight_wishes/ **  Gets all weight wishes
+    """
     queryset = models.WeightWishes.objects.all()
     serializer_class = serializers.WeightWishesSerializer
     permission_classes = [permissions.IsAuthenticated]      
@@ -66,6 +69,11 @@ class AdditivesViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]      
 
 class BiometricsViewSet(viewsets.ModelViewSet):
+    """
+        ** GET /api/biometrics/?day=2022-01-01 **  Gets biometrics of request user at day 2022-01-01
+        
+        ** GET /api/biometrics/ **  Gets all biometrics of request user
+    """
     queryset = models.Biometrics.objects.all().order_by("datetime")
     serializer_class = serializers.BiometricsSerializer
     permission_classes = [permissions.IsAuthenticated]      
@@ -77,6 +85,9 @@ class BiometricsViewSet(viewsets.ModelViewSet):
         return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user).order_by("datetime")
 
 class CompaniesViewSet(viewsets.ModelViewSet):
+    """
+        ** GET /api/companies/ **  Gets all companies of request user
+    """
     queryset = models.Companies.objects.select_related("system_companies").all()
     serializer_class = serializers.CompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -115,6 +126,13 @@ class FormatsViewSet(viewsets.ModelViewSet):
 
     
 class MealsViewSet(viewsets.ModelViewSet):
+    """
+        ** GET /api/meals/?day=2022-01-01 **  Gets biometrics of request user at day 2022-01-01
+        
+        ** GET /api/meals/ **  Gets all biometrics of request user
+        
+        ** POST /api/meals/delete_several/ **  Deletes several meals. Passed as a list of Meals objects urls
+    """
     queryset = models.Meals.objects.all()
     serializer_class = serializers.MealsSerializer
     permission_classes = [permissions.IsAuthenticated]      
@@ -181,11 +199,6 @@ class ProductsViewSet(viewsets.ModelViewSet):
         return models.Products.objects.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
 
-
-class ProfilesViewSet(viewsets.ModelViewSet):
-    queryset = models.Profiles.objects.all()
-    serializer_class = serializers.ProfilesSerializer
-    permission_classes = [permissions.IsAuthenticated]      
     
 class SystemCompaniesViewSet(viewsets.ModelViewSet):
     queryset = models.SystemCompanies.objects.all().order_by("name")
@@ -245,9 +258,17 @@ def SystemProduct2Product(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated, ])
-
 ## Links a systemproduct to a product. No todos los system products están por eso se linka
 def SystemCompany2Company(request):
+    """
+        Creates and liks a company with a system company
+        
+        ** Parameters ** 
+        
+            system_companies: url. Company will be created with this system company url
+            
+    """
+
     system_companies=RequestUrl(request, "system_companies", models.SystemCompanies)
     if all_args_are_not_none(system_companies):
         system_companies.update_linked_company(request.user)
@@ -259,6 +280,25 @@ def SystemCompany2Company(request):
 @permission_classes([permissions.IsAuthenticated, ])
 @transaction.atomic
 def Settings(request):
+    """
+        get:
+        Returns all user settings in a json object
+
+        post:
+        POST Creates and liks a company with a system company
+        
+        ** Parameters ** 
+        
+            birthday : date. User birthday [Required]
+            male: bool. True if user is a male [Required]
+            last_name: str. User last name [Required]
+            first_name: str. User first name [Required]
+            email: str. User email [Required]
+            system_companies: SystemCompanies url. Used to create and link a company [Required]            
+    """
+    
+    
+    
     p=models.get_profile(request.user)
     if request.method == 'GET':
         r={}

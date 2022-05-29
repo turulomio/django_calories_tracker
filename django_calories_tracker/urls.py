@@ -2,6 +2,7 @@ from django.urls import path,  include
 from django.contrib import admin# Need to import this since auth models get registered on import.
 
 from rest_framework import routers
+from rest_framework.documentation import include_docs_urls
 
 from calories_tracker import views as calories_tracker_views
 from calories_tracker.reusing import views_login as calories_tracker_views_login
@@ -16,7 +17,6 @@ router.register(r'food_types', calories_tracker_views.FoodTypesViewSet)
 router.register(r'formats', calories_tracker_views.FormatsViewSet)
 router.register(r'meals', calories_tracker_views.MealsViewSet)
 router.register(r'products', calories_tracker_views.ProductsViewSet)
-router.register(r'profiles', calories_tracker_views.ProfilesViewSet)
 router.register(r'system_companies', calories_tracker_views.SystemCompaniesViewSet)
 router.register(r'system_products', calories_tracker_views.SystemProductsViewSet)
 router.register(r'weight_wishes', calories_tracker_views.WeightWishesViewSet)
@@ -28,6 +28,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('curiosities/', calories_tracker_views.Curiosities, name='Curiosities'),
     path('catalog_manager/', calories_tracker_views.CatalogManager, name='CatalogManager'),
+    path('docs/',  include_docs_urls(title="Django Calories Tracker", description="API DESCRIPTION")), 
     
     path('login/', calories_tracker_views_login.login, name="login"), 
     path('logout/', calories_tracker_views_login.logout, name="logout"), 
