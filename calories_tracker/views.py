@@ -13,7 +13,6 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.csrf import csrf_exempt
 from json import loads
 from rest_framework import viewsets, permissions,  status
 from rest_framework.decorators import api_view, permission_classes, action
@@ -33,12 +32,12 @@ class MyDjangoJSONEncoder(DjangoJSONEncoder):
         
         
 
-@csrf_exempt
+
 @permission_classes([permissions.IsAuthenticated, ])
 def CatalogManager(request):
     return JsonResponse( settings.CATALOG_MANAGER, encoder=MyDjangoJSONEncoder, safe=False)
 
-@csrf_exempt
+
 @api_view(['GET', ])
 @permission_classes([permissions.IsAuthenticated, ])
 def Time(request):
@@ -158,7 +157,7 @@ class MealsViewSet(viewsets.ModelViewSet):
 ## No modifica el contenido del producto sino su uso
 ## GET Shows statistics of future transfer
 ## POST Make transfer
-@csrf_exempt
+
 @api_view(['POST', 'GET'])
 @permission_classes([permissions.IsAuthenticated, ])
 @transaction.atomic
@@ -243,7 +242,7 @@ class SystemProductsViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(id__in=ids).order_by("name")
         return self.queryset
     
-@csrf_exempt
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated, ])
 
@@ -255,7 +254,7 @@ def SystemProduct2Product(request):
         return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
     return JsonResponse( False, encoder=MyDjangoJSONEncoder,     safe=False)
     
-@csrf_exempt
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated, ])
 ## Links a systemproduct to a product. No todos los system products están por eso se linka
@@ -275,7 +274,7 @@ def SystemCompany2Company(request):
         return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
     return JsonResponse( False, encoder=MyDjangoJSONEncoder,     safe=False)
     
-@csrf_exempt
+
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.IsAuthenticated, ])
 @transaction.atomic
@@ -327,7 +326,7 @@ def Settings(request):
             return JsonResponse(True, safe=False)
         return JsonResponse(False, safe=False)
 
-@csrf_exempt
+
 @api_view(['GET', ])
 @permission_classes([permissions.IsAuthenticated, ])
 def Statistics(request):
@@ -337,7 +336,7 @@ def Statistics(request):
     return JsonResponse(r, safe=False)
 
 
-@csrf_exempt
+
 @api_view(['POST', ])
 @permission_classes([permissions.IsAuthenticated, ])
 @transaction.atomic
@@ -367,7 +366,7 @@ def MaintenanceCatalogsUpdate(request):
     
     
 
-@csrf_exempt
+
 @api_view(['GET', ])
 @permission_classes([permissions.IsAuthenticated, ])
 def Curiosities(request):
@@ -467,7 +466,7 @@ def Curiosities(request):
         
     return JsonResponse(r, safe=False)
 
-@csrf_exempt
+
 @api_view(['GET', ])
 @permission_classes([permissions.IsAuthenticated, ])
 def MealsRanking(request):
