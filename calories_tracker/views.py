@@ -45,9 +45,6 @@ def Time(request):
     
     
 class WeightWishesViewSet(viewsets.ModelViewSet):
-    """
-        ** GET /api/weight_wishes/ **  Gets all weight wishes
-    """
     queryset = models.WeightWishes.objects.all()
     serializer_class = serializers.WeightWishesSerializer
     permission_classes = [permissions.IsAuthenticated]      
@@ -67,12 +64,19 @@ class AdditivesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AdditivesSerializer
     permission_classes = [permissions.IsAuthenticated]      
 
-class BiometricsViewSet(viewsets.ModelViewSet):
+class BiometricsViewSet(viewsets.ModelViewSet):    
     """
-        ** GET /api/biometrics/?day=2022-01-01 **  Gets biometrics of request user at day 2022-01-01
+        <div style="background-color:BurlyWood;">
         
-        ** GET /api/biometrics/ **  Gets all biometrics of request user
+        <h3>BiometricsViewSet custom documentation</h3>
+        
+        <ul>
+            <li><strong>GET /api/biometrics/?day=2022-01-01</strong> Gets biometrics of request user at day 2022-01-01</li>
+            <li><strong>GET /api/biometrics/</strong> Gets all biometrics of request user</li>
+        </ul>
+        </div>
     """
+
     queryset = models.Biometrics.objects.all().order_by("datetime")
     serializer_class = serializers.BiometricsSerializer
     permission_classes = [permissions.IsAuthenticated]      
@@ -84,9 +88,6 @@ class BiometricsViewSet(viewsets.ModelViewSet):
         return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user).order_by("datetime")
 
 class CompaniesViewSet(viewsets.ModelViewSet):
-    """
-        ** GET /api/companies/ **  Gets all companies of request user
-    """
     queryset = models.Companies.objects.select_related("system_companies").all()
     serializer_class = serializers.CompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -126,11 +127,16 @@ class FormatsViewSet(viewsets.ModelViewSet):
     
 class MealsViewSet(viewsets.ModelViewSet):
     """
-        ** GET /api/meals/?day=2022-01-01 **  Gets biometrics of request user at day 2022-01-01
+        <div style="background-color:BurlyWood;">
         
-        ** GET /api/meals/ **  Gets all biometrics of request user
+        <h3>MealsViewSet custom documentation</h3>
         
-        ** POST /api/meals/delete_several/ **  Deletes several meals. Passed as a list of Meals objects urls
+        <ul>
+            <li><strong>GET /api/meals/?day=2022-01-01</strong>  Gets biometrics of request user at day 2022-01-01</li>
+            <li><strong>GET /api/meals/</strong>  Gets all biometrics of request user</li>
+            <li><strong>POST /api/meals/delete_several/ </strong>  Deletes several meals. Passed as a list of Meals objects urls</li>
+        </ul>
+        </div>
     """
     queryset = models.Meals.objects.all()
     serializer_class = serializers.MealsSerializer
@@ -260,12 +266,19 @@ def SystemProduct2Product(request):
 ## Links a systemproduct to a product. No todos los system products están por eso se linka
 def SystemCompany2Company(request):
     """
-        Creates and liks a company with a system company
+        <div style="background-color:BurlyWood;">
+        <p>Creates and liks a company with a system company</p>
         
-        ** Parameters ** 
-        
-            system_companies: url. Company will be created with this system company url
-            
+        <table class="parameters table table-bordered ">
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>system_companies<span class="label label-warning">required</span></td><td>SystemCompany url</td><td>Company will be created with this system company url</td></tr>
+
+        </tbody>
+        </table>
+        </div>
     """
 
     system_companies=RequestUrl(request, "system_companies", models.SystemCompanies)
@@ -284,16 +297,24 @@ def Settings(request):
         Returns all user settings in a json object
 
         post:
-        POST Creates and liks a company with a system company
+        <div style="background-color:BurlyWood;">
+        <p>Post user settings</p>
         
-        ** Parameters ** 
-        
-            birthday : date. User birthday [Required]
-            male: bool. True if user is a male [Required]
-            last_name: str. User last name [Required]
-            first_name: str. User first name [Required]
-            email: str. User email [Required]
-            system_companies: SystemCompanies url. Used to create and link a company [Required]            
+        <table class="parameters table table-bordered">
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>birthday <span class="label label-warning">required</span></td><td>Date</td><td>User birthday</td></tr>
+            <tr><td>male <span class="label label-warning">required</span></td><td>Bool</td><td>True if user is a male</td></tr>
+            <tr><td>last_name <span class="label label-warning">required</span></td><td>String</td><td>User last name</td></tr>
+            <tr><td>first_name <span class="label label-warning">required</span></td><td>String</td><td>User first name</td></tr>
+            <tr><td>email <span class="label label-warning">required</span></td><td>String</td><td>User email</td></tr>
+            <tr><td>system_companies <span class="label label-warning">required</span></td><td>SystemCompany url</td><td>System company to create and link a company</td></tr>
+
+        </tbody>
+        </table>
+        </div>
     """
     
     
