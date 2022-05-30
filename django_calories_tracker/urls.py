@@ -2,10 +2,11 @@ from django.urls import path,  include
 from django.contrib import admin# Need to import this since auth models get registered on import.
 
 from rest_framework import routers
-from rest_framework.documentation import include_docs_urls
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from calories_tracker import views as calories_tracker_views
 from calories_tracker.reusing import views_login as calories_tracker_views_login
+
 router = routers.DefaultRouter()
 router.register(r'activities', calories_tracker_views.ActivitiesViewSet)
 router.register(r'additive_risks', calories_tracker_views.AdditiveRisksViewSet)
@@ -28,7 +29,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('curiosities/', calories_tracker_views.Curiosities, name='Curiosities'),
     path('catalog_manager/', calories_tracker_views.CatalogManager, name='CatalogManager'),
-    path('docs/',  include_docs_urls(title="Django Calories Tracker", description="API DESCRIPTION")), 
     
     path('login/', calories_tracker_views_login.login, name="login"), 
     path('logout/', calories_tracker_views_login.logout, name="logout"), 
@@ -40,4 +40,6 @@ urlpatterns = [
     path('statistics/', calories_tracker_views.Statistics, name='Statistics'),
     path('system_products_to_products/', calories_tracker_views.SystemProduct2Product, name='SystemProduct2Product'),
     path('system_companies_to_companies/', calories_tracker_views.SystemCompany2Company, name='SystemCompany2Company'),
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]

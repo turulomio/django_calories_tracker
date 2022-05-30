@@ -13,6 +13,8 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from json import loads
 from rest_framework import viewsets, permissions,  status
 from rest_framework.decorators import api_view, permission_classes, action
@@ -126,18 +128,6 @@ class FormatsViewSet(viewsets.ModelViewSet):
 
     
 class MealsViewSet(viewsets.ModelViewSet):
-    """
-        <div style="background-color:BurlyWood;">
-        
-        <h3>MealsViewSet custom documentation</h3>
-        
-        <ul>
-            <li><strong>GET /api/meals/?day=2022-01-01</strong>  Gets biometrics of request user at day 2022-01-01</li>
-            <li><strong>GET /api/meals/</strong>  Gets all biometrics of request user</li>
-            <li><strong>POST /api/meals/delete_several/ </strong>  Deletes several meals. Passed as a list of Meals objects urls</li>
-        </ul>
-        </div>
-    """
     queryset = models.Meals.objects.all()
     serializer_class = serializers.MealsSerializer
     permission_classes = [permissions.IsAuthenticated]      
@@ -150,6 +140,11 @@ class MealsViewSet(viewsets.ModelViewSet):
         return self.queryset
 
     ## delete_several. meals as an array
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='meals', description='Meal to delete (List)', required=True, type=OpenApiTypes.URI), 
+        ],
+    )
     @action(detail=False, methods=['post'])
     def delete_several(self, request):
         meals=RequestListUrl(request, "meals", models.Meals)
@@ -159,10 +154,6 @@ class MealsViewSet(viewsets.ModelViewSet):
             return Response('Meals.delete_several success')
         return Response('Meals.delete_several failure')
 
-
-## No modifica el contenido del producto sino su uso
-## GET Shows statistics of future transfer
-## POST Make transfer
 
 @api_view(['POST', 'GET'])
 @permission_classes([permissions.IsAuthenticated, ])
