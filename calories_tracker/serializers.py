@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from calories_tracker import models
 from calories_tracker.reusing.request_casting import object_from_url
 
@@ -11,6 +13,7 @@ class ActivitiesSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Activities
         fields = ('url', 'id', 'name', 'description', 'multiplier', 'localname')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
 
@@ -20,6 +23,7 @@ class AdditiveRisksSerializer(serializers.HyperlinkedModelSerializer):
         model = models.AdditiveRisks
         fields = ('url', 'id', 'name', 'localname')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
 
@@ -29,6 +33,7 @@ class AdditivesSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Additives
         fields = ('url', 'id', 'name', 'description', 'additive_risks', 'fullname')
         
+    @extend_schema_field(OpenApiTypes.STR)
     def get_fullname(self, o):
         return o.fullname()
         
@@ -51,21 +56,29 @@ class BiometricsSerializer(serializers.HyperlinkedModelSerializer):
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         return created
         
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_bmr(self, o):
         return o.bmr()
         
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_imc(self, o):
         return o.imc()
+    @extend_schema_field(OpenApiTypes.STR)
     def get_imc_comment(self, o):
         return o.imc_comment()
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_recommended_carbohydrate(self, o):
         return o.recommended_carbohydrate()
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_recommended_fat(self, o):
         return o.recommended_fat()
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_recommended_fiber(self, o):
         return o.recommended_fiber()
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_recommended_protein(self, o):
         return o.recommended_protein()
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_recommended_sugars(self, o):
         return o.recommended_sugars()
 
@@ -85,11 +98,13 @@ class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
         created.uses=0#Needed to create although is read-only
         return created
 
+    @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_deletable(self, o):
         if o.uses>0:
             return False
         return True
 
+    @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_editable(self, o):
         if o.system_companies is None:
             return True
@@ -171,42 +186,60 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
         
         
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_calories(self, o):
         return o.getElaboratedProductComponent("calories")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_fat(self, o):
         return o.getElaboratedProductComponent("fat")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_protein(self, o):
         return o.getElaboratedProductComponent("protein")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_carbohydrate(self, o):
         return o.getElaboratedProductComponent("carbohydrate")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_salt(self, o):
         return o.getElaboratedProductComponent("salt")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_cholesterol(self, o):
         return o.getElaboratedProductComponent("cholesterol")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_sodium(self, o):
         return o.getElaboratedProductComponent("sodium")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_potassium(self, o):
         return o.getElaboratedProductComponent("potassium")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_fiber(self, o):
         return o.getElaboratedProductComponent("fiber")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_sugars(self, o):
         return o.getElaboratedProductComponent("sugars")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_saturated_fat(self, o):
         return o.getElaboratedProductComponent("saturated_fat")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_ferrum(self, o):
         return o.getElaboratedProductComponent("ferrum")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_magnesium(self, o):
         return o.getElaboratedProductComponent("magnesium")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_phosphor(self, o):
         return o.getElaboratedProductComponent("phosphor")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_calcium(self, o):
         return o.getElaboratedProductComponent("calcium")
+    @extend_schema_field(OpenApiTypes.BOOL)
     def get_glutenfree(self, o):
         return o.is_glutenfree()
         
+    @extend_schema_field(OpenApiTypes.INT)
     def get_additives_risk(self, o):
         return o.additives_risk()
     ## For common development with products and system_products
+    @extend_schema_field(OpenApiTypes.STR)
     def get_fullname(self, o):
         return o.name
 
@@ -216,6 +249,7 @@ class FoodTypesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.FoodTypes
         fields = ('url', 'id', 'name', 'localname')
+    @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
 
@@ -225,6 +259,7 @@ class FormatsSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Formats
         fields = ('url', 'id', 'name', 'localname')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
 
@@ -256,36 +291,52 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         return created
         
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_calories(self, o):
         return o.getProductComponent("calories", 0)
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_fat(self, o):
         return o.getProductComponent("fat")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_protein(self, o):
         return o.getProductComponent("protein")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_carbohydrate(self, o):
         return o.getProductComponent("carbohydrate")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_salt(self, o):
         return o.getProductComponent("salt")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_cholesterol(self, o):
         return o.getProductComponent("cholesterol")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_sodium(self, o):
         return o.getProductComponent("sodium")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_potassium(self, o):
         return o.getProductComponent("potassium")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_fiber(self, o):
         return o.getProductComponent("fiber")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_sugars(self, o):
         return o.getProductComponent("sugars")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_saturated_fat(self, o):
         return o.getProductComponent("saturated_fat")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_ferrum(self, o):
         return o.getProductComponent("ferrum")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_magnesium(self, o):
         return o.getProductComponent("magnesium")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_phosphor(self, o):
         return o.getProductComponent("phosphor")
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_calcium(self, o):
         return o.getProductComponent("calcium")
+    @extend_schema_field(OpenApiTypes.BOOL)
     def get_glutenfree(self, o):
         return o.products.glutenfree
     
@@ -350,19 +401,23 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         
         return updated
         
+    @extend_schema_field(OpenApiTypes.STR)
     def get_fullname(self, o):
         return o.fullname()
         
+    @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_deletable(self, o):
         if o.uses>0:
             return False
         return True
 
+    @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_editable(self, o):
         if o.system_products is not None or o.elaborated_products is not None:
             return False
         return True
         
+    @extend_schema_field(OpenApiTypes.INT)
     def get_additives_risk(self, o):
         return o.additives_risk()
 
@@ -443,14 +498,17 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
         
         return updated
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_system_company_name(self, o):
         if o.system_companies is None:
             return None
         return o.system_companies.name
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_fullname(self, o):
         return o.fullname()
 
+    @extend_schema_field(OpenApiTypes.INT)
     def get_additives_risk(self, o):
         return o.additives_risk()
 
@@ -460,5 +518,6 @@ class WeightWishesSerializer(serializers.HyperlinkedModelSerializer):
         model = models.WeightWishes
         fields = ('url', 'id', 'name', 'localname')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
