@@ -29,7 +29,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('curiosities/', calories_tracker_views.Curiosities, name='Curiosities'),
     path('catalog_manager/', calories_tracker_views.CatalogManager, name='CatalogManager'),
-    
     path('login/', calories_tracker_views_login.login, name="login"), 
     path('logout/', calories_tracker_views_login.logout, name="logout"), 
     path('maintenance/catalogs/update/', calories_tracker_views.MaintenanceCatalogsUpdate, name='MaintenanceCatalogsUpdate'),
@@ -38,6 +37,7 @@ urlpatterns = [
     path('time/', calories_tracker_views.Time, name='Time'),
     path('settings/', calories_tracker_views.Settings, name='Settings'),
     path('statistics/', calories_tracker_views.Statistics, name='Statistics'),
+    path('products_to_system_products/', calories_tracker_views.Product2SystemProduct, name='Product2SystemProduct'),
     path('system_products_to_products/', calories_tracker_views.SystemProduct2Product, name='SystemProduct2Product'),
     path('system_companies_to_companies/', calories_tracker_views.SystemCompany2Company, name='SystemCompany2Company'),
     path('schema/', SpectacularAPIView.as_view(), name='schema'),

@@ -2,10 +2,9 @@ from calories_tracker import serializers
 from calories_tracker import models
 from calories_tracker.reusing.listdict_functions import listdict_order_by
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
-from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder
+from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response
 from calories_tracker.update_data import update_from_data
 from datetime import datetime
-from django.conf import settings
 from django.db import transaction
 from django.db.models import Count, Min
 from django.http import JsonResponse
@@ -21,11 +20,19 @@ from rest_framework.response import Response
 from statistics import median
 from urllib import request as urllib_request
 
+class GroupCatalogManager(permissions.BasePermission):
+    """Permiso que comprueba si pertenece al grupo Interventor """
+    def has_permission(self, request, view):
+        return request.user.groups.filter(name="CatalogManager").exists()
+    
 
 
 @permission_classes([permissions.IsAuthenticated, ])
+@api_view(['GET', ])
 def CatalogManager(request):
-    return JsonResponse( settings.CATALOG_MANAGER, encoder=MyDjangoJSONEncoder, safe=False)
+    print(request.headers)
+    print( request.user.groups.filter(name="CatalogManager").exists(), request.user)
+    return JsonResponse( request.user.groups.filter(name="CatalogManager").exists(), encoder=MyDjangoJSONEncoder, safe=False)
 
 
 @api_view(['GET', ])
@@ -38,21 +45,25 @@ class WeightWishesViewSet(viewsets.ModelViewSet):
     queryset = models.WeightWishes.objects.all()
     serializer_class = serializers.WeightWishesSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    http_method_names=['get']
 
 class ActivitiesViewSet(viewsets.ModelViewSet):
     queryset = models.Activities.objects.all()
     serializer_class = serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticated]     
+    http_method_names=['get']
 
 class AdditiveRisksViewSet(viewsets.ModelViewSet):
     queryset = models.AdditiveRisks.objects.all()
     serializer_class = serializers.AdditiveRisksSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    http_method_names=['get']
 
 class AdditivesViewSet(viewsets.ModelViewSet):
     queryset = models.Additives.objects.all()
     serializer_class = serializers.AdditivesSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    http_method_names=['get']
 
 class BiometricsViewSet(viewsets.ModelViewSet):    
     """
@@ -109,10 +120,12 @@ class FoodTypesViewSet(viewsets.ModelViewSet):
     queryset = models.FoodTypes.objects.all()
     serializer_class = serializers.FoodTypesSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    http_method_names=['get']
 class FormatsViewSet(viewsets.ModelViewSet):
     queryset = models.Formats.objects.all()
     serializer_class = serializers.FormatsSerializer
     permission_classes = [permissions.IsAuthenticated]  
+    http_method_names=['get']
 
     
 class MealsViewSet(viewsets.ModelViewSet):
@@ -170,8 +183,8 @@ def ProductsDataTransfer(request):
                 pi.products=product_to
                 pi.save()
             for m in models.Meals.objects.filter(products=product_from):
-                pi.products=product_to
-                pi.save()            
+                m.products=product_to
+                m.save()            
             return JsonResponse( True, encoder=MyDjangoJSONEncoder, safe=False)
 
 
@@ -223,6 +236,7 @@ class SystemProductsViewSet(viewsets.ModelViewSet):
             ids=[]
             for p in self.queryset:
                 if search.lower() in _(p.name).lower():
+                    print(p)
                     ids.append(p.id)
             return self.queryset.filter(id__in=ids).order_by("name")
         return self.queryset
@@ -239,6 +253,80 @@ def SystemProduct2Product(request):
         return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
     return JsonResponse( False, encoder=MyDjangoJSONEncoder,     safe=False)
     
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated, GroupCatalogManager ])
+def Product2SystemProduct(request):
+    """
+    Este método solo debe ser usada por el catalog manager.
+    Convierte el product en un system product, linkandolo con el nuevo system product
+    
+    @param request DESCRIPTION
+    @type TYPE
+    @return DESCRIPTION
+    @rtype TYPE
+    """
+    product=RequestUrl(request, "product", models.Products)
+    if all_args_are_not_none(product):
+        if product.system_products is not None or product.elaborated_products is not None:
+            return json_success_response( False, "This product can't be converted to system product")
+        sp=models.SystemProducts()
+        sp.name=product.name
+        sp.amount=product.amount
+        sp.fat=product.fat
+        sp.protein=product.protein
+        sp.carbohydrate=product.carbohydrate
+        sp.calories=product.calories
+        sp.salt=product.salt
+        sp.cholesterol=product.cholesterol
+        sp.sodium=product.sodium
+        sp.potassium=product.potassium
+        sp.fiber=product.fiber
+        sp.sugars=product.sugars
+        sp.saturated_fat=product.saturated_fat
+        sp.ferrum=product.ferrum
+        sp.magnesium=product.magnesium
+        sp.phosphor=product.phosphor
+        sp.glutenfree=product.glutenfree
+        sp.calcium=product.calcium
+        sp.food_types=product.food_types
+        sp.obsolete=product.obsolete
+        sp.version=timezone.now()
+        
+        #System company
+        if product.companies==None:
+            sp.system_companies=None
+        else:
+            if product.companies.system_companies is None: #El producto no tiene una companía del sistema
+                sc=models.SystemCompany()
+                sc.name=product.companies.name
+                sc.save()
+            else:
+                sc=product.companies.system_companies
+            sp.system_companies=sc
+        sp.save()
+        
+        #Additives
+        sp.additives.set(product.additives.all())
+        sp.save()
+        #Systemproductsformats
+                
+        ## Refresh system products formats
+        for f in product.formats.all():
+            spft=models.SystemProductsFormatsThrough()
+            spft.amount=f.amount
+            spft.formats=f.formats
+            spft.system_products=sp
+            spft.save()
+        sp.save()
+            
+        product.system_products=sp
+        product.save()
+
+
+        return json_success_response( True, "Product converted to system product")
+    return json_success_response( False, "Product couldn't be converted to system product")
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated, ])
