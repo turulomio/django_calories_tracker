@@ -236,7 +236,6 @@ class SystemProductsViewSet(viewsets.ModelViewSet):
             ids=[]
             for p in self.queryset:
                 if search.lower() in _(p.name).lower():
-                    print(p)
                     ids.append(p.id)
             return self.queryset.filter(id__in=ids).order_by("name")
         return self.queryset
@@ -299,8 +298,10 @@ def Product2SystemProduct(request):
             sp.system_companies=None
         else:
             if product.companies.system_companies is None: #El producto no tiene una companía del sistema
-                sc=models.SystemCompany()
+                sc=models.SystemCompanies()
                 sc.name=product.companies.name
+                sc.last=timezone.now()
+                sc.obsolete=False
                 sc.save()
             else:
                 sc=product.companies.system_companies
@@ -313,7 +314,8 @@ def Product2SystemProduct(request):
         #Systemproductsformats
                 
         ## Refresh system products formats
-        for f in product.formats.all():
+        for f in product.productsformatsthrough_set.all():
+            print(f,  f.__class__)
             spft=models.SystemProductsFormatsThrough()
             spft.amount=f.amount
             spft.formats=f.formats
