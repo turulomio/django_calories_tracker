@@ -405,7 +405,7 @@ msgstr "Sal"
 
 #: calories_tracker/hardcoded_strings.py:100
 msgid "Sandwich loaf"
-msgstr "Pan de molda"
+msgstr "Pan de molde"
 
 #: calories_tracker/hardcoded_strings.py:101
 msgid "Saturn peach"
