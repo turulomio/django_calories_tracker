@@ -2,11 +2,10 @@ from calories_tracker import serializers
 from calories_tracker import models
 from calories_tracker.reusing.listdict_functions import listdict_order_by
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
+from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder
 from calories_tracker.update_data import update_from_data
 from datetime import datetime
-from decimal import Decimal
 from django.conf import settings
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.db.models import Count, Min
 from django.http import JsonResponse
@@ -22,17 +21,6 @@ from rest_framework.response import Response
 from statistics import median
 from urllib import request as urllib_request
 
-class MyDjangoJSONEncoder(DjangoJSONEncoder):    
-    def default(self, o):
-        if isinstance(o, Decimal):
-            return float(o)
-#        if isinstance(o, Percentage):
-#            return o.value
-#        if isinstance(o, Currency):
-#            return o.amount
-        return super().default(o)
-        
-        
 
 
 @permission_classes([permissions.IsAuthenticated, ])

@@ -3,11 +3,21 @@
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from .request_casting import all_args_are_not_none, RequestString
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+@extend_schema(
+    request=OpenApiTypes.STR,
+    parameters=[
+        OpenApiParameter(name='username', description='User name', required=True, type=str), 
+        OpenApiParameter(name='password', description='User password', required=True, type=OpenApiTypes.PASSWORD), 
+    ],
+
+)
 @api_view(['POST'])
 def login(request):
     username=RequestString(request, "username")

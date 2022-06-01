@@ -23,6 +23,7 @@ if args.local==False:
     download_from_github("turulomio", "reusingcode", "python/casts.py", "calories_tracker/reusing")
     download_from_github("turulomio", "reusingcode", "python/github.py", "calories_tracker/reusing")
     download_from_github("turulomio", "reusingcode", "python/datetime_functions.py", "calories_tracker/reusing")
+    download_from_github("turulomio", "reusingcode", "django/responses_json.py", "calories_tracker/reusing")
     download_from_github("turulomio", "django_moneymoney", "moneymoney/views_login.py", "calories_tracker/reusing")
 
 replace_in_file("calories_tracker/reusing/views_login.py", "moneymoney.reusing", "")
