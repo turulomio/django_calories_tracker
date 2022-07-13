@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-05-29, 18:18:20"
+    "saved": "2022-06-02, 05:46:32"
   },
   "project": {
     "AUTHOR": "",
@@ -93,6 +93,7 @@
       "calories_tracker/reusing/libmanagers.py",
       "calories_tracker/reusing/listdict_functions.py",
       "calories_tracker/reusing/request_casting.py",
+      "calories_tracker/reusing/responses_json.py",
       "calories_tracker/reusing/text_inputs.py",
       "calories_tracker/reusing/views_login.py",
       "calories_tracker/serializers.py",
