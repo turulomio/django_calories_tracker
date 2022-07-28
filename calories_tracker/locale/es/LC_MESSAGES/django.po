@@ -477,7 +477,7 @@ msgstr "Bandeja"
 
 #: calories_tracker/hardcoded_strings.py:118
 msgid "Uncooked potato"
-msgstr "Papata cruda"
+msgstr "Patata cruda"
 
 #: calories_tracker/hardcoded_strings.py:119
 msgid "Uncooked rice"
