@@ -340,6 +340,29 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
     def get_glutenfree(self, o):
         return o.products.glutenfree
     
+class PotsSerializer(serializers.HyperlinkedModelSerializer):
+    fullname = serializers.SerializerMethodField()
+    class Meta:
+        model = models.Pots
+        fields = ('url', 'id', 'name', 'fullname', 'diameter', 'weight')
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_fullname(self, obj):
+        return  _(obj.fullname())
+        
+    def create(self, validated_data):
+        validated_data['user']=self.context.get("request").user
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        created.save()
+        return created
+        
+         
+    def update(self, instance, validated_data):
+        validated_data['user']=self.context.get("request").user
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        updated.save()
+        return updated
+
 class ProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ProductsFormatsThrough

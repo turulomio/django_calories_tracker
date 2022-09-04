@@ -17,6 +17,7 @@ router.register(r'elaborated_products', calories_tracker_views.ElaboratedProduct
 router.register(r'food_types', calories_tracker_views.FoodTypesViewSet)
 router.register(r'formats', calories_tracker_views.FormatsViewSet)
 router.register(r'meals', calories_tracker_views.MealsViewSet)
+router.register(r'pots', calories_tracker_views.PotsViewSet)
 router.register(r'products', calories_tracker_views.ProductsViewSet)
 router.register(r'system_companies', calories_tracker_views.SystemCompaniesViewSet)
 router.register(r'system_products', calories_tracker_views.SystemProductsViewSet)

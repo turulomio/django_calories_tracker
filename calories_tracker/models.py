@@ -721,6 +721,24 @@ class Meals(models.Model):
         if component is None or self.products.amount==0:
             return None
         return self.amount*component/self.products.amount
+        
+## Pots and pans
+class Pots(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=False, null=False)
+    name = models.TextField( blank=False, null=False)
+    weight = models.IntegerField( blank=False, null=False)#g
+    diameter = models.IntegerField( blank=False, null=False)#cm
+
+    class Meta:
+        managed = True
+        db_table = 'pots'
+
+    def __str__(self):
+        self.fullname()
+        
+    def fullname(self):
+        return f"{self.name} ({self.diameter}cm, {self.weight}g)"
+        
 
 class Profiles(models.Model):
     male = models.BooleanField()

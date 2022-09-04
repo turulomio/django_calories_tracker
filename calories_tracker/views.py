@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
 from json import loads
 from rest_framework import viewsets, permissions,  status
@@ -154,7 +154,22 @@ class MealsViewSet(viewsets.ModelViewSet):
                 meal.delete()
             return Response('Meals.delete_several success')
         return Response('Meals.delete_several failure')
-
+        
+@extend_schema_view(
+    list=extend_schema(
+        description="The list action returns all available actions."
+    ),
+    create=extend_schema(
+        description="The create action expects the fields `name`, creates a new object and returns it."
+    ),
+    retrieve=extend_schema(
+        description="The retrieve action returns a single object selected by `id`."
+    )
+)
+class PotsViewSet(viewsets.ModelViewSet):
+    queryset = models.Pots.objects.all()
+    serializer_class = serializers.PotsSerializer
+    permission_classes = [permissions.IsAuthenticated]      
 
 @api_view(['POST', 'GET'])
 @permission_classes([permissions.IsAuthenticated, ])
