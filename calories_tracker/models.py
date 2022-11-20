@@ -183,6 +183,9 @@ class Biometrics(models.Model):
 
     def recommended_fiber(self):
         return Decimal(25)
+        
+    def recommended_sodium(self):
+        return Decimal(2400)
 
     # Índice de masa corporal
     def imc(self):

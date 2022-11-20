@@ -4,3 +4,4 @@ dolt/
 *__pycache__*
 .jedi/
 django_calories_tracker/presettings.py
+doc/html/

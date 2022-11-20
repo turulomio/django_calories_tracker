@@ -47,9 +47,10 @@ class BiometricsSerializer(serializers.HyperlinkedModelSerializer):
     recommended_fiber = serializers.SerializerMethodField()
     recommended_protein = serializers.SerializerMethodField()
     recommended_sugars = serializers.SerializerMethodField()
+    recommended_sodium = serializers.SerializerMethodField()
     class Meta:
         model = models.Biometrics
-        fields = ('url', 'id', 'datetime', 'height', 'weight', 'weight_wishes', 'activities', 'bmr', 'imc', 'imc_comment', 'recommended_carbohydrate', 'recommended_fat', 'recommended_fiber', 'recommended_protein', 'recommended_sugars')
+        fields = ('url', 'id', 'datetime', 'height', 'weight', 'weight_wishes', 'activities', 'bmr', 'imc', 'imc_comment', 'recommended_carbohydrate', 'recommended_fat', 'recommended_fiber', 'recommended_protein', 'recommended_sugars', 'recommended_sodium')
                 
     def create(self, validated_data):
         validated_data['user']=self.context.get("request").user
@@ -81,6 +82,9 @@ class BiometricsSerializer(serializers.HyperlinkedModelSerializer):
     @extend_schema_field(OpenApiTypes.FLOAT)
     def get_recommended_sugars(self, o):
         return o.recommended_sugars()
+    @extend_schema_field(OpenApiTypes.FLOAT)
+    def get_recommended_sodium(self, o):
+        return o.recommended_sodium()
 
 class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
     is_deletable = serializers.SerializerMethodField()
