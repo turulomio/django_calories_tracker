@@ -166,7 +166,7 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
          
     def update(self, instance, validated_data):
         data=self.context.get("request").data
-        validated_data['user']=self.context.get("request").user
+        validated_data['user']=instance.user
         validated_data['last']=timezone.now()
         
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
