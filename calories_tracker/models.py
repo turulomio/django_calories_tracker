@@ -756,6 +756,85 @@ class Profiles(models.Model):
     def age(self):
         return (date.today() - self.birthday) // timedelta(days=365.2425)
 
+class Recipes(models.Model):
+    name = models.TextField()
+    last = models.DateTimeField(auto_now_add=True)
+    food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
+    obsolete = models.BooleanField()
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
+    comment=models.TextField( blank=False, null=False)
+    class Meta:
+        managed = True
+        db_table = 'recipes'
+    
+class RecipesLinksTypes(models.Model):
+    name=models.TextField( blank=False, null=False)
+    class Meta:
+        managed = True
+        db_table = 'recipes_links_types'
+    
+class RecipesLinks(models.Model):
+    description=models.TextField( blank=False, null=False)
+    type=models.ForeignKey(RecipesLinksTypes, models.DO_NOTHING)
+    link=models.TextField( blank=False, null=True)
+    content=models.TextField( blank=False, null=True)
+    recipes=models.ForeignKey(Recipes, on_delete=models.DO_NOTHING) 
+    mime=models.TextField( blank=False, null=True)
+    class Meta:
+        managed = True
+        db_table = 'recipes_links'
+    
+    
+class Elaborations(models.Model):
+    diners = models.IntegerField( blank=False, null=False)
+    products_in = models.ManyToManyField(Products, through='ElaborationsProductsInThrough', blank=True)
+    recipes=models.ForeignKey(Recipes, on_delete=models.DO_NOTHING) 
+    final_amount = models.DecimalField(max_digits=10, decimal_places=3)
+    robot=models.TextField( blank=False, null=False)
+    
+    class Meta:
+        managed = True
+        db_table = 'elaborations'
+    
+    
+class ElaborationsProductsInThrough(models.Model):
+    products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
+    elaborations = models.ForeignKey(Elaborations, on_delete=models.DO_NOTHING)
+    amount = models.DecimalField(max_digits=10, decimal_places=3)
+
+class TemperaturesTypes(models.Model):
+    name=models.TextField( blank=False, null=False)
+    class Meta:
+        managed = True
+        db_table = 'temperatures_types'
+
+class StirTypes(models.Model):
+    name=models.TextField( blank=False, null=False)
+    class Meta:
+        managed = True
+        db_table = 'stir_types'
+
+class Steps(models.Model):
+    name=models.TextField( blank=False, null=False)
+    temperatures_types=models.ForeignKey(TemperaturesTypes, on_delete=models.DO_NOTHING)
+    stir_types=models.ForeignKey(StirTypes, on_delete=models.DO_NOTHING)
+    class Meta:
+        managed = True
+        db_table = 'steps'
+    
+    
+class ElaborationsSteps(models.Model):
+    elaborations = models.ForeignKey(Elaborations, on_delete=models.DO_NOTHING)
+    steps=models.ForeignKey(Steps, on_delete=models.DO_NOTHING)
+    duration=models.TimeField(blank=False, null=False)
+    temperature=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    stir=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    comment=models.TextField( blank=False, null=False)
+    class Meta:
+        managed = True
+        db_table = 'elaborations_steps'
+
+
 class eAdditiveRisk:
     NotEvaluated=100
     NoRisk=0
