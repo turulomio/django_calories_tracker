@@ -548,3 +548,37 @@ class WeightWishesSerializer(serializers.HyperlinkedModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
+
+
+        
+class RecipesSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Recipes
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment')
+
+    def create(self, validated_data):
+        validated_data['user']=self.context.get("request").user
+        validated_data['last']=timezone.now()
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        created.save()
+        return created
+        
+         
+    def update(self, instance, validated_data):
+        validated_data['user']=instance.user
+        validated_data['last']=timezone.now()
+        
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        updated.save()
+        return updated
+        
+
+class RecipesLinksTypesSerializer(serializers.HyperlinkedModelSerializer):
+    localname = serializers.SerializerMethodField()
+    class Meta:
+        model = models.RecipesLinksTypes
+        fields = ('url', 'id', 'name', 'localname')
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_localname(self, obj):
+        return  _(obj.name)

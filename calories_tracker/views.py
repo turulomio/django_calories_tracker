@@ -210,8 +210,19 @@ class ProductsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.Products.objects.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
-
+class RecipesViewSet(viewsets.ModelViewSet):
+    queryset = models.Recipes.objects.all()    
+    serializer_class = serializers.RecipesSerializer
+    permission_classes = [permissions.IsAuthenticated]      
     
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user).order_by("name")
+
+class RecipesLinksTypesViewSet(viewsets.ModelViewSet):
+    queryset = models.RecipesLinksTypes.objects.all()    
+    serializer_class = serializers.RecipesLinksTypesSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+        
 class SystemCompaniesViewSet(viewsets.ModelViewSet):
     queryset = models.SystemCompanies.objects.all().order_by("name")
     serializer_class = serializers.SystemCompaniesSerializer

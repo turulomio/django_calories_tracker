@@ -762,7 +762,7 @@ class Recipes(models.Model):
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     obsolete = models.BooleanField()
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
-    comment=models.TextField( blank=False, null=False)
+    comment=models.TextField( blank=True, null=True)
     class Meta:
         managed = True
         db_table = 'recipes'
@@ -829,7 +829,7 @@ class ElaborationsSteps(models.Model):
     duration=models.TimeField(blank=False, null=False)
     temperature=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     stir=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    comment=models.TextField( blank=False, null=False)
+    comment=models.TextField( blank=True, null=True)
     class Meta:
         managed = True
         db_table = 'elaborations_steps'
