@@ -772,7 +772,15 @@ class RecipesLinksTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'recipes_links_types'
-    
+        ## Returns a json string
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
+        
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        return True
+
 class RecipesLinks(models.Model):
     description=models.TextField( blank=False, null=False)
     type=models.ForeignKey(RecipesLinksTypes, models.DO_NOTHING)

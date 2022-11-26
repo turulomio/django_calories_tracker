@@ -1,7 +1,7 @@
 from datetime import datetime
 from json import loads
 from urllib import request as urllib_request
-from calories_tracker.models import Additives, AdditiveRisks, SystemProductsFormatsThrough,  Activities, WeightWishes, FoodTypes, Formats, SystemCompanies, SystemProducts
+from calories_tracker.models import Additives, AdditiveRisks, SystemProductsFormatsThrough,  Activities, WeightWishes, FoodTypes, Formats, SystemCompanies, SystemProducts, RecipesLinksTypes
 from calories_tracker.reusing.datetime_functions import string2dtaware
 _=str
 
@@ -40,6 +40,7 @@ def update_from_data(data):
     r=process_formats(r,data)
     r=process_system_companies(r,data)
     r=process_system_products(r,data)
+    r=process_recipes_links_types(r,data)
     
     ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
 def process_catalogs(file_descriptor=None):
@@ -84,6 +85,9 @@ def process_weight_wishes(r,data):
         o.save()
     print("WeightWishes", "Total:",  r["total_weight_wishes"], "Logs:", len(r["logs"]))
     return r    
+
+
+
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
 def process_activities(r,data):
     r["total_activities"]=len(data["activities"])
@@ -259,3 +263,22 @@ def process_system_products(r, data):
         SystemProducts.update_all_linked_products(user)
     print("Update_all_linked_products")
     return r
+
+
+## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
+def process_recipes_links_types(r,data):
+    r["total_recipes_links_types"]=len(data["recipes_links_types"])
+    r["logs"]=[]
+    for d in data["recipes_links_types"]:
+        o=RecipesLinksTypes()
+        o.pk=d["id"]
+        o.name=checks_and_sets_value(d, "name")
+        try:
+            before=RecipesLinksTypes.objects.get(pk=d["id"])#Crash if not found
+            if not o.is_fully_equal(before):
+                r["logs"].append({"object":str(o), "log":_("Updated")})
+        except:
+            r["logs"].append({"object":str(o), "log":_("Created")})
+        o.save()
+    print("RecipesLinksTypes", "Total:",  r["total_recipes_links_types"], "Logs:", len(r["logs"]))
+    return r    

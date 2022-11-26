@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from calories_tracker.models import Activities, AdditiveRisks, Additives, FoodTypes, Formats, SystemCompanies, SystemProducts, WeightWishes
+from calories_tracker import models
 from tqdm import tqdm
 
 ## qs models must hava json method to convert object to string
@@ -18,14 +18,15 @@ class Command(BaseCommand):
     help = 'Export catalogs to json to allow internet update in Github'
 
     def handle(self, *args, **options):
-        qs_activities=Activities.objects.all().order_by("id")
-        qs_additive_risks=AdditiveRisks.objects.all().order_by("id")
-        qs_additives=Additives.objects.all().order_by("id")
-        qs_food_types=FoodTypes.objects.all().order_by("id")
-        qs_formats=Formats.objects.all().order_by("id")
-        qs_weight_wishes=WeightWishes.objects.all().order_by("id")
-        qs_system_companies=SystemCompanies.objects.all().order_by("id")
-        qs_system_products=SystemProducts.objects.all().order_by("id")
+        qs_activities=models.Activities.objects.all().order_by("id")
+        qs_additive_risks=models.AdditiveRisks.objects.all().order_by("id")
+        qs_additives=models.Additives.objects.all().order_by("id")
+        qs_food_types=models.FoodTypes.objects.all().order_by("id")
+        qs_formats=models.Formats.objects.all().order_by("id")
+        qs_weight_wishes=models.WeightWishes.objects.all().order_by("id")
+        qs_system_companies=models.SystemCompanies.objects.all().order_by("id")
+        qs_system_products=models.SystemProducts.objects.all().order_by("id")
+        qs_recipes_links_types=models.RecipesLinksTypes.objects.all().order_by("id")
         
         s=f"""{{
     "activities": {qs_to_json(qs_activities)}
@@ -35,7 +36,8 @@ class Command(BaseCommand):
     "formats": {qs_to_json(qs_formats)}
     "weight_wishes": {qs_to_json(qs_weight_wishes)}
     "system_companies": {qs_to_json(qs_system_companies)}
-    "system_products": {qs_to_json(qs_system_products, end_coma="False")}
+    "system_products": {qs_to_json(qs_system_products)}
+    "recipes_links_types": {qs_to_json(qs_recipes_links_types, end_coma="False")}
 }}
 """
         with open("calories_tracker/data/catalogs.json", "w") as f:
