@@ -19,6 +19,10 @@ class Command(BaseCommand):
             strings.append("_('{}')".format(row["name"]))
         for row in cursor_rows("select name from recipes_links_types order by name"):
             strings.append("_('{}')".format(row["name"]))
+        for row in cursor_rows("select name from stir_types order by name"):
+            strings.append("_('{}')".format(row["name"]))
+        for row in cursor_rows("select name from temperatures_types order by name"):
+            strings.append("_('{}')".format(row["name"]))
         for row in cursor_rows("select name from system_products where system_companies_id is null order by name"):
             strings.append("_('{}')".format(row["name"]))
             
