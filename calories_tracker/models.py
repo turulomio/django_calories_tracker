@@ -775,6 +775,8 @@ class RecipesLinksTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'recipes_links_types'
+    def __str__(self):
+        return self.name
         ## Returns a json string
     def json(self):
         return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
@@ -798,10 +800,9 @@ class RecipesLinks(models.Model):
     
 class Elaborations(models.Model):
     diners = models.IntegerField( blank=False, null=False)
-    products_in = models.ManyToManyField(Products, through='ElaborationsProductsInThrough', blank=True)
-    recipes=models.ForeignKey(Recipes, on_delete=models.DO_NOTHING) 
+    elaborations_products_in = models.ManyToManyField(Products, through='ElaborationsProductsInThrough', blank=True)
+    recipes=models.ForeignKey(Recipes, related_name="elaborations", on_delete=models.DO_NOTHING) 
     final_amount = models.DecimalField(max_digits=10, decimal_places=3)
-    robot=models.TextField( blank=False, null=False)
     
     class Meta:
         managed = True
@@ -818,6 +819,8 @@ class TemperaturesTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'temperatures_types'
+    def __str__(self):
+        return self.name
     def json(self):
         return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
         
@@ -828,9 +831,13 @@ class TemperaturesTypes(models.Model):
 
 class StirTypes(models.Model):
     name=models.TextField( blank=False, null=False)
+    
+
     class Meta:
         managed = True
         db_table = 'stir_types'
+    def __str__(self):
+        return self.name
     def json(self):
         return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
         
@@ -846,10 +853,12 @@ class Steps(models.Model):
     class Meta:
         managed = True
         db_table = 'steps'
+    def __str__(self):
+        return f"Step: {self.name} {self.temperatures_types.name} {self.stir_types.name}"
     
     
 class ElaborationsSteps(models.Model):
-    elaborations = models.ForeignKey(Elaborations, on_delete=models.DO_NOTHING)
+    elaborations = models.ForeignKey(Elaborations, related_name="elaborations_steps", on_delete=models.DO_NOTHING)
     steps=models.ForeignKey(Steps, on_delete=models.DO_NOTHING)
     duration=models.TimeField(blank=False, null=False)
     temperature=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)

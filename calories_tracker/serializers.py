@@ -571,18 +571,78 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
 
 
 
+class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ElaborationsProductsInThrough
+        fields = ('products',  'amount', 'elaborations' )
+
+
+
+
+class StepsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Steps
+        fields = ('url', 'id', 'name', 'temperatures_types', 'stir_types')
+
+class ElaborationsStepsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ElaborationsSteps
+        fields = ('url', 'id', 'elaborations', 'steps', 'duration', 'temperature', 'stir', 'comment')
+
+class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
+    elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")
+    elaborations_steps=ElaborationsStepsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.Elaborations
+        fields = ('url', 'id', 'diners', 'final_amount', 'recipes', 'elaborations_products_in', 'elaborations_steps')
+        
+    def create(self, validated_data):
+        request = self.context.get("request")
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        created.save()
+        for d in request.data["elaborations_products_in"]:
+            #Create all new
+            th=models.ElaborationsProductsInThrough()
+            th.amount=d["amount"]
+            th.products=object_from_url(d["products"], models.Products)
+            th.elaborations=created
+            th.save()
+        return created
+        
+         
+    def update(self, instance, validated_data):
+        request = self.context.get("request")        
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        updated.save()
+        #Delete all
+        qs=models.ElaborationsProductsInThrough.objects.filter(elaborations=updated)
+        if len(qs)>0:
+            qs.delete()
+
+        #Create all new
+        for d in request.data["elaborations_products_in"]:
+            th=models.ElaborationsProductsInThrough()
+            th.amount=d["amount"]
+            th.products=object_from_url(d["products"], models.Products)
+            th.elaborations=updated
+            th.save()
+        
+        return updated
+
         
 class RecipesSerializer(serializers.HyperlinkedModelSerializer):
     recipes_links= RecipesLinksSerializer( many=True, read_only=True)
+    elaborations= ElaborationsSerializer( many=True, read_only=True)
     class Meta:
         model = models.Recipes
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'recipes_links', 'valoration', 'guests', 'soon')
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'recipes_links', 'valoration', 'guests', 'soon', 'elaborations')
 
     def create(self, validated_data):
-        validated_data['user']=self.context.get("request").user
+        request = self.context.get("request")
+        validated_data['user']=request.user
         validated_data['last']=timezone.now()
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
-        created.save()
         return created
         
          
@@ -591,7 +651,6 @@ class RecipesSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['last']=timezone.now()
         
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
-        updated.save()
         return updated
         
 
@@ -624,3 +683,4 @@ class TemperaturesTypesSerializer(serializers.HyperlinkedModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
+

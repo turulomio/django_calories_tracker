@@ -119,11 +119,37 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
         return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
     
     
+
+class ElaborationsViewSet(viewsets.ModelViewSet):
+    queryset = models.Elaborations.objects.all()
+    serializer_class = serializers.ElaborationsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        qs_products_in=models.ElaborationsProductsInThrough.objects.filter(elaborations=instance)
+        qs_products_in.delete()
+        self.perform_destroy(instance)
+        return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
+
+
+class ElaborationsStepsViewSet(viewsets.ModelViewSet):
+    queryset = models.ElaborationsSteps.objects.all()
+    serializer_class = serializers.ElaborationsStepsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class StepsViewSet(viewsets.ModelViewSet):
+    queryset = models.Steps.objects.all()
+    serializer_class = serializers.StepsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 class FoodTypesViewSet(viewsets.ModelViewSet):
     queryset = models.FoodTypes.objects.all()
     serializer_class = serializers.FoodTypesSerializer
     permission_classes = [permissions.IsAuthenticated]      
     http_method_names=['get']
+
 class FormatsViewSet(viewsets.ModelViewSet):
     queryset = models.Formats.objects.all()
     serializer_class = serializers.FormatsSerializer
@@ -214,7 +240,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
         return models.Products.objects.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
 class RecipesViewSet(viewsets.ModelViewSet):
-    queryset = models.Recipes.objects.prefetch_related("recipes_links").all()
+    queryset = models.Recipes.objects.prefetch_related("recipes_links", "elaborations").all()
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
