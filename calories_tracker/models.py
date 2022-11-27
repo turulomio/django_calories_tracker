@@ -815,12 +815,26 @@ class TemperaturesTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'temperatures_types'
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
+        
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        return True
 
 class StirTypes(models.Model):
     name=models.TextField( blank=False, null=False)
     class Meta:
         managed = True
         db_table = 'stir_types'
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
+        
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        return True
 
 class Steps(models.Model):
     name=models.TextField( blank=False, null=False)

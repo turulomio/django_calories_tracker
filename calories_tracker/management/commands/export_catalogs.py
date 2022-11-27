@@ -26,6 +26,8 @@ class Command(BaseCommand):
         qs_weight_wishes=models.WeightWishes.objects.all().order_by("id")
         qs_system_companies=models.SystemCompanies.objects.all().order_by("id")
         qs_system_products=models.SystemProducts.objects.all().order_by("id")
+        qs_stir_types=models.StirTypes.objects.all().order_by("id")
+        qs_temperatures_types=models.TemperaturesTypes.objects.all().order_by("id")
         qs_recipes_links_types=models.RecipesLinksTypes.objects.all().order_by("id")
         
         s=f"""{{
@@ -37,6 +39,8 @@ class Command(BaseCommand):
     "weight_wishes": {qs_to_json(qs_weight_wishes)}
     "system_companies": {qs_to_json(qs_system_companies)}
     "system_products": {qs_to_json(qs_system_products)}
+    "stir_types": {qs_to_json(qs_stir_types)}
+    "temperatures_types": {qs_to_json(qs_temperatures_types)}
     "recipes_links_types": {qs_to_json(qs_recipes_links_types, end_coma="False")}
 }}
 """

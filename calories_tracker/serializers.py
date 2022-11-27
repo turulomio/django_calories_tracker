@@ -581,4 +581,24 @@ class RecipesLinksTypesSerializer(serializers.HyperlinkedModelSerializer):
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
+        return  _(obj.name)        
+
+class StirTypesSerializer(serializers.HyperlinkedModelSerializer):
+    localname = serializers.SerializerMethodField()
+    class Meta:
+        model = models.StirTypes
+        fields = ('url', 'id', 'name', 'localname')
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_localname(self, obj):
+        return  _(obj.name)        
+
+class TemperaturesTypesSerializer(serializers.HyperlinkedModelSerializer):
+    localname = serializers.SerializerMethodField()
+    class Meta:
+        model = models.TemperaturesTypes
+        fields = ('url', 'id', 'name', 'localname')
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_localname(self, obj):
         return  _(obj.name)

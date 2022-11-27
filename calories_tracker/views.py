@@ -221,8 +221,18 @@ class RecipesViewSet(viewsets.ModelViewSet):
 class RecipesLinksTypesViewSet(viewsets.ModelViewSet):
     queryset = models.RecipesLinksTypes.objects.all()    
     serializer_class = serializers.RecipesLinksTypesSerializer
-    permission_classes = [permissions.IsAuthenticated]      
-        
+    permission_classes = [permissions.IsAuthenticated]
+    
+class StirTypesViewSet(viewsets.ModelViewSet):
+    queryset = models.StirTypes.objects.all()    
+    serializer_class = serializers.StirTypesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+class TemperaturesTypesViewSet(viewsets.ModelViewSet):
+    queryset = models.TemperaturesTypes.objects.all()    
+    serializer_class = serializers.TemperaturesTypesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 class SystemCompaniesViewSet(viewsets.ModelViewSet):
     queryset = models.SystemCompanies.objects.all().order_by("name")
     serializer_class = serializers.SystemCompaniesSerializer

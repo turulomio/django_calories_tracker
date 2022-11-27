@@ -1,7 +1,7 @@
 from datetime import datetime
 from json import loads
 from urllib import request as urllib_request
-from calories_tracker.models import Additives, AdditiveRisks, SystemProductsFormatsThrough,  Activities, WeightWishes, FoodTypes, Formats, SystemCompanies, SystemProducts, RecipesLinksTypes
+from calories_tracker import models
 from calories_tracker.reusing.datetime_functions import string2dtaware
 _=str
 
@@ -41,6 +41,8 @@ def update_from_data(data):
     r=process_system_companies(r,data)
     r=process_system_products(r,data)
     r=process_recipes_links_types(r,data)
+    r=process_stir_types(r,data)
+    r=process_temperatures_types(r,data)
     
     ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
 def process_catalogs(file_descriptor=None):
@@ -56,11 +58,11 @@ def process_additive_risks(r, data):
     r["total_additive_risks"]=len(data["additive_risks"])
     r["logs"]=[]
     for d in data["additive_risks"]:
-        o=AdditiveRisks()
+        o=models.AdditiveRisks()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         try:
-            before=AdditiveRisks.objects.get(pk=d["id"])#Crash if not found
+            before=models.AdditiveRisks.objects.get(pk=d["id"])#Crash if not found
             if not o.is_fully_equal(before):
                 r["logs"].append({"object":str(o), "log":_("Updated additive risks")})
         except:
@@ -73,11 +75,11 @@ def process_weight_wishes(r,data):
     r["total_weight_wishes"]=len(data["weight_wishes"])
     r["logs"]=[]
     for d in data["weight_wishes"]:
-        o=WeightWishes()
+        o=models.WeightWishes()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         try:
-            before=WeightWishes.objects.get(pk=d["id"])#Crash if not found
+            before=models.WeightWishes.objects.get(pk=d["id"])#Crash if not found
             if not o.is_fully_equal(before):
                 r["logs"].append({"object":str(o), "log":_("Updated")})
         except:
@@ -93,13 +95,13 @@ def process_activities(r,data):
     r["total_activities"]=len(data["activities"])
     r["logs"]=[]
     for d in data["activities"]:
-        o=Activities()
+        o=models.Activities()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         o.description=checks_and_sets_value(d, "description")
         o.multiplier=checks_and_sets_value(d, "multiplier")
             
-        qs_before=Activities.objects.filter(pk=d["id"])#Crash if not found
+        qs_before=models.Activities.objects.filter(pk=d["id"])#Crash if not found
         if len(qs_before)==0:
             r["logs"].append({"object":str(o), "log":_("Created")})
         else:
@@ -114,7 +116,7 @@ def process_additives(r,data):
     r["total_additives"]=len(data["additives"])
     r["logs"]=[]
     for d in data["additives"]:
-        o=Additives()
+        o=models.Additives()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         o.description=checks_and_sets_value(d, "description")
@@ -122,9 +124,9 @@ def process_additives(r,data):
         if additive_risks_id is None:
             o.additive_risks=None
         else:
-            o.additive_risks=AdditiveRisks.objects.filter(pk=d["additive_risks"])[0]
+            o.additive_risks=models.AdditiveRisks.objects.filter(pk=d["additive_risks"])[0]
         
-        qs_before=Additives.objects.filter(pk=d["id"])#Crash if not found
+        qs_before=models.Additives.objects.filter(pk=d["id"])#Crash if not found
         if len(qs_before)==0:
             r["logs"].append({"object":str(o), "log":_("Created")})
         else:
@@ -138,11 +140,11 @@ def process_food_types(r,data):
     r["total_food_types"]=len(data["food_types"])
     r["logs"]=[]
     for d in data["food_types"]:
-        o=FoodTypes()
+        o=models.FoodTypes()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         
-        qs_before=FoodTypes.objects.filter(pk=d["id"])#Crash if not found
+        qs_before=models.FoodTypes.objects.filter(pk=d["id"])#Crash if not found
         if len(qs_before)==0:
             r["logs"].append({"object":str(o), "log":_("Created")})
         else:
@@ -156,11 +158,11 @@ def process_formats(r,data):
     r["total_formats"]=len(data["formats"])
     r["logs"]=[]
     for d in data["formats"]:
-        o=Formats()
+        o=models.Formats()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         
-        qs_before=Formats.objects.filter(pk=d["id"])#Crash if not found
+        qs_before=models.Formats.objects.filter(pk=d["id"])#Crash if not found
         if len(qs_before)==0:
             r["logs"].append({"object":str(o), "log":_("Created")})
         else:
@@ -174,13 +176,13 @@ def process_system_companies(r,data):
     r["total_system_companies"]=len(data["system_companies"])
     r["logs"]=[]
     for d in data["system_companies"]:
-        o=SystemCompanies()
+        o=models.SystemCompanies()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         o.last=string2dtaware(d['last'], "JsUtcIso", "UTC")
         o.obsolete=bool(int(d["obsolete"]))
         
-        qs_before=SystemCompanies.objects.filter(pk=d["id"])#Crash if not found
+        qs_before=models.SystemCompanies.objects.filter(pk=d["id"])#Crash if not found
         if len(qs_before)==0:
             r["logs"].append({"object":str(o), "log":_("Created")})
         else:
@@ -196,7 +198,7 @@ def process_system_products(r, data):
     r["total_system_products"]=len(data["system_products"])
     r["logs"]=[]
     for dp in data["system_products"]:
-        o=SystemProducts()
+        o=models.SystemProducts()
         o.id=dp['id']
         o.name = dp['name']
         o.amount=checks_and_sets_value(dp, "amount")
@@ -220,8 +222,8 @@ def process_system_products(r, data):
         if system_companies_id is None:
             o.system_companies=None
         else:
-            o.system_companies=SystemCompanies.objects.filter(pk=dp["system_companies"])[0]
-        o.food_types=FoodTypes.objects.filter(pk=dp["food_types"])[0]
+            o.system_companies=models.SystemCompanies.objects.filter(pk=dp["system_companies"])[0]
+        o.food_types=models.FoodTypes.objects.filter(pk=dp["food_types"])[0]
         o.obsolete=bool(dp["obsolete"])
         o.version=string2dtaware(dp['version'], "JsUtcIso", "UTC")
         o.version_description=checks_and_sets_value(dp, "version_description")
@@ -229,14 +231,14 @@ def process_system_products(r, data):
         if version_parent_id is None:
             o.version_parent=None
         else:
-            o.version_parent=SystemProducts.objects.filter(pk=dp["version_parent"])[0]
+            o.version_parent=models.SystemProducts.objects.filter(pk=dp["version_parent"])[0]
         
         o.save()
         for da in dp["additives"]:
-                o.additives.add(Additives.objects.filter(pk=da['additives'])[0])
+                o.additives.add(models.Additives.objects.filter(pk=da['additives'])[0])
                 o.save()
                
-        qs_before=SystemProducts.objects.filter(pk=dp["id"])#Crash if not found
+        qs_before=models.SystemProducts.objects.filter(pk=dp["id"])#Crash if not found
         if len(qs_before)==0:
             r["logs"].append({"object":str(o), "log":_("Created")})
         else:
@@ -244,14 +246,14 @@ def process_system_products(r, data):
                 r["logs"].append({"object":str(o), "log":_("Updated")})
 
         for df in dp["formats"]:
-            qs_sp=SystemProductsFormatsThrough.objects.filter(pk=df["id"])
+            qs_sp=models.SystemProductsFormatsThrough.objects.filter(pk=df["id"])
             if len(qs_sp)==0:
-                o=SystemProductsFormatsThrough()
+                o=models.SystemProductsFormatsThrough()
             else:
                 o=qs_sp[0]
             o.id=df["id"]
-            o.system_products=SystemProducts.objects.get(pk=dp["id"])
-            o.formats=Formats.objects.get(pk=df["formats" ])
+            o.system_products=models.SystemProducts.objects.get(pk=dp["id"])
+            o.formats=models.Formats.objects.get(pk=df["formats" ])
             o.amount=checks_and_sets_value(df, "amount")
             r["logs"].append({"object":str(o), "log":_("Created")})
             o.save()
@@ -260,7 +262,7 @@ def process_system_products(r, data):
     
     ## Updates all products links
     for user in User.objects.all():
-        SystemProducts.update_all_linked_products(user)
+        models.SystemProducts.update_all_linked_products(user)
     print("Update_all_linked_products")
     return r
 
@@ -270,15 +272,51 @@ def process_recipes_links_types(r,data):
     r["total_recipes_links_types"]=len(data["recipes_links_types"])
     r["logs"]=[]
     for d in data["recipes_links_types"]:
-        o=RecipesLinksTypes()
+        o=models.RecipesLinksTypes()
         o.pk=d["id"]
         o.name=checks_and_sets_value(d, "name")
         try:
-            before=RecipesLinksTypes.objects.get(pk=d["id"])#Crash if not found
+            before=models.RecipesLinksTypes.objects.get(pk=d["id"])#Crash if not found
             if not o.is_fully_equal(before):
                 r["logs"].append({"object":str(o), "log":_("Updated")})
         except:
             r["logs"].append({"object":str(o), "log":_("Created")})
         o.save()
     print("RecipesLinksTypes", "Total:",  r["total_recipes_links_types"], "Logs:", len(r["logs"]))
+    return r    
+
+## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
+def process_stir_types(r,data):
+    r["total_stir_types"]=len(data["stir_types"])
+    r["logs"]=[]
+    for d in data["stir_types"]:
+        o=models.StirTypes()
+        o.pk=d["id"]
+        o.name=checks_and_sets_value(d, "name")
+        try:
+            before=models.StirTypes.objects.get(pk=d["id"])#Crash if not found
+            if not o.is_fully_equal(before):
+                r["logs"].append({"object":str(o), "log":_("Updated")})
+        except:
+            r["logs"].append({"object":str(o), "log":_("Created")})
+        o.save()
+    print("StirTypes", "Total:",  r["total_stir_types"], "Logs:", len(r["logs"]))
+    return r    
+
+## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
+def process_temperatures_types(r,data):
+    r["total_temperatures_types"]=len(data["temperatures_types"])
+    r["logs"]=[]
+    for d in data["temperatures_types"]:
+        o=models.TemperaturesTypes()
+        o.pk=d["id"]
+        o.name=checks_and_sets_value(d, "name")
+        try:
+            before=models.TemperaturesTypes.objects.get(pk=d["id"])#Crash if not found
+            if not o.is_fully_equal(before):
+                r["logs"].append({"object":str(o), "log":_("Updated")})
+        except:
+            r["logs"].append({"object":str(o), "log":_("Created")})
+        o.save()
+    print("TemperaturesTypes", "Total:",  r["total_temperatures_types"], "Logs:", len(r["logs"]))
     return r    

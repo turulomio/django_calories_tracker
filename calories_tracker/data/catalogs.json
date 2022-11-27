@@ -1118,6 +1118,18 @@
         { "id": 320, "name": "Kefir natural", "amount": 100.000, "fat": 4.200, "protein": 3.900, "carbohydrate": 5.100, "calories": 74.000, "salt": 0.080, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 0.000, "sugars": 2.300, "saturated_fat": 2.900, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": 1, "food_types": 7, "obsolete": false, "version_parent": null, "version": "2022-10-31T04:33:50Z", "version_description": null, "additives" : [], "formats": [{ "id": 133, "formats": 55, "amount": 500.000 }] },
         { "id": 321, "name": "Mermelada de mango, Maracuya & Espino amarillo (Ecológica)", "amount": 100.000, "fat": 0.000, "protein": 0.000, "carbohydrate": 42.000, "calories": 171.000, "salt": 0.040, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 0.400, "sugars": 42.000, "saturated_fat": 0.000, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": 81, "food_types": 16, "obsolete": false, "version_parent": null, "version": "2022-10-31T04:37:42Z", "version_description": null, "additives" : [{ "additives": 317 }], "formats": [] }
     ],
+    "stir_types": [
+        { "id": 1, "name": "Thermomix velocity" },
+        { "id": 2, "name": "Constantly stir" },
+        { "id": 3, "name": "Stir every 5 minutes" },
+        { "id": 4, "name": "Do not remove" }
+    ],
+    "temperatures_types": [
+        { "id": 1, "name": "In Celsius degrees" },
+        { "id": 2, "name": "Cook over low heat" },
+        { "id": 3, "name": "Cook on medium heat" },
+        { "id": 4, "name": "Cook over high heat" }
+    ],
     "recipes_links_types": [
         { "id": 1, "name": "Video" },
         { "id": 2, "name": "Photo" },
