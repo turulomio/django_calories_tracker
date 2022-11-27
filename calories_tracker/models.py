@@ -788,7 +788,7 @@ class RecipesLinks(models.Model):
     description=models.TextField( blank=False, null=False)
     type=models.ForeignKey(RecipesLinksTypes, models.DO_NOTHING)
     link=models.TextField( blank=False, null=True)
-    content=models.TextField( blank=False, null=True)
+    content=models.BinaryField( blank=False, null=True)
     recipes=models.ForeignKey(Recipes, related_name="recipes_links", on_delete=models.DO_NOTHING) 
     mime=models.TextField( blank=False, null=True)
     class Meta:

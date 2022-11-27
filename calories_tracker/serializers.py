@@ -1,3 +1,4 @@
+from base64 import b64decode
 from rest_framework import serializers
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -553,6 +554,20 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.RecipesLinks
         fields = ('url', 'id', 'description', 'type', 'link', 'recipes', 'content', 'mime')
+        
+    def create(self, validated_data):
+        request = self.context.get("request")
+        ## Converts base 64 string to  bytes
+        if request.data['content'] is not None:
+            validated_data['content']=b64decode(request.data['content'].encode('utf-8'))
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        return created
+    
+    ## Update doesn't update blob, only changes metadata
+    def update(self, instance, validated_data):
+        validated_data['content']=instance.content
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        return updated
 
 
 
