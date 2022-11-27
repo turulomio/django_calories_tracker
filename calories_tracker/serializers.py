@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import object_from_url
+from calories_tracker.reusing.request_casting import object_from_url, id_from_url
 
 
 class ActivitiesSerializer(serializers.HyperlinkedModelSerializer):
@@ -591,7 +591,7 @@ class StepsSerializer(serializers.HyperlinkedModelSerializer):
 class ElaborationsStepsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsSteps
-        fields = ('url', 'id', 'elaborations', 'steps', 'duration', 'temperature', 'stir', 'comment', 'products_in_step')
+        fields = ('url', 'id',  'order','elaborations', 'steps', 'duration', 'temperature', 'stir', 'comment', 'products_in_step')
 
 class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")
@@ -612,6 +612,25 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
             th.products=object_from_url(d["products"], models.Products)
             th.elaborations=created
             th.save()
+            
+        #Create all new
+        for d in request.data["elaborations_steps"]:
+            es=models.ElaborationsSteps()
+            es.elaborations=created
+            es.order=d["order"]
+            es.steps=object_from_url(d["steps"], models.Steps)
+            es.duration=d["duration"]
+            es.temperature=d["temperature"]
+            es.stir=d["stir"]
+            es.comment=d["comment"]
+            es.save()
+            
+            products_in_step=[]
+            for pis in d["products_in_step"]:
+                item=object_from_url(pis, models.ElaborationsProductsInThrough)
+                products_in_step.append(item)
+            es.products_in_step.set(products_in_step)#Añade en bloque
+            es.save()
         return created
         
          
@@ -619,6 +638,7 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         request = self.context.get("request")        
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
         updated.save()
+        
         #Delete all
         qs=models.ElaborationsProductsInThrough.objects.filter(elaborations=updated)
         if len(qs)>0:
@@ -627,11 +647,38 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         #Create all new
         for d in request.data["elaborations_products_in"]:
             th=models.ElaborationsProductsInThrough()
+            if d["url"] is not None:
+                th.id=id_from_url(d["url"])
             th.amount=d["amount"]
             th.products=object_from_url(d["products"], models.Products)
             th.elaborations=updated
             th.save()
         
+        #Delete all elaborations steps
+        qs=models.ElaborationsSteps.objects.filter(elaborations=updated)
+        if len(qs)>0:
+            qs.delete()
+        #Create all new
+        for d in request.data["elaborations_steps"]:
+            es=models.ElaborationsSteps()
+            if "url" in d:
+                if  d["url"] is not None:
+                    es.id=id_from_url(d["url"])
+            es.elaborations=updated
+            es.order=d["order"]
+            es.steps=object_from_url(d["steps"], models.Steps)
+            es.duration=d["duration"]
+            es.temperature=d["temperature"]
+            es.stir=d["stir"]
+            es.comment=d["comment"]
+            es.save()
+            
+            products_in_step=[]
+            for pis in d["products_in_step"]:
+                item=object_from_url(pis, models.ElaborationsProductsInThrough)
+                products_in_step.append(item)
+            es.products_in_step.set(products_in_step)#Añade en bloque
+            es.save()
         return updated
 
         
