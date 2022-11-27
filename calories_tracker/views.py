@@ -1,5 +1,7 @@
 from calories_tracker import serializers
 from calories_tracker import models
+from calories_tracker.reusing.connection_dj import show_queries
+from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.listdict_functions import listdict_order_by
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response
@@ -20,6 +22,9 @@ from rest_framework.response import Response
 from statistics import median
 from urllib import request as urllib_request
 
+ptimeit
+show_queries
+
 class GroupCatalogManager(permissions.BasePermission):
     """Permiso que comprueba si pertenece al grupo Interventor """
     def has_permission(self, request, view):
@@ -30,15 +35,13 @@ class GroupCatalogManager(permissions.BasePermission):
 @permission_classes([permissions.IsAuthenticated, ])
 @api_view(['GET', ])
 def CatalogManager(request):
-    print(request.headers)
-    print( request.user.groups.filter(name="CatalogManager").exists(), request.user)
     return JsonResponse( request.user.groups.filter(name="CatalogManager").exists(), encoder=MyDjangoJSONEncoder, safe=False)
 
 
 @api_view(['GET', ])
 @permission_classes([permissions.IsAuthenticated, ])
 def Time(request):
-    return JsonResponse( timezone.now(), encoder=MyDjangoJSONEncoder,     safe=False)
+    return JsonResponse( timezone.now(), encoder=MyDjangoJSONEncoder, safe=False)
     
     
 class WeightWishesViewSet(viewsets.ModelViewSet):
@@ -211,12 +214,28 @@ class ProductsViewSet(viewsets.ModelViewSet):
         return models.Products.objects.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
 class RecipesViewSet(viewsets.ModelViewSet):
-    queryset = models.Recipes.objects.all()    
+    queryset = models.Recipes.objects.prefetch_related("recipes_links").all()
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
     def get_queryset(self):
+        search=RequestGetString(self.request, 'search') 
+        if all_args_are_not_none(search):
+            return self.queryset.filter(user=self.request.user, name__icontains=search).order_by("name")
         return self.queryset.filter(user=self.request.user).order_by("name")
+    
+    @ptimeit
+    @show_queries
+    def list(self, request):
+        return viewsets.ModelViewSet.list(self, request)
+
+
+
+class RecipesLinksViewSet(viewsets.ModelViewSet):
+    queryset = models.RecipesLinks.objects.all()
+    serializer_class = serializers.RecipesLinksSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 
 class RecipesLinksTypesViewSet(viewsets.ModelViewSet):
     queryset = models.RecipesLinksTypes.objects.all()    

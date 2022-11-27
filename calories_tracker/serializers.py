@@ -549,12 +549,19 @@ class WeightWishesSerializer(serializers.HyperlinkedModelSerializer):
     def get_localname(self, obj):
         return  _(obj.name)
 
+class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.RecipesLinks
+        fields = ('url', 'id', 'description', 'type', 'link', 'recipes', 'content', 'mime')
+
+
 
         
 class RecipesSerializer(serializers.HyperlinkedModelSerializer):
+    recipes_links= RecipesLinksSerializer( many=True, read_only=True)
     class Meta:
         model = models.Recipes
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment')
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'recipes_links', 'valoration', 'guests', 'soon')
 
     def create(self, validated_data):
         validated_data['user']=self.context.get("request").user

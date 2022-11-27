@@ -763,6 +763,9 @@ class Recipes(models.Model):
     obsolete = models.BooleanField()
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
     comment=models.TextField( blank=True, null=True)
+    valoration=models.IntegerField(blank=True, null=True)
+    guests=models.BooleanField(blank=False, null=False)
+    soon=models.BooleanField(blank=False, null=False)
     class Meta:
         managed = True
         db_table = 'recipes'
@@ -786,7 +789,7 @@ class RecipesLinks(models.Model):
     type=models.ForeignKey(RecipesLinksTypes, models.DO_NOTHING)
     link=models.TextField( blank=False, null=True)
     content=models.TextField( blank=False, null=True)
-    recipes=models.ForeignKey(Recipes, on_delete=models.DO_NOTHING) 
+    recipes=models.ForeignKey(Recipes, related_name="recipes_links", on_delete=models.DO_NOTHING) 
     mime=models.TextField( blank=False, null=True)
     class Meta:
         managed = True

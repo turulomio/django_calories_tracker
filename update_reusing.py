@@ -18,6 +18,7 @@ if args.local==False:
     download_from_github("turulomio", "reusingcode", "django/request_casting.py", "calories_tracker/reusing")
     download_from_github("turulomio", "reusingcode", "python/call_by_name.py", "calories_tracker/reusing")
     download_from_github("turulomio", "reusingcode", "python/connection_pg.py", "calories_tracker/reusing")
+    download_from_github("turulomio", "reusingcode", "django/connection_dj.py", "calories_tracker/reusing")
     download_from_github("turulomio", "reusingcode", "python/listdict_functions.py", "calories_tracker/reusing")
     download_from_github("turulomio", "reusingcode", "python/decorators.py", "calories_tracker/reusing")
     download_from_github("turulomio", "reusingcode", "python/casts.py", "calories_tracker/reusing")
