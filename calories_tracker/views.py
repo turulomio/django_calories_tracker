@@ -139,6 +139,11 @@ class ElaborationsStepsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ElaborationsStepsSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+class ElaborationsProductsInThrough(viewsets.ModelViewSet):
+    queryset = models.ElaborationsProductsInThrough.objects.all()
+    serializer_class = serializers.ElaborationsProductsInThroughSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 class StepsViewSet(viewsets.ModelViewSet):
     queryset = models.Steps.objects.all()
     serializer_class = serializers.StepsSerializer

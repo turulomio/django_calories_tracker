@@ -807,12 +807,18 @@ class Elaborations(models.Model):
     class Meta:
         managed = True
         db_table = 'elaborations'
+        
+    def __str__(self):
+        return f"Elaborations: {self.recipes.name} {self.diners}"
     
     
 class ElaborationsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
     elaborations = models.ForeignKey(Elaborations, on_delete=models.DO_NOTHING)
     amount = models.DecimalField(max_digits=10, decimal_places=3)
+    
+    def __str__(self):
+        return f"EPT: {self.products.name} {self.elaborations}"
 
 class TemperaturesTypes(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -858,12 +864,14 @@ class Steps(models.Model):
     
     
 class ElaborationsSteps(models.Model):
+    order=models.IntegerField(blank=False, null=False)
     elaborations = models.ForeignKey(Elaborations, related_name="elaborations_steps", on_delete=models.DO_NOTHING)
     steps=models.ForeignKey(Steps, on_delete=models.DO_NOTHING)
     duration=models.TimeField(blank=False, null=False)
     temperature=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     stir=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     comment=models.TextField( blank=True, null=True)
+    products_in_step = models.ManyToManyField(ElaborationsProductsInThrough, blank=True, related_name="products_in_step")
     class Meta:
         managed = True
         db_table = 'elaborations_steps'

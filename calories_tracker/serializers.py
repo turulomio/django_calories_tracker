@@ -574,20 +574,24 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
 class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsProductsInThrough
-        fields = ('products',  'amount', 'elaborations' )
+        fields = ('url','products',  'amount', 'elaborations' )
 
 
 
 
 class StepsSerializer(serializers.HyperlinkedModelSerializer):
+    localname = serializers.SerializerMethodField()
     class Meta:
         model = models.Steps
-        fields = ('url', 'id', 'name', 'temperatures_types', 'stir_types')
+        fields = ('url', 'id', 'name', 'temperatures_types', 'stir_types', 'localname')
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_localname(self, obj):
+        return  _(obj.name)
 
 class ElaborationsStepsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsSteps
-        fields = ('url', 'id', 'elaborations', 'steps', 'duration', 'temperature', 'stir', 'comment')
+        fields = ('url', 'id', 'elaborations', 'steps', 'duration', 'temperature', 'stir', 'comment', 'products_in_step')
 
 class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")
