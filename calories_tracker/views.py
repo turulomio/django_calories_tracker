@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
 from json import loads
-from rest_framework import viewsets, permissions,  status
+from rest_framework import viewsets, permissions,  status, mixins
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from statistics import median
@@ -245,7 +245,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
         return models.Products.objects.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
 class RecipesViewSet(viewsets.ModelViewSet):
-    queryset = models.Recipes.objects.prefetch_related("recipes_links", "elaborations").all()
+    queryset = models.Recipes.objects.all()
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
@@ -258,7 +258,24 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def list(self, request):
         return viewsets.ModelViewSet.list(self, request)
 
+class RecipesFullViewSet(mixins.CreateModelMixin, 
+                   mixins.RetrieveModelMixin,
+                   viewsets.GenericViewSet):## I leave only retrieve, not list
+    queryset = models.Recipes.objects.prefetch_related("recipes_links", "elaborations").all()
+    serializer_class = serializers.RecipesFullSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+    http_method_names=['get']
+        
+    @ptimeit
+    @show_queries
+    def retrieve(self, request, *args, **kwargs):
+        return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
+
+class RecipesCategoriesViewSet(viewsets.ModelViewSet):
+    queryset = models.RecipesCategories.objects.all()
+    serializer_class = serializers.RecipesCategoriesSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 class RecipesLinksViewSet(viewsets.ModelViewSet):
     queryset = models.RecipesLinks.objects.all()

@@ -549,6 +549,16 @@ class WeightWishesSerializer(serializers.HyperlinkedModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
+        
+class RecipesCategoriesSerializer(serializers.HyperlinkedModelSerializer):
+    localname = serializers.SerializerMethodField()
+    class Meta:
+        model = models.RecipesCategories
+        fields = ('url', 'id', 'name', 'localname')
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_localname(self, obj):
+        return  _(obj.name)
 
 class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -647,8 +657,9 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         #Create all new
         for d in request.data["elaborations_products_in"]:
             th=models.ElaborationsProductsInThrough()
-            if d["url"] is not None:
-                th.id=id_from_url(d["url"])
+            if "url" in d:
+                if  d["url"] is not None: #Si no está crearía uno nuevo, ya que no tiene id y luego hay un save
+                    th.id=id_from_url(d["url"])
             th.amount=d["amount"]
             th.products=object_from_url(d["products"], models.Products)
             th.elaborations=updated
@@ -681,13 +692,20 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
             es.save()
         return updated
 
-        
-class RecipesSerializer(serializers.HyperlinkedModelSerializer):
+class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='recipes_full-detail') #To get recipes_full url and do not override recipes url
     recipes_links= RecipesLinksSerializer( many=True, read_only=True)
     elaborations= ElaborationsSerializer( many=True, read_only=True)
     class Meta:
         model = models.Recipes
         fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'recipes_links', 'valoration', 'guests', 'soon', 'elaborations')
+
+        
+class RecipesSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Recipes
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon')
+        
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -703,7 +721,6 @@ class RecipesSerializer(serializers.HyperlinkedModelSerializer):
         
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
         return updated
-        
 
 class RecipesLinksTypesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()

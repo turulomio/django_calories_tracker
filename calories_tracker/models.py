@@ -755,6 +755,25 @@ class Profiles(models.Model):
 
     def age(self):
         return (date.today() - self.birthday) // timedelta(days=365.2425)
+        
+    
+class RecipesCategories(models.Model):
+    name=models.TextField( blank=False, null=False)
+    
+    class Meta:
+        managed = True
+        db_table = 'recipes_categories'
+    
+    def __str__(self):
+        return self.name
+        
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
+        
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        return True
 
 class Recipes(models.Model):
     name = models.TextField()
