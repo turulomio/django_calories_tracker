@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-06-02, 05:46:32"
+    "saved": "2022-11-28, 05:52:24"
   },
   "project": {
     "AUTHOR": "",
@@ -11,6 +11,7 @@
     "DOCSTRING": "",
     "DOCUMENTATIONPARMS": {},
     "EMAIL": "",
+    "EMBEDDED_VENV": false,
     "EOL": 0,
     "FILETYPES": {
       "*.e4p": "OTHERS",
@@ -39,6 +40,7 @@
     },
     "INTERFACES": [],
     "LEXERASSOCS": {},
+    "LICENSE": "",
     "MAINSCRIPT": "",
     "MAKEPARAMS": {
       "MakeEnabled": false,
@@ -75,6 +77,7 @@
       "calories_tracker/management/commands/doxygen.py",
       "calories_tracker/management/commands/dumppostgres.py",
       "calories_tracker/management/commands/export_catalogs.py",
+      "calories_tracker/management/commands/import_recipes_from_directory.py",
       "calories_tracker/management/commands/makedbmessages.py",
       "calories_tracker/management/commands/migrate_from_caloriestracker.py",
       "calories_tracker/management/commands/procedure.py",
@@ -112,10 +115,12 @@
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
     "SPELLWORDS": "",
+    "TESTING_FRAMEWORK": "",
     "TRANSLATIONEXCEPTIONS": [],
     "TRANSLATIONPATTERN": "",
     "TRANSLATIONS": [],
     "TRANSLATIONSBINPATH": "",
+    "TRANSLATIONSOURCESTARTPATH": "",
     "UICPARAMS": {
       "Package": "",
       "PackagesRoot": "",
