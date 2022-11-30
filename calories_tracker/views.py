@@ -160,8 +160,12 @@ class FormatsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FormatsSerializer
     permission_classes = [permissions.IsAuthenticated]  
     http_method_names=['get']
-
     
+class MeasuresTypesViewSet(viewsets.ModelViewSet):
+    queryset = models.MeasuresTypes.objects.all()
+    serializer_class = serializers.MeasuresTypesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 class MealsViewSet(viewsets.ModelViewSet):
     queryset = models.Meals.objects.all()
     serializer_class = serializers.MealsSerializer

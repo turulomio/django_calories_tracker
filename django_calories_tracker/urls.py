@@ -19,6 +19,7 @@ router.register(r'elaborations_steps', calories_tracker_views.ElaborationsStepsV
 router.register(r'food_types', calories_tracker_views.FoodTypesViewSet)
 router.register(r'formats', calories_tracker_views.FormatsViewSet)
 router.register(r'meals', calories_tracker_views.MealsViewSet)
+router.register(r'measures_types', calories_tracker_views.MeasuresTypesViewSet)
 router.register(r'pots', calories_tracker_views.PotsViewSet)
 router.register(r'products', calories_tracker_views.ProductsViewSet)
 router.register(r'recipes', calories_tracker_views.RecipesViewSet)

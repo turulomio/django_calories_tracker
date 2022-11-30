@@ -338,6 +338,7 @@ class SystemProducts(models.Model):
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     additives = models.ManyToManyField(Additives, blank=True)
     formats = models.ManyToManyField(Formats, through='SystemProductsFormatsThrough', blank=True)
+    density=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     obsolete = models.BooleanField()
     
     version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
@@ -386,7 +387,6 @@ class SystemProducts(models.Model):
             return False
         if not self.potassium==other.potassium:
             return False
-        return True
         if not self.fiber==other.fiber:
             return False
         if not self.sugars==other.sugars:
@@ -549,6 +549,7 @@ class Products(models.Model):
     
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     additives = models.ManyToManyField(Additives, blank=True, related_name="additives")
+    density=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     formats = models.ManyToManyField(Formats, through='ProductsFormatsThrough', blank=True)
 
     obsolete = models.BooleanField()
@@ -831,10 +832,25 @@ class Elaborations(models.Model):
     def __str__(self):
         return f"Elaborations: {self.recipes.name} {self.diners}"
     
-    
+class MeasuresTypes(models.Model):
+    name=models.TextField( blank=False, null=False)
+    class Meta:
+        managed = True
+        db_table = 'measures_types'
+    def __str__(self):
+        return self.name
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
+        
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        return True
+
 class ElaborationsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
     elaborations = models.ForeignKey(Elaborations, on_delete=models.DO_NOTHING)
+    measure_types = models.ForeignKey(MeasuresTypes, on_delete=models.DO_NOTHING)
     amount = models.DecimalField(max_digits=10, decimal_places=3)
     
     def __str__(self):

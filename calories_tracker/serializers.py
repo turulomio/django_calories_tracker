@@ -386,7 +386,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Products
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'fullname', 'uses', 'is_editable', 'is_deletable', 'additives_risk')
+        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 'fullname', 'uses', 'is_editable', 'is_deletable', 'additives_risk','density')
         
     def create(self, validated_data):
         data=self.context.get("request").data
@@ -484,7 +484,7 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.SystemProducts
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname', 'additives_risk')
+        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname', 'additives_risk','density')
 
     def create(self, validated_data):
         request=self.context.get("request")
@@ -584,7 +584,7 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
 class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsProductsInThrough
-        fields = ('url','products',  'amount', 'elaborations' )
+        fields = ('url','products', 'measures_types', 'amount', 'elaborations' )
 
 
 
@@ -746,6 +746,17 @@ class TemperaturesTypesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
     class Meta:
         model = models.TemperaturesTypes
+        fields = ('url', 'id', 'name', 'localname')
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_localname(self, obj):
+        return  _(obj.name)
+
+
+class MeasuresTypesSerializer(serializers.HyperlinkedModelSerializer):
+    localname = serializers.SerializerMethodField()
+    class Meta:
+        model = models.MeasuresTypes
         fields = ('url', 'id', 'name', 'localname')
 
     @extend_schema_field(OpenApiTypes.STR)

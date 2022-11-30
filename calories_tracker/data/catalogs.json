@@ -1142,10 +1142,18 @@
         { "id": 5, "name": "Video file" },
         { "id": 6, "name": "Document file" }
     ],
+    "measures_types": [
+        { "id": 1, "name": "Grams" },
+        { "id": 2, "name": "Milliliter" }
+    ],
     "recipes_categories": [
         { "id": 1, "name": "Rice" },
         { "id": 2, "name": "Soup Rice" },
         { "id": 3, "name": "Asian rice" },
-        { "id": 4, "name": "Risotto" }
+        { "id": 4, "name": "Risotto" },
+        { "id": 5, "name": "Vegetables" },
+        { "id": 6, "name": "Potatos" },
+        { "id": 7, "name": "Meat" },
+        { "id": 8, "name": "Chicken" }
     ]
 }
