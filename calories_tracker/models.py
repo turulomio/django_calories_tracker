@@ -847,10 +847,24 @@ class MeasuresTypes(models.Model):
             return False
         return True
 
+    def grams(self, product, amount):
+        ## Calcula los gramos partiendo de la densidad
+        ## Si no hay densidad devuelve los gramos con un warning
+        def from_density_or_grams(product,amount):
+            if product.density is None:
+                print(_("Density of {0} is null").format(product.name))
+                return amount
+            return product.density*amount
+
+        if self.id==1:#Grams
+            return amount
+        elif self.id>=2:#Milliliters
+            return from_density_or_grams(product,amount)
+
 class ElaborationsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
     elaborations = models.ForeignKey(Elaborations, on_delete=models.DO_NOTHING)
-    measure_types = models.ForeignKey(MeasuresTypes, on_delete=models.DO_NOTHING)
+    measures_types = models.ForeignKey(MeasuresTypes, on_delete=models.DO_NOTHING)
     amount = models.DecimalField(max_digits=10, decimal_places=3)
     
     def __str__(self):

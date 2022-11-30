@@ -619,6 +619,7 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
             #Create all new
             th=models.ElaborationsProductsInThrough()
             th.amount=d["amount"]
+            th.measures_types=object_from_url(d["measures_types"], models.MeasuresTypes)
             th.products=object_from_url(d["products"], models.Products)
             th.elaborations=created
             th.save()
@@ -661,6 +662,9 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
                 if  d["url"] is not None: #Si no está crearía uno nuevo, ya que no tiene id y luego hay un save
                     th.id=id_from_url(d["url"])
             th.amount=d["amount"]
+            print(d["measures_types"])
+            th.measures_types=object_from_url(d["measures_types"], models.MeasuresTypes)
+            print(th.measures_types)
             th.products=object_from_url(d["products"], models.Products)
             th.elaborations=updated
             th.save()
