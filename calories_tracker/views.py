@@ -125,6 +125,12 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ElaborationsSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    
+    def get_queryset(self):
+        recipes=RequestGetUrl(self.request, "recipes", models.Recipes)
+        if all_args_are_not_none(recipes):
+            return self.queryset.filter(recipes=recipes)
+        return self.queryset
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -269,6 +275,16 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def list(self, request):
         return viewsets.ModelViewSet.list(self, request)
 
+    @ptimeit
+    @show_queries
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        models.RecipesLinks.objects.filter(recipes=instance).delete()
+        models.Elaborations.objects.filter(recipes=instance).delete()
+        self.perform_destroy(instance)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class RecipesFullViewSet(mixins.CreateModelMixin, 
                    mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):## I leave only retrieve, not list
@@ -292,6 +308,13 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
     queryset = models.RecipesLinks.objects.all()
     serializer_class = serializers.RecipesLinksSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    
+    def get_queryset(self):
+        recipes=RequestGetUrl(self.request, "recipes", models.Recipes)
+        if all_args_are_not_none(recipes):
+            return self.queryset.filter(recipes=recipes)
+        return self.queryset
 
 
 class RecipesLinksTypesViewSet(viewsets.ModelViewSet):
