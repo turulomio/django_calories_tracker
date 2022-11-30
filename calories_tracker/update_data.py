@@ -43,6 +43,7 @@ def update_from_data(data):
     r=process_recipes_links_types(r,data)
     r=process_stir_types(r,data)
     r=process_temperatures_types(r,data)
+    r=process_recipes_categories(r,data)
     
     ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
 def process_catalogs(file_descriptor=None):
@@ -319,4 +320,21 @@ def process_temperatures_types(r,data):
             r["logs"].append({"object":str(o), "log":_("Created")})
         o.save()
     print("TemperaturesTypes", "Total:",  r["total_temperatures_types"], "Logs:", len(r["logs"]))
+    return r    
+
+def process_recipes_categories(r,data):
+    r["total_recipes_categories"]=len(data["recipes_categories"])
+    r["logs"]=[]
+    for d in data["recipes_categories"]:
+        o=models.RecipesCategories()
+        o.pk=d["id"]
+        o.name=checks_and_sets_value(d, "name")
+        try:
+            before=models.RecipesCategories.objects.get(pk=d["id"])#Crash if not found
+            if not o.is_fully_equal(before):
+                r["logs"].append({"object":str(o), "log":_("Updated")})
+        except:
+            r["logs"].append({"object":str(o), "log":_("Created")})
+        o.save()
+    print("RecipesCategories", "Total:",  r["total_recipes_categories"], "Logs:", len(r["logs"]))
     return r    

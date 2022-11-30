@@ -1116,7 +1116,10 @@
         { "id": 318, "name": "Hogaza clásicca con masa madre 10%, 100% natural", "amount": 100.000, "fat": 1.500, "protein": 9.400, "carbohydrate": 45.000, "calories": 239.000, "salt": 1.100, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 4.000, "sugars": 3.800, "saturated_fat": 0.300, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": 78, "food_types": 9, "obsolete": false, "version_parent": null, "version": "2022-09-05T03:38:18Z", "version_description": null, "additives" : [], "formats": [] },
         { "id": 319, "name": "Sticks de patata", "amount": 100.000, "fat": 32.000, "protein": 2.100, "carbohydrate": 57.000, "calories": 529.000, "salt": 1.900, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 2.200, "sugars": 0.300, "saturated_fat": 3.800, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": 1, "food_types": 14, "obsolete": false, "version_parent": null, "version": "2022-09-05T15:45:18Z", "version_description": null, "additives" : [], "formats": [{ "id": 131, "formats": 37, "amount": 75.000 }] },
         { "id": 320, "name": "Kefir natural", "amount": 100.000, "fat": 4.200, "protein": 3.900, "carbohydrate": 5.100, "calories": 74.000, "salt": 0.080, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 0.000, "sugars": 2.300, "saturated_fat": 2.900, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": 1, "food_types": 7, "obsolete": false, "version_parent": null, "version": "2022-10-31T04:33:50Z", "version_description": null, "additives" : [], "formats": [{ "id": 133, "formats": 55, "amount": 500.000 }] },
-        { "id": 321, "name": "Mermelada de mango, Maracuya & Espino amarillo (Ecológica)", "amount": 100.000, "fat": 0.000, "protein": 0.000, "carbohydrate": 42.000, "calories": 171.000, "salt": 0.040, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 0.400, "sugars": 42.000, "saturated_fat": 0.000, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": 81, "food_types": 16, "obsolete": false, "version_parent": null, "version": "2022-10-31T04:37:42Z", "version_description": null, "additives" : [{ "additives": 317 }], "formats": [] }
+        { "id": 321, "name": "Mermelada de mango, Maracuya & Espino amarillo (Ecológica)", "amount": 100.000, "fat": 0.000, "protein": 0.000, "carbohydrate": 42.000, "calories": 171.000, "salt": 0.040, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 0.400, "sugars": 42.000, "saturated_fat": 0.000, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": 81, "food_types": 16, "obsolete": false, "version_parent": null, "version": "2022-10-31T04:37:42Z", "version_description": null, "additives" : [{ "additives": 317 }], "formats": [] },
+        { "id": 322, "name": "Pimentón de la Vera dulce", "amount": 100.000, "fat": 13.000, "protein": 14.800, "carbohydrate": 34.840, "calories": 357.000, "salt": 1.900, "cholesterol": 0.000, "sodium": 34.000, "potassium": 2340.000, "fiber": 20.900, "sugars": 7.600, "saturated_fat": 1.900, "ferrum": 23.600, "magnesium": 178.000, "phosphor": 350.000, "glutenfree": true, "calcium": 180.000, "system_companies": 1, "food_types": 18, "obsolete": false, "version_parent": null, "version": "2022-11-28T15:42:00Z", "version_description": null, "additives" : [], "formats": [] },
+        { "id": 323, "name": "Laurel", "amount": 100.000, "fat": 8.360, "protein": 7.600, "carbohydrate": 75.000, "calories": 353.000, "salt": 0.000, "cholesterol": 0.000, "sodium": 23.000, "potassium": 529.000, "fiber": 26.300, "sugars": 0.000, "saturated_fat": 2.280, "ferrum": 43.000, "magnesium": 120.000, "phosphor": null, "glutenfree": true, "calcium": 834.000, "system_companies": null, "food_types": 2, "obsolete": false, "version_parent": null, "version": "2022-11-28T17:53:34Z", "version_description": null, "additives" : [], "formats": [] },
+        { "id": 324, "name": "Fuet espetec Extra", "amount": 100.000, "fat": 34.000, "protein": 27.500, "carbohydrate": 1.400, "calories": 421.000, "salt": 3.700, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 0.000, "sugars": 1.400, "saturated_fat": 13.300, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": true, "calcium": null, "system_companies": 1, "food_types": 14, "obsolete": false, "version_parent": null, "version": "2022-11-28T18:52:51Z", "version_description": null, "additives" : [{ "additives": 132 },{ "additives": 155 }], "formats": [] }
     ],
     "stir_types": [
         { "id": 1, "name": "Thermomix velocity" },
@@ -1128,11 +1131,21 @@
         { "id": 1, "name": "In Celsius degrees" },
         { "id": 2, "name": "Cook over low heat" },
         { "id": 3, "name": "Cook on medium heat" },
-        { "id": 4, "name": "Cook over high heat" }
+        { "id": 4, "name": "Cook over high heat" },
+        { "id": 5, "name": "Room temperature" }
     ],
     "recipes_links_types": [
-        { "id": 1, "name": "Video" },
-        { "id": 2, "name": "Photo" },
-        { "id": 3, "name": "Internet link" }
+        { "id": 1, "name": "Video link" },
+        { "id": 2, "name": "Photo file" },
+        { "id": 3, "name": "Web page link" },
+        { "id": 4, "name": "Web page file" },
+        { "id": 5, "name": "Video file" },
+        { "id": 6, "name": "Document file" }
+    ],
+    "recipes_categories": [
+        { "id": 1, "name": "Rice" },
+        { "id": 2, "name": "Soup Rice" },
+        { "id": 3, "name": "Asian rice" },
+        { "id": 4, "name": "Risotto" }
     ]
 }

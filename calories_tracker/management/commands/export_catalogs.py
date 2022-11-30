@@ -29,6 +29,7 @@ class Command(BaseCommand):
         qs_stir_types=models.StirTypes.objects.all().order_by("id")
         qs_temperatures_types=models.TemperaturesTypes.objects.all().order_by("id")
         qs_recipes_links_types=models.RecipesLinksTypes.objects.all().order_by("id")
+        qs_recipes_categories=models.RecipesCategories.objects.all().order_by("id")
         
         s=f"""{{
     "activities": {qs_to_json(qs_activities)}
@@ -41,7 +42,8 @@ class Command(BaseCommand):
     "system_products": {qs_to_json(qs_system_products)}
     "stir_types": {qs_to_json(qs_stir_types)}
     "temperatures_types": {qs_to_json(qs_temperatures_types)}
-    "recipes_links_types": {qs_to_json(qs_recipes_links_types, end_coma="False")}
+    "recipes_links_types": {qs_to_json(qs_recipes_links_types)}
+    "recipes_categories": {qs_to_json(qs_recipes_categories, end_coma="False")}
 }}
 """
         with open("calories_tracker/data/catalogs.json", "w") as f:

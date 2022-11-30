@@ -785,6 +785,7 @@ class Recipes(models.Model):
     valoration=models.IntegerField(blank=True, null=True)
     guests=models.BooleanField(blank=False, null=False)
     soon=models.BooleanField(blank=False, null=False)
+    recipes_categories = models.ManyToManyField(RecipesCategories, blank=True)
     class Meta:
         managed = True
         db_table = 'recipes'
