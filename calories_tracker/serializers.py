@@ -704,7 +704,7 @@ class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
 class RecipesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Recipes
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon')
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon', 'recipes_categories')
         
 
     def create(self, validated_data):
