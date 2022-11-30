@@ -143,6 +143,13 @@ class ElaborationsProductsInThrough(viewsets.ModelViewSet):
     queryset = models.ElaborationsProductsInThrough.objects.all()
     serializer_class = serializers.ElaborationsProductsInThroughSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
+        print(elaboration)
+        if all_args_are_not_none(elaboration):        
+            return self.queryset.filter(elaborations=elaboration)
+        return self.queryset
 
 class StepsViewSet(viewsets.ModelViewSet):
     queryset = models.Steps.objects.all()

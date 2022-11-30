@@ -582,12 +582,13 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerializer):
+    final_grams = serializers.SerializerMethodField()
     class Meta:
         model = models.ElaborationsProductsInThrough
-        fields = ('url','products', 'measures_types', 'amount', 'elaborations' )
-
-
-
+        fields = ('url','products', 'measures_types', 'amount', 'elaborations' , 'final_grams')
+    @extend_schema_field(OpenApiTypes.DECIMAL)
+    def get_final_grams(self, obj):
+        return  obj.final_grams()
 
 class StepsSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
@@ -615,16 +616,10 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         request = self.context.get("request")
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         created.save()
-        for d in request.data["elaborations_products_in"]:
-            #Create all new
-            th=models.ElaborationsProductsInThrough()
-            th.amount=d["amount"]
-            th.measures_types=object_from_url(d["measures_types"], models.MeasuresTypes)
-            th.products=object_from_url(d["products"], models.Products)
-            th.elaborations=created
-            th.save()
+        
+        #ElaborationsProductsInThroughSerializer se crean individualmente
             
-        #Create all new
+        #Estos se ecrean en grupo por el orden
         for d in request.data["elaborations_steps"]:
             es=models.ElaborationsSteps()
             es.elaborations=created
@@ -650,24 +645,10 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
         updated.save()
         
-        #Delete all
-        qs=models.ElaborationsProductsInThrough.objects.filter(elaborations=updated)
-        if len(qs)>0:
-            qs.delete()
-
-        #Create all new
-        for d in request.data["elaborations_products_in"]:
-            th=models.ElaborationsProductsInThrough()
-            if "url" in d:
-                if  d["url"] is not None: #Si no está crearía uno nuevo, ya que no tiene id y luego hay un save
-                    th.id=id_from_url(d["url"])
-            th.amount=d["amount"]
-            print(d["measures_types"])
-            th.measures_types=object_from_url(d["measures_types"], models.MeasuresTypes)
-            print(th.measures_types)
-            th.products=object_from_url(d["products"], models.Products)
-            th.elaborations=updated
-            th.save()
+        
+        #ElaborationsProductsInThroughSerializer se crean individualmente
+            
+        #Estos se ecrean en grupo por el orden
         
         #Delete all elaborations steps
         qs=models.ElaborationsSteps.objects.filter(elaborations=updated)

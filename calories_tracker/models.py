@@ -847,19 +847,6 @@ class MeasuresTypes(models.Model):
             return False
         return True
 
-    def grams(self, product, amount):
-        ## Calcula los gramos partiendo de la densidad
-        ## Si no hay densidad devuelve los gramos con un warning
-        def from_density_or_grams(product,amount):
-            if product.density is None:
-                print(_("Density of {0} is null").format(product.name))
-                return amount
-            return product.density*amount
-
-        if self.id==1:#Grams
-            return amount
-        elif self.id>=2:#Milliliters
-            return from_density_or_grams(product,amount)
 
 class ElaborationsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
@@ -869,6 +856,18 @@ class ElaborationsProductsInThrough(models.Model):
     
     def __str__(self):
         return f"EPT: {self.products.name} {self.elaborations}"
+        
+        
+    def final_grams(self):
+        ## Calcula los gramos partiendo de la densidad
+        ## Si no hay densidad devuelve los gramos con un warning
+        if self.id==1:#Grams
+            return self.amount
+        elif self.id>=2:#Milliliters
+            if self.products.density is None:
+                print(_("Density of {0} is null").format(self.products.name))
+                return self.amount
+            return self.products.density*self.amount
 
 class TemperaturesTypes(models.Model):
     name=models.TextField( blank=False, null=False)
