@@ -403,6 +403,8 @@ class SystemProducts(models.Model):
             return False
         if not self.calcium==other.calcium:
             return False
+        if not self.density==other.density:
+            return False
         if not self.system_companies==other.system_companies:
             return False
         if not self.food_types==other.food_types:
@@ -462,6 +464,7 @@ class SystemProducts(models.Model):
         p.phosphor=self.phosphor
         p.glutenfree=self.glutenfree
         p.calcium=self.calcium
+        p.density=self.density
         p.system_products=self
         p.elaborated_products=None
         p.food_types=self.food_types

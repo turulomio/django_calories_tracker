@@ -134,10 +134,13 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        qs_products_in=models.ElaborationsProductsInThrough.objects.filter(elaborations=instance)
-        qs_products_in.delete()
+        print(instance)
+        models.ElaborationsProductsInThrough.objects.filter(elaborations=instance).delete()
+        models.ElaborationsSteps.objects.filter(elaborations=instance).delete()
+        instance.recipes.last=timezone.now()
+        instance.recipes.save()
         self.perform_destroy(instance)
-        return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
+        return Response(status.HTTP_204_NO_CONTENT)
 
 
 class ElaborationsStepsViewSet(viewsets.ModelViewSet):
@@ -156,6 +159,11 @@ class ElaborationsProductsInThrough(viewsets.ModelViewSet):
         if all_args_are_not_none(elaboration):        
             return self.queryset.filter(elaborations=elaboration)
         return self.queryset
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.elaborations.recipes.last=timezone.now()
+        instance.elaborations.recipes.save()
+        return viewsets.ModelViewSet.destroy(self, request, args, kwargs)
 
 class StepsViewSet(viewsets.ModelViewSet):
     queryset = models.Steps.objects.all()
@@ -265,11 +273,30 @@ class RecipesViewSet(viewsets.ModelViewSet):
     queryset = models.Recipes.objects.all()
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
-    
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='search', description='String used to search recipes. ', required=True, type=str), 
+        ],
+    )
     def get_queryset(self):
         search=RequestGetString(self.request, 'search') 
         if all_args_are_not_none(search):
-            return self.queryset.filter(user=self.request.user, name__icontains=search).order_by("name")
+            
+            if search==":SOON":
+                return self.queryset.filter(user=self.request.user, soon=True)
+            elif search==":GUESTS":
+                return self.queryset.filter(user=self.request.user, guests=True)
+            elif search==":VALORATION":
+                return self.queryset.filter(user=self.request.user, valoration__isnull=False)
+            elif search.startswith(":LAST"):
+                arr=search.split(":")
+                try:
+                    number=int(arr[2])
+                except:
+                    number=50
+                return self.queryset.filter(user=self.request.user).order_by("-last")[0:number]
+            else:
+                return self.queryset.filter(user=self.request.user, name__icontains=search).order_by("name")
         return self.queryset.filter(user=self.request.user).order_by("name")
     
     def list(self, request):
@@ -280,9 +307,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         models.RecipesLinks.objects.filter(recipes=instance).delete()
+        models.ElaborationsProductsInThrough.objects.filter(elaborations__recipes=instance).delete()
+        models.ElaborationsSteps.objects.filter(elaborations__recipes=instance).delete()
         models.Elaborations.objects.filter(recipes=instance).delete()
         self.perform_destroy(instance)
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class RecipesFullViewSet(mixins.CreateModelMixin, 
@@ -315,6 +343,12 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
         if all_args_are_not_none(recipes):
             return self.queryset.filter(recipes=recipes)
         return self.queryset
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.recipes.last=timezone.now()
+        instance.recipes.save()
+        return viewsets.ModelViewSet.destroy(self, request, args, kwargs)
 
 
 class RecipesLinksTypesViewSet(viewsets.ModelViewSet):
