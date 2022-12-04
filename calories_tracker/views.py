@@ -2,6 +2,7 @@ from calories_tracker import serializers
 from calories_tracker import models
 from calories_tracker.reusing.connection_dj import show_queries
 from calories_tracker.reusing.decorators import ptimeit
+from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.reusing.listdict_functions import listdict_order_by
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response
@@ -109,6 +110,7 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        
         qs_products_in=models.ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=instance)
         qs_products_in.delete()
         #Destroy asoociated product
@@ -141,7 +143,37 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         instance.recipes.save()
         self.perform_destroy(instance)
         return Response(status.HTTP_204_NO_CONTENT)
+        
 
+    @action(detail=True, methods=['POST'], name='It creates and elaborated product from a recipe elaboration', url_path="create_elaborated_product", url_name='create_elaborated_product', permission_classes=[permissions.IsAuthenticated])
+    def create_elaborated_product(self, request, pk=None):
+        elaboration = self.get_object()
+        #Sets all elaborated products and products from this recipe obsolete
+        for ep in models.ElaboratedProducts.objects.filter(recipes=elaboration.recipes):
+            ep.obsolete=True
+            ep.save()
+            models.Products.objects.filter(elaborated_products=ep).update(obsolete=True)
+        #Creates a new elaborated product
+        ep=models.ElaboratedProducts()
+        ep.last=timezone.now()
+        ep.name=_("{0} for {1} diners ({2})").format(elaboration.recipes.name, elaboration.diners, dtaware2string(ep.last, "%Y-%m-%d %H:%M:%S"))
+        ep.final_amount=elaboration.final_amount
+        ep.food_types=elaboration.recipes.food_types
+        ep.obsolete=False
+        ep.user=request.user
+        ep.recipes=elaboration.recipes
+        ep.save()
+        #Creates asociated product
+        ep.update_associated_product()
+        #Adds all products_in
+        for rpi in elaboration.elaborationsproductsinthrough_set.all():
+            epi=models.ElaboratedProductsProductsInThrough()
+            epi.amount=rpi.final_grams()
+            epi.products=rpi.products
+            epi.elaborated_products=ep
+            epi.save()
+        #Returns created elaborated product serialized
+        return JsonResponse(serializers.ElaboratedProductsSerializer(ep, context={'request': request}).data, status=200)
 
 class ElaborationsStepsViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsSteps.objects.all()
