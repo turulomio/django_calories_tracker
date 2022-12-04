@@ -620,6 +620,7 @@ class ElaboratedProducts(models.Model):
     obsolete = models.BooleanField()
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
     products_in = models.ManyToManyField(Products, through='ElaboratedProductsProductsInThrough', blank=True)
+    recipes= models.ForeignKey("Recipes", models.DO_NOTHING, null=True, blank=True)
 
     class Meta:
         managed = True
