@@ -645,7 +645,7 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Elaborations
-        fields = ('url', 'id', 'diners', 'final_amount', 'recipes', 'elaborations_products_in', 'elaborations_steps')
+        fields = ('url', 'id', 'diners', 'final_amount', 'recipes', 'elaborations_products_in', 'elaborations_steps', 'elaborations_containers', 'elaborations_experiences')
         
     def create(self, validated_data):
         request = self.context.get("request")

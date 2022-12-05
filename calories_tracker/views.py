@@ -180,6 +180,13 @@ class ElaborationsContainersViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsContainers.objects.all()
     serializer_class = serializers.ElaborationsContainersSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+        
+    def get_queryset(self):
+        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
+        if all_args_are_not_none(elaboration):        
+            return self.queryset.filter(elaborations=elaboration)
+        return self.queryset
 
 class ElaborationsExperiencesViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsExperiences.objects.all()
