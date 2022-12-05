@@ -915,21 +915,6 @@ class Steps(models.Model):
     def __str__(self):
         return f"Step: {self.name} {self.temperatures_types.name} {self.stir_types.name}"
     
-    
-class ElaborationsSteps(models.Model):
-    order=models.IntegerField(blank=False, null=False)
-    elaborations = models.ForeignKey(Elaborations, related_name="elaborations_steps", on_delete=models.DO_NOTHING)
-    steps=models.ForeignKey(Steps, on_delete=models.DO_NOTHING)
-    duration=models.TimeField(blank=False, null=False)
-    temperature=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    stir=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    comment=models.TextField( blank=True, null=True)
-    products_in_step = models.ManyToManyField(ElaborationsProductsInThrough, blank=True, related_name="products_in_step")
-    class Meta:
-        managed = True
-        db_table = 'elaborations_steps'
-        
-
 class ElaborationsContainers(models.Model):
     name=models.TextField( blank=False, null=False)
     elaborations = models.ForeignKey(Elaborations, related_name="elaborations_containers", on_delete=models.CASCADE)
@@ -940,7 +925,22 @@ class ElaborationsContainers(models.Model):
 
     def __str__(self):
         return self.name
-
+        
+##Una clase con muchas opciones que en el front se esconderán dependiendo del step
+class ElaborationsSteps(models.Model):
+    order=models.IntegerField(blank=False, null=False)
+    elaborations = models.ForeignKey(Elaborations, related_name="elaborations_steps", on_delete=models.DO_NOTHING)
+    steps=models.ForeignKey(Steps, on_delete=models.DO_NOTHING)
+    duration=models.TimeField(blank=False, null=False)
+    temperature=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    stir=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
+    comment=models.TextField( blank=True, null=True)
+    products_in_step = models.ManyToManyField(ElaborationsProductsInThrough, blank=True, related_name="products_in_step")
+    container=models.ForeignKey(ElaborationsContainers, related_name="container", on_delete=models.DO_NOTHING, blank=True, null=True)
+    container_to=models.ForeignKey(ElaborationsContainers, related_name="container_to", on_delete=models.DO_NOTHING, blank=True, null=True)
+    class Meta:
+        managed = True
+        db_table = 'elaborations_steps'
 
 class ElaborationsExperiences(models.Model):
     datetime = models.DateTimeField(blank=False, null=False)
