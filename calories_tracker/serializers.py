@@ -619,7 +619,7 @@ class StepsSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
     class Meta:
         model = models.Steps
-        fields = ('url', 'id', 'name', 'temperatures_types', 'stir_types', 'localname')
+        fields = ('url', 'id', 'name', 'localname')
     @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
@@ -627,7 +627,7 @@ class StepsSerializer(serializers.HyperlinkedModelSerializer):
 class ElaborationsStepsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsSteps
-        fields = ('url', 'id',  'order','elaborations', 'steps', 'duration', 'temperature', 'stir', 'comment', 'products_in_step', 'container', 'container_to')
+        fields = ('url', 'id',  'order','elaborations', 'steps', 'duration', 'temperatures_types', 'temperatures_values',  'stir_types', 'stir_values',  'comment', 'products_in_step', 'container', 'container_to')
         
 class ElaborationsContainersSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -643,6 +643,7 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")
     elaborations_steps=ElaborationsStepsSerializer(many=True, read_only=True)
     elaborations_containers=ElaborationsContainersSerializer(many=True, read_only=True)
+    elaborations_experiences=ElaborationsExperiencesSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Elaborations
@@ -664,8 +665,10 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
             es.order=d["order"]
             es.steps=object_from_url(d["steps"], models.Steps)
             es.duration=d["duration"]
-            es.temperature=d["temperature"]
-            es.stir=d["stir"]
+            es.temperatures_types=None if d["temperatures_types"] is None else object_from_url(d["temperatures_types"], models.TemperaturesTypes)
+            es.temperatures_values=d["temperatures_values"]
+            es.stir_types=None if d["stir_types"] is None else object_from_url(d["stir_types"], models.StirTypes)
+            es.stir_values=d["stir_values"]
             es.container=None if d["container"] is None else object_from_url(d["container"], models.ElaborationsContainers)
             es.container_to=None if d["container_to"] is None else object_from_url(d["container_to"], models.ElaborationsContainers)
             es.comment=d["comment"]
@@ -707,8 +710,10 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
             es.order=d["order"]
             es.steps=object_from_url(d["steps"], models.Steps)
             es.duration=d["duration"]
-            es.temperature=d["temperature"]
-            es.stir=d["stir"]
+            es.temperatures_types=None if d["temperatures_types"] is None else object_from_url(d["temperatures_types"], models.TemperaturesTypes)
+            es.temperatures_values=d["temperatures_values"]
+            es.stir_types=None if d["stir_types"] is None else object_from_url(d["stir_types"], models.StirTypes)
+            es.stir_values=d["stir_values"]
             es.container=None if d["container"] is None else object_from_url(d["container"], models.ElaborationsContainers)
             es.container_to=None if d["container_to"] is None else object_from_url(d["container_to"], models.ElaborationsContainers)
             es.comment=d["comment"]

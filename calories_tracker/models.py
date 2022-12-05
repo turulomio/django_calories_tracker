@@ -907,13 +907,11 @@ class StirTypes(models.Model):
 
 class Steps(models.Model):
     name=models.TextField( blank=False, null=False)
-    temperatures_types=models.ForeignKey(TemperaturesTypes, on_delete=models.DO_NOTHING)
-    stir_types=models.ForeignKey(StirTypes, on_delete=models.DO_NOTHING)
     class Meta:
         managed = True
         db_table = 'steps'
     def __str__(self):
-        return f"Step: {self.name} {self.temperatures_types.name} {self.stir_types.name}"
+        return f"Step: {self.name}"
     
 class ElaborationsContainers(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -932,12 +930,20 @@ class ElaborationsSteps(models.Model):
     elaborations = models.ForeignKey(Elaborations, related_name="elaborations_steps", on_delete=models.DO_NOTHING)
     steps=models.ForeignKey(Steps, on_delete=models.DO_NOTHING)
     duration=models.TimeField(blank=False, null=False)
-    temperature=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    stir=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     comment=models.TextField( blank=True, null=True)
     products_in_step = models.ManyToManyField(ElaborationsProductsInThrough, blank=True, related_name="products_in_step")
     container=models.ForeignKey(ElaborationsContainers, related_name="container", on_delete=models.DO_NOTHING, blank=True, null=True)
     container_to=models.ForeignKey(ElaborationsContainers, related_name="container_to", on_delete=models.DO_NOTHING, blank=True, null=True)
+    
+    ## Temperatures types can be
+    ## - Celsius degrees (1) => Temperature values (value)
+    ## - Low / Medium / High => Temperature values (-1,-2, -3)
+    ## Para poner temperatura ambiente Temperature types = None
+    temperatures_types=models.ForeignKey(TemperaturesTypes, on_delete=models.DO_NOTHING, blank=True, null=True)
+    temperatures_values=models.IntegerField(blank=True, null=True)
+    stir_types=models.ForeignKey(StirTypes, on_delete=models.DO_NOTHING, blank=True, null=True)
+    stir_values=models.IntegerField(blank=True, null=True)
+    
     class Meta:
         managed = True
         db_table = 'elaborations_steps'
