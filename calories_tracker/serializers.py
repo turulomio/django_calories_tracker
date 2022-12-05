@@ -592,9 +592,10 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
 
 class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerializer):
     final_grams = serializers.SerializerMethodField()
+    fullname = serializers.SerializerMethodField()
     class Meta:
         model = models.ElaborationsProductsInThrough
-        fields = ('url','products', 'measures_types', 'amount', 'elaborations' , 'final_grams')
+        fields = ('url','products', 'measures_types', 'amount', 'elaborations' , 'final_grams', 'fullname')
         
         
     def create(self, validated_data):
@@ -614,6 +615,10 @@ class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerial
     @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_final_grams(self, obj):
         return  obj.final_grams()
+        
+    @extend_schema_field(OpenApiTypes.STR)
+    def fullname(self, obj):
+        return obj.fullname()
 
 class StepsSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()

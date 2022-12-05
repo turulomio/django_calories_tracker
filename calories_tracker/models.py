@@ -872,6 +872,9 @@ class ElaborationsProductsInThrough(models.Model):
                 print(_("Density of {0} is null").format(self.products.name))
                 return self.amount
             return self.products.density*self.amount
+            
+    def fullname(self):
+        return f"{_(self.products.name)} ({round(self.final_grams(), 1)} g)"
 
 class TemperaturesTypes(models.Model):
     name=models.TextField( blank=False, null=False)
