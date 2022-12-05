@@ -928,6 +928,31 @@ class ElaborationsSteps(models.Model):
     class Meta:
         managed = True
         db_table = 'elaborations_steps'
+        
+
+class ElaborationsContainers(models.Model):
+    name=models.TextField( blank=False, null=False)
+    elaborations = models.ForeignKey(Elaborations, related_name="elaborations_containers", on_delete=models.CASCADE)
+    
+    class Meta:
+        managed = True
+        db_table = 'elaborations_containers'
+
+    def __str__(self):
+        return self.name
+
+
+class ElaborationsExperiences(models.Model):
+    datetime = models.DateTimeField(blank=False, null=False)
+    experience=models.TextField( blank=False, null=False)
+    elaborations = models.ForeignKey(Elaborations, related_name="elaborations_experiences", on_delete=models.CASCADE)
+    
+    class Meta:
+        managed = True
+        db_table = 'elaborations_experiences'
+
+    def __str__(self):
+        return self.name
 
 
 class eAdditiveRisk:
