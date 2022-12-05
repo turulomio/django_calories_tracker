@@ -175,6 +175,17 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         #Returns created elaborated product serialized
         return JsonResponse(serializers.ElaboratedProductsSerializer(ep, context={'request': request}).data, status=200)
 
+
+class ElaborationsContainersViewSet(viewsets.ModelViewSet):
+    queryset = models.ElaborationsContainers.objects.all()
+    serializer_class = serializers.ElaborationsContainersSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class ElaborationsExperiencesViewSet(viewsets.ModelViewSet):
+    queryset = models.ElaborationsExperiences.objects.all()
+    serializer_class = serializers.ElaborationsExperiencesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 class ElaborationsStepsViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsSteps.objects.all()
     serializer_class = serializers.ElaborationsStepsSerializer

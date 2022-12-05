@@ -628,6 +628,16 @@ class ElaborationsStepsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsSteps
         fields = ('url', 'id',  'order','elaborations', 'steps', 'duration', 'temperature', 'stir', 'comment', 'products_in_step')
+        
+class ElaborationsContainersSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ElaborationsContainers
+        fields = ('url', 'id',  'name','elaborations')
+
+class ElaborationsExperiencesSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ElaborationsExperiences
+        fields = ('url', 'id',  'datetime', 'experience', 'elaborations')
 
 class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")
