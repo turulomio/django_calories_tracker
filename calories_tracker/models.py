@@ -921,6 +921,8 @@ class Steps(models.Model):
         db_table = 'steps'
     def __str__(self):
         return f"Step: {self.name}"
+    def localname(self):
+        return _(self.name)
     
 class ElaborationsContainers(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -956,6 +958,13 @@ class ElaborationsSteps(models.Model):
     class Meta:
         managed = True
         db_table = 'elaborations_steps'
+        
+    def wording(self):
+        if self.steps.id==1:
+            return f"{self.steps.localname()}"
+        else:
+            return f"{self.steps.localname()}"
+            
 
 class ElaborationsExperiences(models.Model):
     datetime = models.DateTimeField(blank=False, null=False)
