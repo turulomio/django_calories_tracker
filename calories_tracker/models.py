@@ -835,6 +835,12 @@ class Elaborations(models.Model):
         
     def __str__(self):
         return f"Elaborations: {self.recipes.name} {self.diners}"
+        
+    def final_duration(self):
+        print(dir(self))
+        qs= self.elaborations_steps.aggregate(final_duration=models.Sum('duration'))
+        return str(qs["final_duration"])
+        
     
 class MeasuresTypes(models.Model):
     name=models.TextField( blank=False, null=False)
