@@ -175,7 +175,13 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         #Returns created elaborated product serialized
         return JsonResponse(serializers.ElaboratedProductsSerializer(ep, context={'request': request}).data, status=200)
 
-
+    @action(detail=True, methods=['POST'], name='It creates a PDF for this elaboration', url_path="generate_pdf", url_name='generate_pdf', permission_classes=[permissions.IsAuthenticated])
+    def generate_pdf(self, request, pk=None):
+        from calories_tracker.unogenerator_files import response_report_elaboration
+        elaboration = self.get_object()
+        return response_report_elaboration(request, elaboration)
+        
+        
 class ElaborationsContainersViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsContainers.objects.all()
     serializer_class = serializers.ElaborationsContainersSerializer
