@@ -872,6 +872,8 @@ class MeasuresTypes(models.Model):
             return False
         return True
 
+    def localname(self):
+        return _(self.name)
 
 class ElaborationsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
@@ -902,7 +904,7 @@ class ElaborationsProductsInThrough(models.Model):
         if self.measures_types.id==2:#Milliliters
             return _("{0} ml of {1}{2}").format(round(self.amount, 1), _(self.products.name), comment_string)
         else:
-            return _("{0} {1} of {2}{3}").format(Fraction(self.amount), _(self.measures_types.name.lower()), _(self.products.name), comment_string)
+            return _("{0} {1} of {2}{3}").format(Fraction(self.amount), _(self.measures_types.localname()).lower(), _(self.products.name), comment_string)
 
 class TemperaturesTypes(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -1021,7 +1023,7 @@ class ElaborationsSteps(models.Model):
         if self.temperatures_values==-2:
             return _(" with medium heat")
         if self.temperatures_values==-3:
-            return _(" width High heat")
+            return _(" with high heat")
 
     def string_stir(self):
         if self.stir_types is None:
