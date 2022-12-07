@@ -45,6 +45,7 @@ def update_from_data(data):
     r=process_temperatures_types(r,data)
     r=process_recipes_categories(r,data)
     r=process_measures_types(r,data)
+    r=process_steps(r,data)
     
     ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
 def process_catalogs(file_descriptor=None):
@@ -355,4 +356,21 @@ def process_measures_types(r,data):
             r["logs"].append({"object":str(o), "log":_("Created")})
         o.save()
     print("MeasuresTypes", "Total:",  r["total_measures_types"], "Logs:", len(r["logs"]))
+    return r    
+
+def process_steps(r,data):
+    r["total_steps"]=len(data["steps"])
+    r["logs"]=[]
+    for d in data["steps"]:
+        o=models.Steps()
+        o.pk=d["id"]
+        o.name=checks_and_sets_value(d, "name")
+        try:
+            before=models.Steps.objects.get(pk=d["id"])#Crash if not found
+            if not o.is_fully_equal(before):
+                r["logs"].append({"object":str(o), "log":_("Updated")})
+        except:
+            r["logs"].append({"object":str(o), "log":_("Created")})
+        o.save()
+    print("Steps", "Total:",  r["total_steps"], "Logs:", len(r["logs"]))
     return r    

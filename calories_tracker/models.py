@@ -19,6 +19,20 @@ from django.contrib.auth.models import User # new
 from django.utils.translation import gettext as _
 from fractions import Fraction
 
+def is_equal_as_float(value1, value2):
+    if value1 is None and value2 is None: 
+        return True
+    if value1 is None and value2 is not None:
+        return False
+    if value1 is not None and value2 is None:
+        return False
+    a=float(value1)
+    b=float(value2)
+#    print(a, b)
+    if a==b:
+        return True
+    return False
+
 class Activities(models.Model):
     name = models.TextField()
     description=models.TextField()
@@ -36,7 +50,7 @@ class Activities(models.Model):
             return False
         if not self.description==other.description:
             return False
-        if not self.multiplier==other.multiplier:
+        if not is_equal_as_float(self.multiplier, other.multiplier):
             return False
         return True
     
@@ -362,7 +376,7 @@ class SystemProducts(models.Model):
             formats=formats+f"""{{ "id": {jss(spf.id)}, "formats": {jss(spf.formats.id)}, "amount": {jss(spf.amount)} }},"""
         formats=formats[:-1]
         
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "amount": {jss(self.amount)}, "fat": {jss(self.fat)}, "protein": {jss(self.protein)}, "carbohydrate": {jss(self.carbohydrate)}, "calories": {jss(self.calories)}, "salt": {jss(self.salt)}, "cholesterol": {jss(self.cholesterol)}, "sodium": {jss(self.sodium)}, "potassium": {jss(self.potassium)}, "fiber": {jss(self.fiber)}, "sugars": {jss(self.sugars)}, "saturated_fat": {jss(self.saturated_fat)}, "ferrum": {jss(self.ferrum)}, "magnesium": {jss(self.magnesium)}, "phosphor": {jss(self.phosphor)}, "glutenfree": {jss(self.glutenfree)}, "calcium": {jss(self.calcium)}, "system_companies": {jss(system_companies)}, "food_types": {jss(food_types)}, "obsolete": {jss(self.obsolete)}, "version_parent": {jss(version_parent)}, "version": {jss(self.version)}, "version_description": {jss(self.version_description)}, "additives" : [{additives}], "formats": [{formats}] }}"""
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "amount": {jss(self.amount)}, "fat": {jss(self.fat)}, "protein": {jss(self.protein)}, "carbohydrate": {jss(self.carbohydrate)}, "calories": {jss(self.calories)}, "salt": {jss(self.salt)}, "cholesterol": {jss(self.cholesterol)}, "sodium": {jss(self.sodium)}, "potassium": {jss(self.potassium)}, "fiber": {jss(self.fiber)}, "sugars": {jss(self.sugars)}, "saturated_fat": {jss(self.saturated_fat)}, "ferrum": {jss(self.ferrum)}, "magnesium": {jss(self.magnesium)}, "phosphor": {jss(self.phosphor)}, "glutenfree": {jss(self.glutenfree)}, "calcium": {jss(self.calcium)}, "system_companies": {jss(system_companies)}, "food_types": {jss(food_types)}, "obsolete": {jss(self.obsolete)}, "version_parent": {jss(version_parent)}, "version": {jss(self.version)}, "version_description": {jss(self.version_description)}, "density": {jss(self.density)}, "additives" : [{additives}], "formats": [{formats}] }}"""
 
 
     class Meta:
@@ -372,39 +386,39 @@ class SystemProducts(models.Model):
     def is_fully_equal(self, other):
         if not self.name==other.name:
             return False
-        if not self.amount==other.amount:
+        if not is_equal_as_float( self.amount,other.amount):
             return False
-        if not self.protein==other.protein:
+        if not is_equal_as_float( self.protein,other.protein):
             return False
-        if not self.carbohydrate==other.carbohydrate:
+        if not is_equal_as_float( self.carbohydrate,other.carbohydrate):
             return False
-        if not self.calories==other.calories:
+        if not is_equal_as_float( self.calories,other.calories):
             return False
-        if not self.salt==other.salt:
+        if not is_equal_as_float( self.salt,other.salt):
             return False
-        if not self.cholesterol==other.cholesterol:
+        if not is_equal_as_float( self.cholesterol,other.cholesterol):
             return False
-        if not self.sodium==other.sodium:
+        if not is_equal_as_float( self.sodium,other.sodium):
             return False
-        if not self.potassium==other.potassium:
+        if not is_equal_as_float( self.potassium,other.potassium):
             return False
-        if not self.fiber==other.fiber:
+        if not is_equal_as_float( self.fiber,other.fiber):
             return False
-        if not self.sugars==other.sugars:
+        if not is_equal_as_float( self.sugars,other.sugars):
             return False
-        if not self.saturated_fat==other.saturated_fat:
+        if not is_equal_as_float( self.saturated_fat,other.saturated_fat):
             return False
-        if not self.ferrum==other.ferrum:
+        if not is_equal_as_float( self.ferrum,other.ferrum):
             return False
-        if not self.magnesium==other.magnesium:
+        if not is_equal_as_float( self.magnesium,other.magnesium):
             return False
-        if not self.phosphor==other.phosphor:
+        if not is_equal_as_float( self.phosphor,other.phosphor):
             return False
         if not self.glutenfree==other.glutenfree:
             return False
-        if not self.calcium==other.calcium:
+        if not is_equal_as_float( self.calcium,other.calcium):
             return False
-        if not self.density==other.density:
+        if not is_equal_as_float( self.density,other.density):
             return False
         if not self.system_companies==other.system_companies:
             return False
