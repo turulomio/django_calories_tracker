@@ -17,6 +17,7 @@ from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User # new
 from django.utils.translation import gettext as _
+from fractions import Fraction
 
 class Activities(models.Model):
     name = models.TextField()
@@ -863,24 +864,31 @@ class ElaborationsProductsInThrough(models.Model):
     elaborations = models.ForeignKey(Elaborations, on_delete=models.DO_NOTHING)
     measures_types = models.ForeignKey(MeasuresTypes, on_delete=models.DO_NOTHING)
     amount = models.DecimalField(max_digits=10, decimal_places=3)
+    comment = models.CharField(max_length=100, blank=True, null=True) #Add product aclarations, cut, temperature...
     
     def __str__(self):
-        return f"EPT: {self.products.name} {self.elaborations}"
-        
+        self.fullname()        
         
     def final_grams(self):
-        ## Calcula los gramos partiendo de la densidad
-        ## Si no hay densidad devuelve los gramos con un warning
-        if self.id==1:#Grams
+        if self.measures_types.id==1:#Grams
             return self.amount
-        elif self.id>=2:#Milliliters
-            if self.products.density is None:
-                print(_("Density of {0} is null").format(self.products.name))
-                return self.amount
-            return self.products.density*self.amount
-            
+        elif self.measures_types.id==2:#Milliliters
+            return self.amount if self.products.density is None else self.products.density*self.amount
+        elif self.measures_types.id==3:#Table spoon
+            return self.amount*15 if self.products.density is None else self.products.density*self.amount*15
+        elif self.measures_types.id==4:#Tee spoon
+            return self.amount*5 if self.products.density is None else self.products.density*self.amount*5
+        elif self.measures_types.id==5:#Cup
+            return self.amount*240 if self.products.density is None else self.products.density*self.amount*240
+
     def fullname(self):
-        return f"{_(self.products.name)} ({round(self.final_grams(), 1)} g)"
+        comment_string="" if self.comment is None or self.comment=="" else f" ({self.comment})"
+        if self.measures_types.id==1:#Grams
+            return _("{0} g of {1}{2}").format(round(self.amount, 1), _(self.products.name), comment_string)
+        if self.measures_types.id==2:#Milliliters
+            return _("{0} ml of {1}{2}").format(round(self.amount, 1), _(self.products.name), comment_string)
+        else:
+            return _("{0} {1} of {2}{3}").format(Fraction(self.amount), _(self.measures_types.name.lower()), _(self.products.name), comment_string)
 
 class TemperaturesTypes(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -921,6 +929,12 @@ class Steps(models.Model):
         db_table = 'steps'
     def __str__(self):
         return f"Step: {self.name}"
+    def json(self):
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
+    def is_fully_equal(self, other):
+        if not self.name==other.name:
+            return False
+        return True
     def localname(self):
         return _(self.name)
     

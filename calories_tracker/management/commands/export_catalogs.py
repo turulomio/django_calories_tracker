@@ -29,8 +29,9 @@ class Command(BaseCommand):
         qs_stir_types=models.StirTypes.objects.all().order_by("id")
         qs_temperatures_types=models.TemperaturesTypes.objects.all().order_by("id")
         qs_recipes_links_types=models.RecipesLinksTypes.objects.all().order_by("id")
-        qs_recipes_categories=models.RecipesCategories.objects.all().order_by("id")
         qs_measures_types=models.MeasuresTypes.objects.all().order_by("id")
+        qs_steps=models.Steps.objects.all().order_by("id")
+        qs_recipes_categories=models.RecipesCategories.objects.all().order_by("id")
         
         s=f"""{{
     "activities": {qs_to_json(qs_activities)}
@@ -45,6 +46,7 @@ class Command(BaseCommand):
     "temperatures_types": {qs_to_json(qs_temperatures_types)}
     "recipes_links_types": {qs_to_json(qs_recipes_links_types)}
     "measures_types": {qs_to_json(qs_measures_types)}
+    "steps": {qs_to_json(qs_steps)}
     "recipes_categories": {qs_to_json(qs_recipes_categories, end_coma="False")}
 }}
 """

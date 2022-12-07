@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-04 08:07+0000\n"
+"POT-Creation-Date: 2022-12-07 09:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -151,555 +151,558 @@ msgid "Constantly stir"
 msgstr "Remover constantemente"
 
 #: calories_tracker/hardcoded_strings.py:33
-msgid "Cook on medium heat"
-msgstr "Cocinar a fuego medio"
-
-#: calories_tracker/hardcoded_strings.py:34
-msgid "Cook over high heat"
-msgstr "Cocinar a fuego fuerte"
-
-#: calories_tracker/hardcoded_strings.py:35
-msgid "Cook over low heat"
-msgstr "Cocinar a fuego bajo"
-
-#: calories_tracker/hardcoded_strings.py:36
 msgid "Cookie"
 msgstr "Galleta"
 
-#: calories_tracker/hardcoded_strings.py:37
+#: calories_tracker/hardcoded_strings.py:34
 msgid "Croissant"
 msgstr "Cruasán"
 
-#: calories_tracker/hardcoded_strings.py:38
+#: calories_tracker/hardcoded_strings.py:35
 msgid "Cup"
 msgstr "Taza"
 
-#: calories_tracker/hardcoded_strings.py:39
+#: calories_tracker/hardcoded_strings.py:36
 msgid "Dairy products"
 msgstr "Productos lácteos"
 
-#: calories_tracker/hardcoded_strings.py:40
+#: calories_tracker/hardcoded_strings.py:37
 msgid "Diet drinks"
 msgstr "Bebidas dietéticas"
 
-#: calories_tracker/hardcoded_strings.py:41
+#: calories_tracker/hardcoded_strings.py:38
 msgid "Do not remove"
 msgstr "No remover"
 
-#: calories_tracker/hardcoded_strings.py:42
+#: calories_tracker/hardcoded_strings.py:39
 msgid "Document file"
 msgstr "Documento"
 
-#: calories_tracker/hardcoded_strings.py:43
+#: calories_tracker/hardcoded_strings.py:40
 msgid "Drained can"
 msgstr "Lata escurrida"
 
-#: calories_tracker/hardcoded_strings.py:44
+#: calories_tracker/hardcoded_strings.py:41
 msgid "Dry nuts"
 msgstr "Nueces"
 
-#: calories_tracker/hardcoded_strings.py:45
+#: calories_tracker/hardcoded_strings.py:42
 msgid "Duck foie grass mousse"
 msgstr "Mousse de foie grass de pato"
 
-#: calories_tracker/hardcoded_strings.py:46
-#: calories_tracker/hardcoded_strings.py:47
-#: calories_tracker/hardcoded_strings.py:48
+#: calories_tracker/hardcoded_strings.py:43
+#: calories_tracker/hardcoded_strings.py:44
+#: calories_tracker/hardcoded_strings.py:45
 msgid "Eggs"
 msgstr "Huevos"
 
-#: calories_tracker/hardcoded_strings.py:49
+#: calories_tracker/hardcoded_strings.py:46
 msgid "Extra active"
 msgstr "Extra activo"
 
-#: calories_tracker/hardcoded_strings.py:50
+#: calories_tracker/hardcoded_strings.py:47
 msgid "Extra virgin olive oil"
 msgstr "Aceite de oliva extra virgen"
 
-#: calories_tracker/hardcoded_strings.py:51
+#: calories_tracker/hardcoded_strings.py:48
 msgid "Fish"
 msgstr "Pescado"
 
-#: calories_tracker/hardcoded_strings.py:52
+#: calories_tracker/hardcoded_strings.py:49
 msgid "Fried eggs"
 msgstr "Huevos fritos"
 
-#: calories_tracker/hardcoded_strings.py:53
+#: calories_tracker/hardcoded_strings.py:50
 msgid "Fried peanuts"
 msgstr "Cacahuetes fritos"
 
-#: calories_tracker/hardcoded_strings.py:54
+#: calories_tracker/hardcoded_strings.py:51
 msgid "Fruit"
 msgstr "Fruta"
 
-#: calories_tracker/hardcoded_strings.py:55
+#: calories_tracker/hardcoded_strings.py:52
 msgid "Gain weight"
 msgstr "Ganar peso"
 
-#: calories_tracker/hardcoded_strings.py:56
+#: calories_tracker/hardcoded_strings.py:53
 msgid "Garlic"
 msgstr "Ajo"
 
-#: calories_tracker/hardcoded_strings.py:57
+#: calories_tracker/hardcoded_strings.py:54
 msgid "Gin"
 msgstr "Ginebra"
 
-#: calories_tracker/hardcoded_strings.py:58
+#: calories_tracker/hardcoded_strings.py:55
 msgid "Goat cheese"
 msgstr "Queso de cabra"
 
-#: calories_tracker/hardcoded_strings.py:59
+#: calories_tracker/hardcoded_strings.py:56
 msgid "Grams"
 msgstr "Gramos"
 
-#: calories_tracker/hardcoded_strings.py:60
+#: calories_tracker/hardcoded_strings.py:57
 msgid "Grape"
 msgstr "Uva"
 
-#: calories_tracker/hardcoded_strings.py:61
+#: calories_tracker/hardcoded_strings.py:58
 msgid "Green asparagus"
 msgstr "Espárragos verdes"
 
-#: calories_tracker/hardcoded_strings.py:62
+#: calories_tracker/hardcoded_strings.py:59
 msgid "Green pepper"
 msgstr "Pimiento verde"
 
-#: calories_tracker/hardcoded_strings.py:63
+#: calories_tracker/hardcoded_strings.py:60
 msgid "Ham croquettes"
 msgstr "Croquetas de jamón"
 
-#: calories_tracker/hardcoded_strings.py:64
+#: calories_tracker/hardcoded_strings.py:61
 msgid "Ham"
 msgstr "Jamón"
 
-#: calories_tracker/hardcoded_strings.py:65
+#: calories_tracker/hardcoded_strings.py:62
 msgid "High"
 msgstr "Alto"
 
-#: calories_tracker/hardcoded_strings.py:66
+#: calories_tracker/hardcoded_strings.py:63
 msgid "Homemade food"
 msgstr "Comida casera"
 
-#: calories_tracker/hardcoded_strings.py:67
+#: calories_tracker/hardcoded_strings.py:64
 msgid "Honey"
 msgstr "Miel"
 
-#: calories_tracker/hardcoded_strings.py:68
+#: calories_tracker/hardcoded_strings.py:65
 msgid "Huevos de codorniz"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:69
+#: calories_tracker/hardcoded_strings.py:66
 msgid "Ice cream"
 msgstr "Helado"
 
-#: calories_tracker/hardcoded_strings.py:70
+#: calories_tracker/hardcoded_strings.py:67
 msgid "In Celsius degrees"
 msgstr "En grados Celsius"
 
-#: calories_tracker/hardcoded_strings.py:71
+#: calories_tracker/hardcoded_strings.py:68
 msgid "Jam"
 msgstr "Mermelada"
 
-#: calories_tracker/hardcoded_strings.py:72
+#: calories_tracker/hardcoded_strings.py:69
 msgid "Kiwi"
 msgstr "Kiwi"
 
-#: calories_tracker/hardcoded_strings.py:73
+#: calories_tracker/hardcoded_strings.py:70
 msgid "Lambrusco wine"
 msgstr "Vino Lambrusco"
 
-#: calories_tracker/hardcoded_strings.py:74
+#: calories_tracker/hardcoded_strings.py:71
 msgid "Laurel"
 msgstr "Laurel"
 
-#: calories_tracker/hardcoded_strings.py:75
+#: calories_tracker/hardcoded_strings.py:72
 msgid "Leek"
 msgstr "Puerro"
 
-#: calories_tracker/hardcoded_strings.py:76
-#: calories_tracker/hardcoded_strings.py:77
+#: calories_tracker/hardcoded_strings.py:73
+#: calories_tracker/hardcoded_strings.py:74
 msgid "Legumes"
 msgstr "Legúmbres"
 
-#: calories_tracker/hardcoded_strings.py:78
+#: calories_tracker/hardcoded_strings.py:75
 msgid "Lentils"
 msgstr "Lentejas"
 
-#: calories_tracker/hardcoded_strings.py:79
+#: calories_tracker/hardcoded_strings.py:76
 msgid "Lightly active"
 msgstr "Ligeramente activo"
 
-#: calories_tracker/hardcoded_strings.py:80
+#: calories_tracker/hardcoded_strings.py:77
 msgid "Little stick"
 msgstr "Palito"
 
-#: calories_tracker/hardcoded_strings.py:81
+#: calories_tracker/hardcoded_strings.py:78
 msgid "Lose weight"
 msgstr "Perder peso"
 
-#: calories_tracker/hardcoded_strings.py:82
+#: calories_tracker/hardcoded_strings.py:79
+msgid "Low / Medium / High heat"
+msgstr "Fuego bajo / medio / alto"
+
+#: calories_tracker/hardcoded_strings.py:80
 msgid "Low"
 msgstr "Bajo"
 
-#: calories_tracker/hardcoded_strings.py:83
+#: calories_tracker/hardcoded_strings.py:81
 msgid "Mango"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:84
+#: calories_tracker/hardcoded_strings.py:82
 msgid "Mantain weight"
 msgstr "Mantener peso"
 
-#: calories_tracker/hardcoded_strings.py:85
+#: calories_tracker/hardcoded_strings.py:83
 msgid "Mascarpone cheese"
 msgstr "Queso Mascarpone"
 
-#: calories_tracker/hardcoded_strings.py:86
+#: calories_tracker/hardcoded_strings.py:84
 msgid "Mayonnaise"
 msgstr "Mahonesa"
 
-#: calories_tracker/hardcoded_strings.py:87
-#: calories_tracker/hardcoded_strings.py:88
+#: calories_tracker/hardcoded_strings.py:85
+#: calories_tracker/hardcoded_strings.py:86
 msgid "Meat"
 msgstr "Carne"
 
-#: calories_tracker/hardcoded_strings.py:89
-#: calories_tracker/hardcoded_strings.py:90
+#: calories_tracker/hardcoded_strings.py:87
+#: calories_tracker/hardcoded_strings.py:88
 msgid "Medium"
 msgstr "Medio"
 
-#: calories_tracker/hardcoded_strings.py:91
+#: calories_tracker/hardcoded_strings.py:89
 msgid "Menestra de verduras"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:92
+#: calories_tracker/hardcoded_strings.py:90
 msgid "Milliliter"
 msgstr "Mililitro"
 
-#: calories_tracker/hardcoded_strings.py:93
+#: calories_tracker/hardcoded_strings.py:91
 msgid "Minced meat"
 msgstr "Carne picada"
 
-#: calories_tracker/hardcoded_strings.py:94
+#: calories_tracker/hardcoded_strings.py:92
 msgid "Moderately active"
 msgstr "Moderadamente activo"
 
-#: calories_tracker/hardcoded_strings.py:95
+#: calories_tracker/hardcoded_strings.py:93
+msgid "Morcilla de Burgos"
+msgstr ""
+
+#: calories_tracker/hardcoded_strings.py:94
 msgid "Mushrooms (Fungi)"
 msgstr "Setas"
 
-#: calories_tracker/hardcoded_strings.py:96
+#: calories_tracker/hardcoded_strings.py:95
 msgid "Mushrooms"
 msgstr "Setas"
 
-#: calories_tracker/hardcoded_strings.py:97
+#: calories_tracker/hardcoded_strings.py:96
 msgid "Nectarine"
 msgstr "Nectarina"
 
-#: calories_tracker/hardcoded_strings.py:98
+#: calories_tracker/hardcoded_strings.py:97
 msgid "No risk"
 msgstr "Sin riesgo"
 
-#: calories_tracker/hardcoded_strings.py:99
+#: calories_tracker/hardcoded_strings.py:98
 msgid "Not evaluated"
 msgstr "No evaluado"
 
-#: calories_tracker/hardcoded_strings.py:100
+#: calories_tracker/hardcoded_strings.py:99
 msgid "Octopus"
 msgstr "Pulpo"
 
-#: calories_tracker/hardcoded_strings.py:101
+#: calories_tracker/hardcoded_strings.py:100
 msgid "Oils and fats"
 msgstr "Aceites y grasas"
 
-#: calories_tracker/hardcoded_strings.py:102
+#: calories_tracker/hardcoded_strings.py:101
 msgid "Onion"
 msgstr "Cebolla"
 
-#: calories_tracker/hardcoded_strings.py:103
+#: calories_tracker/hardcoded_strings.py:102
 msgid "Orange"
 msgstr "Naranja"
 
-#: calories_tracker/hardcoded_strings.py:104
+#: calories_tracker/hardcoded_strings.py:103
 msgid "Package"
 msgstr "Paquete"
 
-#: calories_tracker/hardcoded_strings.py:105
+#: calories_tracker/hardcoded_strings.py:104
 msgid "Palmera de chocolate"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:106
+#: calories_tracker/hardcoded_strings.py:105
 msgid "Panceta sin corteza"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:107
+#: calories_tracker/hardcoded_strings.py:106
 msgid "Panettone"
 msgstr "Panettone"
 
-#: calories_tracker/hardcoded_strings.py:108
+#: calories_tracker/hardcoded_strings.py:107
 msgid "Peach"
 msgstr "Melocotón"
 
-#: calories_tracker/hardcoded_strings.py:109
+#: calories_tracker/hardcoded_strings.py:108
 msgid "Pear"
 msgstr "Pera"
 
-#: calories_tracker/hardcoded_strings.py:110
+#: calories_tracker/hardcoded_strings.py:109
 msgid "Peppers from Padrón"
 msgstr "Pimientos de Padrón"
 
-#: calories_tracker/hardcoded_strings.py:111
+#: calories_tracker/hardcoded_strings.py:110
 msgid "Persimmon"
 msgstr "Persimón"
 
-#: calories_tracker/hardcoded_strings.py:112
+#: calories_tracker/hardcoded_strings.py:111
 msgid "Photo file"
 msgstr "Fichero de fotografía"
 
-#: calories_tracker/hardcoded_strings.py:113
+#: calories_tracker/hardcoded_strings.py:112
 msgid "Pig"
 msgstr "Cerdo"
 
-#: calories_tracker/hardcoded_strings.py:114
+#: calories_tracker/hardcoded_strings.py:113
 msgid "Pill"
 msgstr "Pastilla"
 
-#: calories_tracker/hardcoded_strings.py:115
+#: calories_tracker/hardcoded_strings.py:114
 msgid "Pineapple"
 msgstr "Piña"
 
-#: calories_tracker/hardcoded_strings.py:116
+#: calories_tracker/hardcoded_strings.py:115
 msgid "Plantain"
 msgstr "Plátano"
 
-#: calories_tracker/hardcoded_strings.py:117
+#: calories_tracker/hardcoded_strings.py:116
 msgid "Pork ribs"
 msgstr "Chuletas de cerdo"
 
-#: calories_tracker/hardcoded_strings.py:118
+#: calories_tracker/hardcoded_strings.py:117
 msgid "Potatos"
 msgstr "Patatas"
 
-#: calories_tracker/hardcoded_strings.py:119
+#: calories_tracker/hardcoded_strings.py:118
 msgid "Prawns"
 msgstr "Langostinos"
 
-#: calories_tracker/hardcoded_strings.py:120
+#: calories_tracker/hardcoded_strings.py:119
 msgid "Processed foods"
 msgstr "Comida procesada"
 
-#: calories_tracker/hardcoded_strings.py:121
+#: calories_tracker/hardcoded_strings.py:120
 msgid "Pumpkin"
 msgstr "Calabaza"
 
+#: calories_tracker/hardcoded_strings.py:121
 #: calories_tracker/hardcoded_strings.py:122
 #: calories_tracker/hardcoded_strings.py:123
 #: calories_tracker/hardcoded_strings.py:124
 #: calories_tracker/hardcoded_strings.py:125
+#: calories_tracker/hardcoded_strings.py:126
+#: calories_tracker/hardcoded_strings.py:127
 msgid "REUSEME"
 msgstr ""
 
-#: calories_tracker/hardcoded_strings.py:126
+#: calories_tracker/hardcoded_strings.py:128
 msgid "Rice"
 msgstr "Arroz"
 
-#: calories_tracker/hardcoded_strings.py:127
+#: calories_tracker/hardcoded_strings.py:129
 msgid "Risotto"
 msgstr "Risotto"
 
-#: calories_tracker/hardcoded_strings.py:128
+#: calories_tracker/hardcoded_strings.py:130
 msgid "Roast lamb"
 msgstr "Cordero asado"
 
-#: calories_tracker/hardcoded_strings.py:129
-msgid "Room temperature"
-msgstr "Temperatura ambiente"
+#: calories_tracker/hardcoded_strings.py:131
+msgid "Robot velocity"
+msgstr "Velocidad del robot"
 
-#: calories_tracker/hardcoded_strings.py:130
+#: calories_tracker/hardcoded_strings.py:132
 msgid "Rum"
 msgstr "Ron"
 
-#: calories_tracker/hardcoded_strings.py:131
+#: calories_tracker/hardcoded_strings.py:133
 msgid "Salt"
 msgstr "Sal"
 
-#: calories_tracker/hardcoded_strings.py:132
+#: calories_tracker/hardcoded_strings.py:134
 msgid "Salty bakery"
 msgstr "Panadería salada"
 
-#: calories_tracker/hardcoded_strings.py:133
+#: calories_tracker/hardcoded_strings.py:135
 msgid "Sandwich loaf"
 msgstr "Pan de molde"
 
-#: calories_tracker/hardcoded_strings.py:134
+#: calories_tracker/hardcoded_strings.py:136
 msgid "Saturn peach"
 msgstr "Paraguayo"
 
-#: calories_tracker/hardcoded_strings.py:135
+#: calories_tracker/hardcoded_strings.py:137
 msgid "Sedentary"
 msgstr "Sedentario"
 
-#: calories_tracker/hardcoded_strings.py:136
+#: calories_tracker/hardcoded_strings.py:138
 msgid "Sesame"
 msgstr "Sésamo"
 
-#: calories_tracker/hardcoded_strings.py:137
+#: calories_tracker/hardcoded_strings.py:139
 msgid "Slice"
 msgstr "Rebanada"
 
-#: calories_tracker/hardcoded_strings.py:138
+#: calories_tracker/hardcoded_strings.py:140
 msgid "Soup Rice"
 msgstr "Arroz caldoso"
 
-#: calories_tracker/hardcoded_strings.py:139
+#: calories_tracker/hardcoded_strings.py:141
 msgid "Soups and creams"
 msgstr "Sopas y cremas"
 
-#: calories_tracker/hardcoded_strings.py:140
+#: calories_tracker/hardcoded_strings.py:142
 msgid "Soups and infusions"
 msgstr "Sopas e infusiones"
 
-#: calories_tracker/hardcoded_strings.py:141
+#: calories_tracker/hardcoded_strings.py:143
 msgid "Spanish omelette"
 msgstr "Tortilla española"
 
-#: calories_tracker/hardcoded_strings.py:142
+#: calories_tracker/hardcoded_strings.py:144
 msgid "Spices"
 msgstr "Especias"
 
-#: calories_tracker/hardcoded_strings.py:143
-msgid "Stir every 5 minutes"
-msgstr "Remover cada 5 minutos"
+#: calories_tracker/hardcoded_strings.py:145
+msgid "Stir every x minutes"
+msgstr "Remover cada x minutos"
 
-#: calories_tracker/hardcoded_strings.py:144
+#: calories_tracker/hardcoded_strings.py:146
 msgid "Strawberries"
 msgstr "Fresas"
 
-#: calories_tracker/hardcoded_strings.py:145
+#: calories_tracker/hardcoded_strings.py:147
 msgid "Strawberry jam"
 msgstr "Mermelada de fresa"
 
-#: calories_tracker/hardcoded_strings.py:146
+#: calories_tracker/hardcoded_strings.py:148
 msgid "Sugar"
 msgstr "Azúcar"
 
-#: calories_tracker/hardcoded_strings.py:147
+#: calories_tracker/hardcoded_strings.py:149
 msgid "Sugary drinks"
 msgstr "Bebidas azucaradas"
 
-#: calories_tracker/hardcoded_strings.py:148
+#: calories_tracker/hardcoded_strings.py:150
 msgid "Sunflower oil"
 msgstr "Aceite de girasol"
 
-#: calories_tracker/hardcoded_strings.py:149
+#: calories_tracker/hardcoded_strings.py:151
 msgid "Sweet bakery"
 msgstr "Panadería dulce"
 
-#: calories_tracker/hardcoded_strings.py:150
+#: calories_tracker/hardcoded_strings.py:152
 msgid "Sweet corn"
 msgstr "Maíz dulce"
 
-#: calories_tracker/hardcoded_strings.py:151
+#: calories_tracker/hardcoded_strings.py:153
 msgid "Sweets"
 msgstr "Dulces"
 
-#: calories_tracker/hardcoded_strings.py:152
+#: calories_tracker/hardcoded_strings.py:154
 msgid "Tablespoon"
 msgstr "Cuchara de mesa"
 
-#: calories_tracker/hardcoded_strings.py:153
+#: calories_tracker/hardcoded_strings.py:155
 msgid "Tangerines"
 msgstr "Mandarinas"
 
-#: calories_tracker/hardcoded_strings.py:154
+#: calories_tracker/hardcoded_strings.py:156
 msgid "Teaspoon"
 msgstr "Cucharilla de café"
 
-#: calories_tracker/hardcoded_strings.py:155
-msgid "Thermomix velocity"
-msgstr "Velocidad de la Thermomix"
-
-#: calories_tracker/hardcoded_strings.py:156
+#: calories_tracker/hardcoded_strings.py:157
 msgid "Thick Crust Pizza with cheese"
 msgstr "Pizza de masa gruesa con queso"
 
-#: calories_tracker/hardcoded_strings.py:157
+#: calories_tracker/hardcoded_strings.py:158
 msgid "Toast"
 msgstr "Tostada"
 
-#: calories_tracker/hardcoded_strings.py:158
+#: calories_tracker/hardcoded_strings.py:159
 msgid "Tray"
 msgstr "Bandeja"
 
-#: calories_tracker/hardcoded_strings.py:159
+#: calories_tracker/hardcoded_strings.py:160
 msgid "Uncooked potato"
 msgstr "Patata cruda"
 
-#: calories_tracker/hardcoded_strings.py:160
+#: calories_tracker/hardcoded_strings.py:161
 msgid "Uncooked rice"
 msgstr "Arroz crudo"
 
-#: calories_tracker/hardcoded_strings.py:161
+#: calories_tracker/hardcoded_strings.py:162
 msgid "Unit"
 msgstr "Unidad"
 
-#: calories_tracker/hardcoded_strings.py:162
+#: calories_tracker/hardcoded_strings.py:163
 msgid "Vacuum container"
 msgstr "Contenedor al vacío"
 
-#: calories_tracker/hardcoded_strings.py:163
 #: calories_tracker/hardcoded_strings.py:164
+#: calories_tracker/hardcoded_strings.py:165
 msgid "Vegetables"
 msgstr "Verduras"
 
-#: calories_tracker/hardcoded_strings.py:165
+#: calories_tracker/hardcoded_strings.py:166
 msgid "Very active"
 msgstr "Muy activo"
 
-#: calories_tracker/hardcoded_strings.py:166
+#: calories_tracker/hardcoded_strings.py:167
 msgid "Video file"
 msgstr "Fichero de vídeo"
 
-#: calories_tracker/hardcoded_strings.py:167
+#: calories_tracker/hardcoded_strings.py:168
 msgid "Video link"
 msgstr "Enlace de vídeo"
 
-#: calories_tracker/hardcoded_strings.py:168
 #: calories_tracker/hardcoded_strings.py:169
+#: calories_tracker/hardcoded_strings.py:170
 msgid "Water"
 msgstr "Agua"
 
-#: calories_tracker/hardcoded_strings.py:170
+#: calories_tracker/hardcoded_strings.py:171
 msgid "Watermelon"
 msgstr "Sandía"
 
-#: calories_tracker/hardcoded_strings.py:171
+#: calories_tracker/hardcoded_strings.py:172
 msgid "Web page file"
 msgstr "Fichero de página web"
 
-#: calories_tracker/hardcoded_strings.py:172
+#: calories_tracker/hardcoded_strings.py:173
 msgid "Web page link"
 msgstr "Enlace a página web"
 
-#: calories_tracker/hardcoded_strings.py:173
+#: calories_tracker/hardcoded_strings.py:174
 msgid "White bread"
 msgstr "Pan blanco"
 
-#: calories_tracker/hardcoded_strings.py:174
+#: calories_tracker/hardcoded_strings.py:175
 msgid "White wine"
 msgstr "Vino blanco"
 
-#: calories_tracker/hardcoded_strings.py:175
+#: calories_tracker/hardcoded_strings.py:176
 msgid "Whole milk"
 msgstr "Leche entera"
 
-#: calories_tracker/hardcoded_strings.py:176
+#: calories_tracker/hardcoded_strings.py:177
 msgid "Zucchini"
 msgstr "Calabacín"
 
-#: calories_tracker/models.py:872
+#: calories_tracker/models.py:887
+msgid "{0} g of {1}{2}"
+msgstr "{0} g de {1}{2}"
+
+#: calories_tracker/models.py:889
+msgid "{0} ml of {1}{2}"
+msgstr "{0} ml de {1}{2}"
+
+#: calories_tracker/models.py:891
 #, python-brace-format
-msgid "Density of {0} is null"
-msgstr "La densidad de {0} es nula"
+msgid "{0} {1} of {2}{3}"
+msgstr "{0} {1} de {2}{3}"
 
 #: calories_tracker/reusing/connection_pg.py:179
 msgid "Write the password for {}"
@@ -741,6 +744,31 @@ msgstr "Por favor introduzca '{}' o '{}'"
 msgid "Press a key to continue..."
 msgstr "Pulse una tecla para continuar..."
 
+#: calories_tracker/unogenerator_files.py:17
+msgid "Recipe elaboration"
+msgstr "Elaboración de la receta"
+
+#: calories_tracker/unogenerator_files.py:18
+msgid "This is an automatic generated report from Calories Tracker"
+msgstr "Informe de Calories Tracker generado automáticamente"
+
+#: calories_tracker/unogenerator_files.py:28
+#, python-brace-format
+msgid "Ingredients for {0} diners"
+msgstr "Ingredientes para {0} comensales"
+
+#: calories_tracker/unogenerator_files.py:34
+msgid "Containers"
+msgstr "Recipientes"
+
+#: calories_tracker/unogenerator_files.py:38
+msgid "Recipe steps"
+msgstr "Pasos de la receta"
+
+#: calories_tracker/unogenerator_files.py:54
+msgid "OK"
+msgstr ""
+
 #: calories_tracker/update_data.py:69
 msgid "Updated additive risks"
 msgstr "Riesgos de aditivo actualizados"
@@ -773,79 +801,80 @@ msgstr "Creado"
 msgid "{0} for {1} diners ({2})"
 msgstr "{0} para {1} comensales ({2})"
 
-#: calories_tracker/views.py:625
+#: calories_tracker/views.py:649
 msgid "Activities"
 msgstr "Actividades"
 
-#: calories_tracker/views.py:625
+#: calories_tracker/views.py:649
 msgid "Additive risks"
 msgstr "Riesgos del additivo"
 
-#: calories_tracker/views.py:625
+#: calories_tracker/views.py:649
 msgid "Additives"
 msgstr "Additivos"
 
-#: calories_tracker/views.py:625
+#: calories_tracker/views.py:649
 msgid "Food types"
 msgstr "Tipos de comida"
 
-#: calories_tracker/views.py:678
+#: calories_tracker/views.py:702
 msgid "Since when there is data in the database?"
 msgstr "¿Desde cuándo hay datos en la base de datos?"
 
-#: calories_tracker/views.py:679
+#: calories_tracker/views.py:703
 #, python-brace-format
 msgid "The first data is from {0}"
 msgstr "El primer dato es de {0}"
 
-#: calories_tracker/views.py:692
+#: calories_tracker/views.py:716
 msgid "Which is the product with highest calories in 100 g?"
 msgstr "¿Cuál es el producto con la mayor cantidad de calorias en 100 g?"
 
-#: calories_tracker/views.py:693
+#: calories_tracker/views.py:717
 #, python-brace-format
 msgid "The product with highest calories is '{0}' with {1} calories."
 msgstr "El producto con mayor calorías es '{0}' con {1} calorías."
 
-#: calories_tracker/views.py:706
+#: calories_tracker/views.py:730
 msgid "Which is the meal with highest calories I had eaten?"
 msgstr ""
 "¿Cual es la comida que he comido que tenía el mayor número de calorías?"
 
-#: calories_tracker/views.py:707
+#: calories_tracker/views.py:731
 msgid ""
 "The meal with the highest calories I ate was '{}' with '{}' calories. I ate "
 "{}g at {}."
 msgstr ""
 
-#: calories_tracker/views.py:720
+#: calories_tracker/views.py:744
 msgid "When did I take the highest calories amount in a day?"
 msgstr "¿Cuándo tome la mayor cantidad de calorías en un día?"
 
-#: calories_tracker/views.py:721
+#: calories_tracker/views.py:745
 msgid "The day I took the highest amount of calories was '{}' and I took {}."
 msgstr ""
 
-#: calories_tracker/views.py:733
+#: calories_tracker/views.py:757
 msgid "When did I have my highest weight?"
 msgstr "¿Cuándo tuve mi peso más alto?"
 
-#: calories_tracker/views.py:734
+#: calories_tracker/views.py:758
 msgid "My highest weight was {} kg at {}"
 msgstr "Mi peso más alto fue de {} kg el {}"
 
-#: calories_tracker/views.py:746
+#: calories_tracker/views.py:770
 msgid "When did I have my lowest weight?"
 msgstr "¿Cuando tuve mi peso más bajo?"
 
-#: calories_tracker/views.py:747
+#: calories_tracker/views.py:771
 msgid "My lowest weight was {} kg at {}"
 msgstr "Mi peso más bajo fue de {} kg el {}"
 
-#: calories_tracker/views.py:754
+#: calories_tracker/views.py:778
 msgid "Which is my median weight?"
 msgstr "¿Cuál es mi peso mediano?"
 
-#: calories_tracker/views.py:755
+#: calories_tracker/views.py:779
 msgid "My median weight is {} kg"
 msgstr "Mi peso mediano es {} kg"
+
