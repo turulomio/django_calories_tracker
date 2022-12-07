@@ -5,7 +5,7 @@ from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.reusing.listdict_functions import listdict_order_by
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url
-from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response
+from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response, json_data_response
 from calories_tracker.update_data import update_from_data
 from datetime import datetime
 from django.db import transaction
@@ -179,9 +179,12 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             es.products_in_step.set(products_in_step)#Añade en bloque
             es.save()
             
-        models.ElaborationsSteps.objects.filter(id__in=to_delete).delete()
-        return json_success_response(True, "Steps actualizados")
-        
+        models.ElaborationsSteps.objects.filter(id__in=to_delete).delete()       
+        r=[]
+        for es in models.ElaborationsSteps.objects.filter(elaborations=elaboration).order_by("order"):
+            r.append(serializers.ElaborationsStepsSerializer(es, context={'request': request}).data)
+            print(es.order,  es.id,  )
+        return json_data_response(True, r,  "Steps actualizados")
 
     @action(detail=True, methods=['POST'], name='It creates and elaborated product from a recipe elaboration', url_path="create_elaborated_product", url_name='create_elaborated_product', permission_classes=[permissions.IsAuthenticated])
     def create_elaborated_product(self, request, pk=None):
