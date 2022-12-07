@@ -633,7 +633,7 @@ class ElaborationsStepsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsSteps
         fields = ('url', 'id',  'order','elaborations', 'steps', 'duration', 'temperatures_types', 'temperatures_values',  'stir_types', 'stir_values',  'comment', 'products_in_step', 'container', 'container_to')
-        
+
 class ElaborationsContainersSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsContainers
@@ -673,7 +673,12 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         return updated
 
     def final_duration(self, o):
-        return o.final_duration()
+        return o.final_duration()        
+        
+    def to_representation(self, instance): #El serializer no ordenaba en el fulserializer y me volvia loco con los steps elaborations
+        response = super().to_representation(instance)
+        response["elaborations_steps"] = sorted(response["elaborations_steps"], key=lambda x: x["order"])
+        return response
 
 class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='recipes_full-detail') #To get recipes_full url and do not override recipes url

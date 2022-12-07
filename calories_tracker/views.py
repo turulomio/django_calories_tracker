@@ -241,15 +241,15 @@ class ElaborationsExperiencesViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 class ElaborationsStepsViewSet(viewsets.ModelViewSet):
-    queryset = models.ElaborationsSteps.objects.all()
+    queryset = models.ElaborationsSteps.objects.all().order_by("order")
     serializer_class = serializers.ElaborationsStepsSerializer
     permission_classes = [permissions.IsAuthenticated]
         
     def get_queryset(self):
         elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
         if all_args_are_not_none(elaboration):        
-            return self.queryset.filter(elaborations=elaboration)
-        return self.queryset
+            return self.queryset.filter(elaborations=elaboration).order_by("order")
+        return self.queryset.order_by("order")
 
 class ElaborationsProductsInThrough(viewsets.ModelViewSet):
     queryset = models.ElaborationsProductsInThrough.objects.all()
