@@ -670,9 +670,8 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         
         updated.recipes.last=timezone.now()
         updated.recipes.save()
-        
+        return updated
 
-        
     def final_duration(self, o):
         return o.final_duration()
 
