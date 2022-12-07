@@ -4,7 +4,7 @@ from calories_tracker.reusing.connection_dj import show_queries
 from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.reusing.listdict_functions import listdict_order_by
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response
 from calories_tracker.update_data import update_from_data
 from datetime import datetime
@@ -144,6 +144,45 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status.HTTP_204_NO_CONTENT)
         
+        
+    @action(detail=True, methods=['POST'], name='Hace un update masivo de todos los steps', url_path="update_steps", url_name='update_steps', permission_classes=[permissions.IsAuthenticated])
+    def update_steps(self, request, pk=None):
+        
+        print(request.data["steps"])
+        #ElaborationsProductsInThroughSerializer se crean individualmente
+            
+        #Estos se ecrean en grupo por el orden
+        for i, d in enumerate(request.data["elaborations_steps"]):
+            #Busca si existe o es nuevo
+            es=models.ElaborationsSteps()
+            if "url" in d:
+                if  d["url"] is not None:
+                    id=id_from_url(d["url"])
+                    es=models.ElaborationsSteps.objects.get(pk=id)
+                
+            es.elaborations=updated
+            es.order=i+1
+            es.steps=object_from_url(d["steps"], models.Steps)
+            es.duration=d["duration"]
+            es.temperatures_types=None if d["temperatures_types"] is None else object_from_url(d["temperatures_types"], models.TemperaturesTypes)
+            es.temperatures_values=d["temperatures_values"]
+            es.stir_types=None if d["stir_types"] is None else object_from_url(d["stir_types"], models.StirTypes)
+            es.stir_values=d["stir_values"]
+            es.container=None if d["container"] is None else object_from_url(d["container"], models.ElaborationsContainers)
+            es.container_to=None if d["container_to"] is None else object_from_url(d["container_to"], models.ElaborationsContainers)
+            es.comment=d["comment"]
+            es.save()
+            print(es.id)
+            
+            products_in_step=[]
+            for pis in d["products_in_step"]:
+                item=object_from_url(pis, models.ElaborationsProductsInThrough)
+                products_in_step.append(item)
+            es.products_in_step.set(products_in_step)#Añade en bloque
+            es.save()
+        return response_report_elaboration(request, elaboration)
+        return json_success_response(True, "Steps actualizados")
+        
 
     @action(detail=True, methods=['POST'], name='It creates and elaborated product from a recipe elaboration', url_path="create_elaborated_product", url_name='create_elaborated_product', permission_classes=[permissions.IsAuthenticated])
     def create_elaborated_product(self, request, pk=None):
@@ -203,6 +242,12 @@ class ElaborationsStepsViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsSteps.objects.all()
     serializer_class = serializers.ElaborationsStepsSerializer
     permission_classes = [permissions.IsAuthenticated]
+        
+    def get_queryset(self):
+        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
+        if all_args_are_not_none(elaboration):        
+            return self.queryset.filter(elaborations=elaboration)
+        return self.queryset
 
 class ElaborationsProductsInThrough(viewsets.ModelViewSet):
     queryset = models.ElaborationsProductsInThrough.objects.all()

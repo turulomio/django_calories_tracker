@@ -20,27 +20,23 @@ def response_report_elaboration(request, elaboration):
             "CaloriesTracker-{}".format(__version__)
         )
         
-        
         doc.find_and_replace("__TITLE__", elaboration.recipes.name)
-        doc.find_and_replace("__DATETIME__", str(elaboration.recipes.last))
+        doc.find_and_replace("__DATETIME__", str(elaboration.recipes.last.date()))
         
         doc.find_and_replace("__CONTENT__", "")
         doc.addParagraph(_("Ingredients for {0} diners").format(elaboration.diners), "Heading 1")
-        print(dir(elaboration))
         for ingredient in elaboration.elaborationsproductsinthrough_set.all().order_by("-amount"):
             doc.addParagraph(ingredient.fullname(), "Ingredients")
             
-            
         doc.addParagraph(_("Containers"), "Heading 1")
         for c in elaboration.elaborations_containers.all().order_by("name"):
-            doc.addParagraph(c.name, "Puntitos numerados")
+            doc.addParagraph(c.name, "ElaborationsContainers")
             
         doc.addParagraph(_("Recipe steps"), "Heading 1")
         for es in elaboration.elaborations_steps.all().order_by("order"):
-            doc.addParagraph(es.wording(), "Puntitos numerados")
+            doc.addParagraph(es.wording(), "ElaborationsSteps")
             
-        
-
+        doc.addParagraph("", "Standard")
         doc.find_and_delete_until_the_end_of_document('Styles to remove')    
         
         # Document Generation

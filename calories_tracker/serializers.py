@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import object_from_url, id_from_url
+from calories_tracker.reusing.request_casting import object_from_url
 
 
 class ActivitiesSerializer(serializers.HyperlinkedModelSerializer):
@@ -657,82 +657,21 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         'elaborations_containers', 'elaborations_experiences', 'final_duration')
         
     def create(self, validated_data):
-        request = self.context.get("request")
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         created.save()
         created.recipes.last=timezone.now()
         created.recipes.save()
-        
-        #ElaborationsProductsInThroughSerializer se crean individualmente
-            
-        #Estos se ecrean en grupo por el orden
-        for d in request.data["elaborations_steps"]:
-            es=models.ElaborationsSteps()
-            es.elaborations=created
-            es.order=d["order"]
-            es.steps=object_from_url(d["steps"], models.Steps)
-            es.duration=d["duration"]
-            es.temperatures_types=None if d["temperatures_types"] is None else object_from_url(d["temperatures_types"], models.TemperaturesTypes)
-            es.temperatures_values=d["temperatures_values"]
-            es.stir_types=None if d["stir_types"] is None else object_from_url(d["stir_types"], models.StirTypes)
-            es.stir_values=d["stir_values"]
-            es.container=None if d["container"] is None else object_from_url(d["container"], models.ElaborationsContainers)
-            es.container_to=None if d["container_to"] is None else object_from_url(d["container_to"], models.ElaborationsContainers)
-            es.comment=d["comment"]
-            es.save()
-            
-            products_in_step=[]
-            for pis in d["products_in_step"]:
-                item=object_from_url(pis, models.ElaborationsProductsInThrough)
-                products_in_step.append(item)
-            es.products_in_step.set(products_in_step)#Añade en bloque
-            es.save()
         return created
         
          
     def update(self, instance, validated_data):
-        request = self.context.get("request")        
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
         updated.save()
         
         updated.recipes.last=timezone.now()
         updated.recipes.save()
         
-        
-        #ElaborationsProductsInThroughSerializer se crean individualmente
-            
-        #Estos se ecrean en grupo por el orden
-        
-        #Delete all elaborations steps
-        qs=models.ElaborationsSteps.objects.filter(elaborations=updated)
-        if len(qs)>0:
-            qs.delete()
-        #Create all new
-        for d in request.data["elaborations_steps"]:
-            es=models.ElaborationsSteps()
-            if "url" in d:
-                if  d["url"] is not None:
-                    es.id=id_from_url(d["url"])
-            es.elaborations=updated
-            es.order=d["order"]
-            es.steps=object_from_url(d["steps"], models.Steps)
-            es.duration=d["duration"]
-            es.temperatures_types=None if d["temperatures_types"] is None else object_from_url(d["temperatures_types"], models.TemperaturesTypes)
-            es.temperatures_values=d["temperatures_values"]
-            es.stir_types=None if d["stir_types"] is None else object_from_url(d["stir_types"], models.StirTypes)
-            es.stir_values=d["stir_values"]
-            es.container=None if d["container"] is None else object_from_url(d["container"], models.ElaborationsContainers)
-            es.container_to=None if d["container_to"] is None else object_from_url(d["container_to"], models.ElaborationsContainers)
-            es.comment=d["comment"]
-            es.save()
-            
-            products_in_step=[]
-            for pis in d["products_in_step"]:
-                item=object_from_url(pis, models.ElaborationsProductsInThrough)
-                products_in_step.append(item)
-            es.products_in_step.set(products_in_step)#Añade en bloque
-            es.save()
-        return updated
+
         
     def final_duration(self, o):
         return o.final_duration()

@@ -12,12 +12,13 @@
 #CAda vez que se crea un producto, se copia y se linka de system_products si existiera 
 
 from calories_tracker.reusing.datetime_functions import dtaware2string
-from datetime import date, timedelta
+from datetime import date, timedelta,  datetime
 from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User # new
 from django.utils.translation import gettext as _
 from fractions import Fraction
+from humanize import precisedelta
 
 def is_equal_as_float(value1, value2):
     if value1 is None and value2 is None: 
@@ -852,7 +853,6 @@ class Elaborations(models.Model):
         return f"Elaborations: {self.recipes.name} {self.diners}"
         
     def final_duration(self):
-        print(dir(self))
         qs= self.elaborations_steps.aggregate(final_duration=models.Sum('duration'))
         return str(qs["final_duration"])
         
@@ -987,12 +987,192 @@ class ElaborationsSteps(models.Model):
         managed = True
         db_table = 'elaborations_steps'
         
+    def __str__(self):
+        return _("Elaboration Step Object: Type: {0}. Duration: {1}. Ingredients: {2}. Container: {3}. Container to: {4}. Temperature value: {5}. Stir value. {6}. Comment: {7}.").format(
+            self.steps.localname(), 
+            self.string_duration(), 
+            self.string_products_in_step(), 
+            self.container, 
+            self.container_to, 
+            self.temperatures_values, 
+            self.stir_values, 
+            self.comment
+        )
+        
+    def string_duration(self):
+        return precisedelta(time_to_timedelta(self.duration), minimum_unit="seconds", format="%d")
+        
+    def string_comment(self):
+        return "" if self.comment is None else f" {self.comment}. "
+        
+    def string_products_in_step(self):
+        r=""
+        for pi in self.products_in_step.all():
+            r= r+ pi.fullname() +", "
+        return r[:-2]
+        
+    def string_temperature(self):
+        if self.temperatures_types is None:
+            return ""
+        if self.temperatures_values>=0:
+            return _(" with {0}ºC").format(self.temperatures_values)
+        if self.temperatures_values==-1:
+            return _(" with low heat")
+        if self.temperatures_values==-2:
+            return _(" with medium heat")
+        if self.temperatures_values==-3:
+            return _(" width High heat")
+
+    def string_stir(self):
+        if self.stir_types is None:
+            return ""
+        if self.stir_types.id==1:
+            return _(" with velocity set to {0}").format(self.stir_values)
+        if self.stir_types.id==2:
+            return _(" stiring constantly")
+        if self.stir_types.id==3:
+            return _(" stiring every {0} minutes").format(self.stir_values)
+        if self.stir_types.id==4:
+            return _(" without stir")
+        
+    def string_robot_name(self):
+        return _("Robot") if self.container.name is None else self.container.name
+        
     def wording(self):
-        if self.steps.id==1:
-            return f"{self.steps.localname()}"
-        else:
-            return f"{self.steps.localname()}"
+        if self.steps.id==1:#Robot.set program
+            return _("Set '{0}'{1}{2} during {3}.{4}").format(
+                self.string_robot_name(), 
+                self.string_temperature(), 
+                self.string_stir(), 
+                self.string_duration(), 
+                self.string_comment(), 
+            )
             
+        elif self.steps.id in (2, 6):# 2Robot.Add ingredients, 6 Add ingredients to a container        
+            return _("Add {0} to '{1}'.{2}").format(
+                self.string_products_in_step(), 
+                self.container, 
+                self.string_comment(), 
+            )
+        elif self.steps.id==7:#Pour contents to another container",
+            return _("Pour '{0}' into '{1}'.{2}").format(
+                self.container, 
+                self.container_to, 
+                self.string_comment(), 
+            )
+        elif self.steps.id==8:#Free text
+            return self.comment +"."
+        elif self.steps.id==13: #Robot. Add ingredients and set program",        
+            return _("Add {0} to '{1}', then program it{2}{3} during {4}.{5}").format(
+                self.string_products_in_step(), 
+                self.string_robot_name(), 
+                self.string_temperature(), 
+                self.string_stir(), 
+                self.string_duration(), 
+                self.string_comment(), 
+            )
+            
+        elif self.steps.id==14: #Bring to a boil  
+            return _("Bring to boil '{0}' content {1}{2}.{3}").format(
+                self.container, 
+                self.string_temperature(), 
+                self.string_stir(), 
+                self.string_comment(), 
+            )        
+            
+        elif self.steps.id==15: #Cook
+            return _("Cook '{0}' content{1}{2} during {3}.{4}").format(
+                self.container, 
+                self.string_temperature(), 
+                self.string_stir(), 
+                self.string_duration(), 
+                self.string_comment(), 
+            )
+
+#    {
+#        "url": "http://localhost:8011/api/steps/16/",
+#        "id": 16,
+#        "name": "Soak",
+#        "localname": "Poner a remojo"
+#    },            
+        elif self.steps.id==16: #Soak
+            return _("Soak {0} in '{1}'{2}{3} during {4}.{5}").format(
+                self.string_products_in_step(), 
+                self.container, 
+                self.string_temperature(), 
+                self.string_stir(), 
+                self.string_duration(), 
+                self.string_comment(), 
+            )
+            #    {
+#        "url": "http://localhost:8011/api/steps/18/",
+#        "id": 18,
+#        "name": "Drain and discard the liquid",
+#        "localname": "Escurre y tira el líquido"
+#    }
+#]
+            
+        elif self.steps.id==18: #Drain and discard the liquid",
+            return _("Drain '{0}' and discard the liquid.{1}").format(
+                self.container, 
+                self.string_comment(), 
+            )
+            
+            
+        else:
+            return f"{self.__str__()}"
+
+#        "url": "http://localhost:8011/api/steps/3/",
+#        "id": 3,
+#        "name": "Robot. Add ingredients and set program counter-clockwise",
+#        "localname": "Robot. Añade ingredientes y programa giro inverso"
+#    },
+#    {
+#        "url": "http://localhost:8011/api/steps/4/",
+#        "id": 4,
+#        "name": "Peel and cut into wedges and add to a container",
+#        "localname": "Peel and cut into wedges and add to a container"
+#    },
+#    {
+#        "url": "http://localhost:8011/api/steps/5/",
+#        "id": 5,
+#        "name": "Peel and cut into little pieces and add to a container",
+#        "localname": "Peel and cut into little pieces and add to a container"
+#    },
+
+#    {
+#        "url": "http://localhost:8011/api/steps/9/",
+#        "id": 9,
+#        "name": "Cut into little pieces and add to a container",
+#        "localname": "Corta en pequeños trozos y añade a un recipiente"
+#    },
+#    {
+#        "url": "http://localhost:8011/api/steps/10/",
+#        "id": 10,
+#        "name": "Mix",
+#        "localname": "Remueve"
+#    },
+#    {
+#        "url": "http://localhost:8011/api/steps/11/",
+#        "id": 11,
+#        "name": "Rest",
+#        "localname": "Deja reposar"
+#    },
+#    {
+#        "url": "http://localhost:8011/api/steps/12/",
+#        "id": 12,
+#        "name": "Fry",
+#        "localname": "Fríe"
+#    },
+
+
+#    {
+#        "url": "http://localhost:8011/api/steps/17/",
+#        "id": 17,
+#        "name": "Put in the oven",
+#        "localname": "Mete al horno"
+#    },
+
 
 class ElaborationsExperiences(models.Model):
     datetime = models.DateTimeField(blank=False, null=False)
@@ -1053,3 +1233,13 @@ def jss(value):
         return f'"{dtaware2string(value, "JsUtcIso")}"'
     else:
         print(f"Rare value '{value}' ({value.__class__.__name__}) in jss")
+
+def time_to_timedelta(time):
+    d=datetime(2022, 12, 1, 0, 0, 0, 0)
+    return datetime.combine(d.date(), time)-d
+    
+def get_or_None(model, id):
+    try:
+        return model.objects.get(pk=id)
+    except:
+        return None
