@@ -853,6 +853,8 @@ class Elaborations(models.Model):
     elaborations_products_in = models.ManyToManyField(Products, through='ElaborationsProductsInThrough', blank=True)
     recipes=models.ForeignKey(Recipes, related_name="elaborations", on_delete=models.DO_NOTHING) 
     final_amount = models.DecimalField(max_digits=10, decimal_places=3)
+    automatic=models.BooleanField(blank=False, null=False, default=False)
+    automatic_adaptation_step=models.TextField(blank=True, null=True)
     
     class Meta:
         managed = True
@@ -890,11 +892,15 @@ class ElaborationsProductsInThrough(models.Model):
     measures_types = models.ForeignKey(MeasuresTypes, on_delete=models.DO_NOTHING)
     amount = models.DecimalField(max_digits=10, decimal_places=3)
     comment = models.CharField(max_length=100, blank=True, null=True) #Add product aclarations, cut, temperature...
+    ni=models.BooleanField(blank=False, null=False, default=True) #Must be used for nutritional information calcs
+    automatic_percentage=models.IntegerField(null=False, blank=False, default=100 )#Percentage 0-100 to scale in automatic elaborations
     
     def __str__(self):
         self.fullname()        
         
     def final_grams(self):
+        if self.ni is False:
+            return 0
         if self.measures_types.id==1:#Grams
             return self.amount
         elif self.measures_types.id==2:#Milliliters
