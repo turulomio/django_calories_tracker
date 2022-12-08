@@ -798,6 +798,7 @@ class RecipesCategories(models.Model):
 
 class Recipes(models.Model):
     name = models.TextField()
+    datetime=models.DateTimeField(blank=True, null=True)
     last = models.DateTimeField(auto_now_add=True)
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     obsolete = models.BooleanField()
