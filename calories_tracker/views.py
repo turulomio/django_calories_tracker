@@ -693,7 +693,22 @@ def Settings(request):
 @permission_classes([permissions.IsAuthenticated, ])
 def Statistics(request):
     r=[]
-    for name, cls in ((_("Activities"), models.Activities), (_("Additive risks"), models.AdditiveRisks), (_("Additives"), models.Additives), (_("Food types"),  models.FoodTypes)):
+    for name, cls in (
+        (_("Activities"), models.Activities), 
+        (_("Additive risks"), models.AdditiveRisks), 
+        (_("Additives"), models.Additives), 
+        (_("Biometrics"), models.Biometrics), 
+        (_("Companies"), models.Companies), 
+        (_("System companies"), models.SystemCompanies), 
+        (_("Elaborated products"),  models.ElaboratedProducts), 
+        (_("Elaborations"),  models.Elaborations), 
+        (_("Food types"),  models.FoodTypes), 
+        (_("Meals"),  models.Meals), 
+        (_("Products"),  models.Products), 
+        (_("Recipes"),  models.Recipes), 
+        (_("System companies"), models.SystemCompanies), 
+        (_("System products"),  models.SystemProducts), 
+    ):
         r.append({"name": name, "value":cls.objects.all().count()})
     return JsonResponse(r, safe=False)
 
