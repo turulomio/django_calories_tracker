@@ -894,9 +894,9 @@ class ElaborationsProductsInThrough(models.Model):
     comment = models.CharField(max_length=100, blank=True, null=True) #Add product aclarations, cut, temperature...
     ni=models.BooleanField(blank=False, null=False, default=True) #Must be used for nutritional information calcs
     automatic_percentage=models.IntegerField(null=False, blank=False, default=100 )#Percentage 0-100 to scale in automatic elaborations
-    
-    def __str__(self):
-        self.fullname()        
+#    
+#    def __str__(self):
+#        self.fullname()        
         
     def final_grams(self):
         if self.ni is False:

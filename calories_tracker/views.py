@@ -8,6 +8,7 @@ from calories_tracker.reusing.request_casting import RequestGetString, RequestGe
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response, json_data_response
 from calories_tracker.update_data import update_from_data
 from datetime import datetime
+from decimal import Decimal
 from django.db import transaction
 from django.db.models import Count, Min
 from django.http import JsonResponse
@@ -222,6 +223,64 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         elaboration = self.get_object()
         return response_report_elaboration(request, elaboration)
         
+    @action(detail=True, methods=['POST'], name='Create a new automatic elaboration', url_path="create_automatic_elaboration", url_name='create_automatic_elaboration', permission_classes=[permissions.IsAuthenticated])
+    def create_automatic_elaboration(self, request, pk=None):
+        def new_amount(old_pi,  diners):
+            return Decimal(diners)*old_pi.amount/Decimal(old_pi.elaborations.diners)
+            ################################
+        old=self.get_object()
+        diners=request.data["diners"]
+        
+        new=models.Elaborations()
+        new.diners=diners
+        new.recipes=old.recipes
+        new.final_amount=Decimal(diners)*old.final_amount/Decimal(old.diners)
+        new.automatic=True
+        new.save()
+        
+        dict_old_new={}#Hay que mapear los antiguos con los nuevos para luego añadirlos a los steps
+        #ingredients
+        for old_pi in old.elaborationsproductsinthrough_set.all():
+            new_pi=models.ElaborationsProductsInThrough()
+            new_pi.products=old_pi.products
+            new_pi.elaborations=new
+            new_pi.measures_types=old_pi.measures_types
+            new_pi.amount=new_amount(old_pi, diners)
+            new_pi.comment=old_pi.comment
+            new_pi.ni=old_pi.ni
+            new_pi.automatic_percentage=old_pi.automatic_percentage
+            new_pi.save()
+            dict_old_new[old_pi]=new_pi
+        new.save()
+        
+        for old_container in old.elaborations_containers.all():
+            new_container=models.ElaborationsContainers()
+            new_container.name=old_container.name
+            new_container.elaborations=new
+            new_container.save()
+    
+        for old_step in old.elaborations_steps.all():
+            new_step=models.ElaborationsSteps()
+            new_step.order=old_step.order
+            new_step.elaborations=new
+            new_step.steps=old_step.steps
+            new_step.duration=old_step.duration
+            new_step.comment=old_step.comment
+            new_step.container=old_step.container
+            new_step.container_to=old_step.container_to
+            new_step.temperatures_types=old_step.temperatures_types
+            new_step.temperatures_values=old_step.temperatures_values
+            new_step.stir_types=old_step.stir_types
+            new_step.stir_values=old_step.stir_values
+            new_step.save()
+            productsin=[]
+            for pis in old_step.products_in_step.all():
+                productsin.append(dict_old_new[pis])
+            new_step.products_in_step.set(productsin)
+            new_step.save()
+            
+        return json_data_response(True, [],  "Steps actualizados")
+        
         
 class ElaborationsContainersViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsContainers.objects.all()
@@ -239,6 +298,11 @@ class ElaborationsExperiencesViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsExperiences.objects.all()
     serializer_class = serializers.ElaborationsExperiencesSerializer
     permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
+        if all_args_are_not_none(elaboration):        
+            return self.queryset.filter(elaborations=elaboration)
+        return self.queryset
 
 class ElaborationsStepsViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsSteps.objects.all().order_by("order")
