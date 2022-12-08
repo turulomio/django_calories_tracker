@@ -373,7 +373,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
         return models.Products.objects.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
 class RecipesViewSet(viewsets.ModelViewSet):
-    queryset = models.Recipes.objects.all()
+    queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories")
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
     @extend_schema(
@@ -402,6 +402,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return self.queryset.filter(user=self.request.user, name__icontains=search).order_by("name")
         return self.queryset.filter(user=self.request.user).order_by("name")
     
+    @show_queries
     def list(self, request):
         return viewsets.ModelViewSet.list(self, request)
 

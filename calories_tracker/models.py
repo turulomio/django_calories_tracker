@@ -11,6 +11,7 @@
 
 #CAda vez que se crea un producto, se copia y se linka de system_products si existiera 
 
+from base64 import b64encode
 from calories_tracker.reusing.datetime_functions import dtaware2string
 from datetime import date, timedelta,  datetime
 from decimal import Decimal
@@ -811,6 +812,13 @@ class Recipes(models.Model):
     class Meta:
         managed = True
         db_table = 'recipes'
+        
+    ##Returns to add a src <img>
+    def main_image(self):
+        for rl in self.recipes_links.all():
+            if rl.type.id==eRecipeLink.MainPhoto:
+                return f"data:{rl.mime};base64,{b64encode(rl.content).decode('UTF-8')}"
+        return None
     
 class RecipesLinksTypes(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -1218,6 +1226,10 @@ class eWeightWish:
     Lose=0
     Mantain=1
     Gain=2
+
+class eRecipeLink:
+    MainPhoto=7
+
 ## Converts a value to a json strings, depending its value
 ## str >> "str"
 
