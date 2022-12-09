@@ -595,7 +595,7 @@ class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerial
     fullname = serializers.SerializerMethodField()
     class Meta:
         model = models.ElaborationsProductsInThrough
-        fields = ('url','products', 'measures_types', 'amount', 'elaborations' , 'final_grams', 'fullname', 'comment', 'ni', )
+        fields = ('url','products', 'measures_types', 'amount', 'elaborations' , 'final_grams', 'fullname', 'comment', 'ni', 'automatic_percentage')
         
         
     def create(self, validated_data):
@@ -654,7 +654,7 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Elaborations
         fields = ('url', 'id', 'diners', 'final_amount', 'recipes', 'elaborations_products_in', 'elaborations_steps', 
-        'elaborations_containers', 'elaborations_experiences', 'final_duration')
+        'elaborations_containers', 'elaborations_experiences', 'final_duration', 'automatic', 'automatic_adaptation_step')
         
     def create(self, validated_data):
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)

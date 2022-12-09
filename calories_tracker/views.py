@@ -4,7 +4,7 @@ from calories_tracker.reusing.connection_dj import show_queries
 from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.reusing.listdict_functions import listdict_order_by
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url, RequestInteger
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response, json_data_response
 from calories_tracker.update_data import update_from_data
 from datetime import datetime
@@ -137,7 +137,6 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        print(instance)
         models.ElaborationsProductsInThrough.objects.filter(elaborations=instance).delete()
         models.ElaborationsSteps.objects.filter(elaborations=instance).delete()
         instance.recipes.last=timezone.now()
@@ -184,7 +183,6 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         r=[]
         for es in models.ElaborationsSteps.objects.filter(elaborations=elaboration).order_by("order"):
             r.append(serializers.ElaborationsStepsSerializer(es, context={'request': request}).data)
-            print(es.order,  es.id,  )
         return json_data_response(True, r,  "Steps actualizados")
 
     @action(detail=True, methods=['POST'], name='It creates and elaborated product from a recipe elaboration', url_path="create_elaborated_product", url_name='create_elaborated_product', permission_classes=[permissions.IsAuthenticated])
@@ -226,60 +224,69 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['POST'], name='Create a new automatic elaboration', url_path="create_automatic_elaboration", url_name='create_automatic_elaboration', permission_classes=[permissions.IsAuthenticated])
     def create_automatic_elaboration(self, request, pk=None):
         def new_amount(old_pi,  diners):
-            return Decimal(diners)*old_pi.amount/Decimal(old_pi.elaborations.diners)
+            if diners<= old_pi.elaborations.diners:#Disminuyo la receta divido nada más, ignorando automatic_percentage
+                return Decimal(diners)*old_pi.amount/Decimal(old_pi.elaborations.diners)
+            else:#Aumeto la ActivitiesViewSet
+                diff_diners=diners-old_pi.elaborations.diners
+                one_diner=old_pi.amount/Decimal(old_pi.elaborations.diners)
+                return old_pi.amount+one_diner*diff_diners*old_pi.automatic_percentage/100
+                
             ################################
         old=self.get_object()
-        diners=request.data["diners"]
+        diners=RequestInteger(request, "diners", None)
         
-        new=models.Elaborations()
-        new.diners=diners
-        new.recipes=old.recipes
-        new.final_amount=Decimal(diners)*old.final_amount/Decimal(old.diners)
-        new.automatic=True
-        new.save()
-        
-        dict_old_new={}#Hay que mapear los antiguos con los nuevos para luego añadirlos a los steps
-        #ingredients
-        for old_pi in old.elaborationsproductsinthrough_set.all():
-            new_pi=models.ElaborationsProductsInThrough()
-            new_pi.products=old_pi.products
-            new_pi.elaborations=new
-            new_pi.measures_types=old_pi.measures_types
-            new_pi.amount=new_amount(old_pi, diners)
-            new_pi.comment=old_pi.comment
-            new_pi.ni=old_pi.ni
-            new_pi.automatic_percentage=old_pi.automatic_percentage
-            new_pi.save()
-            dict_old_new[old_pi]=new_pi
-        new.save()
-        
-        for old_container in old.elaborations_containers.all():
-            new_container=models.ElaborationsContainers()
-            new_container.name=old_container.name
-            new_container.elaborations=new
-            new_container.save()
-    
-        for old_step in old.elaborations_steps.all():
-            new_step=models.ElaborationsSteps()
-            new_step.order=old_step.order
-            new_step.elaborations=new
-            new_step.steps=old_step.steps
-            new_step.duration=old_step.duration
-            new_step.comment=old_step.comment
-            new_step.container=old_step.container
-            new_step.container_to=old_step.container_to
-            new_step.temperatures_types=old_step.temperatures_types
-            new_step.temperatures_values=old_step.temperatures_values
-            new_step.stir_types=old_step.stir_types
-            new_step.stir_values=old_step.stir_values
-            new_step.save()
-            productsin=[]
-            for pis in old_step.products_in_step.all():
-                productsin.append(dict_old_new[pis])
-            new_step.products_in_step.set(productsin)
-            new_step.save()
+        if all_args_are_not_none(diners):
             
-        return json_data_response(True, [],  "Steps actualizados")
+            new=models.Elaborations()
+            new.diners=diners
+            new.recipes=old.recipes
+            new.final_amount=Decimal(diners)*old.final_amount/Decimal(old.diners)
+            new.automatic=True
+            new.save()
+            
+            dict_old_new={}#Hay que mapear los antiguos con los nuevos para luego añadirlos a los steps
+            #ingredients
+            for old_pi in old.elaborationsproductsinthrough_set.all():
+                new_pi=models.ElaborationsProductsInThrough()
+                new_pi.products=old_pi.products
+                new_pi.elaborations=new
+                new_pi.measures_types=old_pi.measures_types
+                new_pi.amount=new_amount(old_pi, diners)
+                new_pi.comment=old_pi.comment
+                new_pi.ni=old_pi.ni
+                new_pi.automatic_percentage=old_pi.automatic_percentage
+                new_pi.save()
+                dict_old_new[old_pi]=new_pi
+            new.save()
+            
+            for old_container in old.elaborations_containers.all():
+                new_container=models.ElaborationsContainers()
+                new_container.name=old_container.name
+                new_container.elaborations=new
+                new_container.save()
+        
+            for old_step in old.elaborations_steps.all():
+                new_step=models.ElaborationsSteps()
+                new_step.order=old_step.order
+                new_step.elaborations=new
+                new_step.steps=old_step.steps
+                new_step.duration=old_step.duration
+                new_step.comment=old_step.comment
+                new_step.container=old_step.container
+                new_step.container_to=old_step.container_to
+                new_step.temperatures_types=old_step.temperatures_types
+                new_step.temperatures_values=old_step.temperatures_values
+                new_step.stir_types=old_step.stir_types
+                new_step.stir_values=old_step.stir_values
+                new_step.save()
+                productsin=[]
+                for pis in old_step.products_in_step.all():
+                    productsin.append(dict_old_new[pis])
+                new_step.products_in_step.set(productsin)
+                new_step.save()
+                
+            return json_data_response(True, [],  "Steps updated")
+        return json_data_response(False, [],  "Diners error")
         
         
 class ElaborationsContainersViewSet(viewsets.ModelViewSet):
@@ -322,7 +329,6 @@ class ElaborationsProductsInThrough(viewsets.ModelViewSet):
     
     def get_queryset(self):
         elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
-        print(elaboration)
         if all_args_are_not_none(elaboration):        
             return self.queryset.filter(elaborations=elaboration)
         return self.queryset
@@ -413,7 +419,6 @@ def ProductsDataTransfer(request):
                     "products_in": models.ElaboratedProductsProductsInThrough.objects.filter(products=p).count(), 
                     "meals": models.Meals.objects.filter(products=p).count(),
                 })
-            print(r)
             return JsonResponse( r, encoder=MyDjangoJSONEncoder, safe=False)
     else:# request.method=="POST":
         product_from=RequestUrl(request, "product_from", models.Products)
@@ -652,7 +657,6 @@ def Product2SystemProduct(request):
                 
         ## Refresh system products formats
         for f in product.productsformatsthrough_set.all():
-            print(f,  f.__class__)
             spft=models.SystemProductsFormatsThrough()
             spft.amount=f.amount
             spft.formats=f.formats
@@ -824,7 +828,6 @@ def Curiosities(request):
     
     if len(qs_meals)>0:
         value=models.Meals.objects.filter(user=request.user).aggregate(Min("datetime"))["datetime__min"]
-        print(value)
         r.append({
             "question":_("Since when there is data in the database?"), 
             "answer": _("The first data is from {0}").format(value)
