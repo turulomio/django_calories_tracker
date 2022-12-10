@@ -61,7 +61,6 @@ class Files(models.Model):
     
     ##Function to get and create thumbnail if it doesn't exist
     def get_thumbnail(self):
-#        print(bytes(self.thumbnail[:10]))
         if self.thumbnail is None or bytes(self.thumbnail)==b"from_migration_i_will_be_regenerated":
             print("GENERANDO THUMBANIAL")
             cache_path = '/tmp/preview_cache'
@@ -875,7 +874,7 @@ class Recipes(models.Model):
         
     ##Returns to add a src <img>
     def main_image(self):
-        for rl in self.recipes_links.select_related("files").all():
+        for rl in self.recipes_links.select_related("files", "type").all().defer("files__content"):
             if rl.type.id==eRecipeLink.MainPhoto:
                 return rl.files.get_thumbnail_js()
         return None

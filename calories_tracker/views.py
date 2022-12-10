@@ -441,6 +441,22 @@ class ProductsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.Products.objects.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
+class FilesViewSet(viewsets.ModelViewSet):
+    queryset = models.Files.objects.all()
+    serializer_class = serializers.FilesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    @action(detail=True, methods=["get"],url_path='thumbnail', url_name='thumbnail')
+    def thumbnail(self, request, pk=None):
+        qs_files=models.Files.objects.filter(user=request.user, pk=pk).only("thumbnail")
+        print(qs_files.query)
+        return Response(qs_files[0].get_thumbnail_js())
+    @action(detail=True, methods=["get"],url_path='content', url_name='content')
+    def content(self, request, pk=None):
+        qs_files=models.Files.objects.filter(user=request.user, pk=pk).only("content")
+        print(qs_files.query)
+        return Response(qs_files[0].get_content_js())
+    
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories")
     serializer_class = serializers.RecipesSerializer
@@ -471,6 +487,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return self.queryset.filter(user=self.request.user, name__icontains=search).order_by("name")
         return self.queryset.filter(user=self.request.user).order_by("name")
     
+    @ptimeit
+    @show_queries
     def list(self, request):
         return viewsets.ModelViewSet.list(self, request)
 
@@ -488,7 +506,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
 class RecipesFullViewSet(mixins.CreateModelMixin, 
                    mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):## I leave only retrieve, not list
-    queryset = models.Recipes.objects.prefetch_related("recipes_links", "elaborations").all()
+    queryset = models.Recipes.objects.prefetch_related(
+        "recipes_links", 
+        "elaborations", 
+    )
+
     serializer_class = serializers.RecipesFullSerializer
     permission_classes = [permissions.IsAuthenticated]      
     http_method_names=['get']
@@ -505,7 +527,7 @@ class RecipesCategoriesViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 class RecipesLinksViewSet(viewsets.ModelViewSet):
-    queryset = models.RecipesLinks.objects.all()
+    queryset = models.RecipesLinks.objects.all().select_related("files").defer("files__content")
     serializer_class = serializers.RecipesLinksSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -524,7 +546,7 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
 
 
 class RecipesLinksTypesViewSet(viewsets.ModelViewSet):
-    queryset = models.RecipesLinksTypes.objects.all()    
+    queryset = models.RecipesLinksTypes.objects.all()
     serializer_class = serializers.RecipesLinksTypesSerializer
     permission_classes = [permissions.IsAuthenticated]
     

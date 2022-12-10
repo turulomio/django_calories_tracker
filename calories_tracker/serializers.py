@@ -258,6 +258,10 @@ class FoodTypesSerializer(serializers.HyperlinkedModelSerializer):
     def get_localname(self, obj):
         return  _(obj.name)
 
+class FilesSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Files
+        fields = ('url', 'id', 'mime', 'content', 'thumbnail', 'size')
 class FormatsSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
     class Meta:
@@ -565,11 +569,10 @@ class RecipesCategoriesSerializer(serializers.HyperlinkedModelSerializer):
         return  _(obj.name)
 
 class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
-    get_thumbnail_js = serializers.SerializerMethodField()
     
     class Meta:
         model = models.RecipesLinks
-        fields = ('url', 'id', 'description', 'type', 'link', 'recipes', 'get_thumbnail_js')
+        fields = ('url', 'id', 'description', 'type', 'link', 'recipes', 'files')
         
     def create(self, validated_data):
         request = self.context.get("request")
@@ -589,10 +592,6 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
         updated.recipes.last=timezone.now()
         updated.recipes.save()
         return updated
-
-    def get_thumbnail_js(self, o):
-        return o.files.get_thumbnail_js()
-
 
 class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerializer):
     final_grams = serializers.SerializerMethodField()
