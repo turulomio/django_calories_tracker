@@ -471,7 +471,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return self.queryset.filter(user=self.request.user, name__icontains=search).order_by("name")
         return self.queryset.filter(user=self.request.user).order_by("name")
     
-    @show_queries
     def list(self, request):
         return viewsets.ModelViewSet.list(self, request)
 

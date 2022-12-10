@@ -21,6 +21,7 @@ from django.utils.translation import gettext as _
 from fractions import Fraction
 from humanize import precisedelta, naturalsize
 from mimetypes import guess_extension
+from preview_generator.manager import PreviewManager
 
 def is_equal_as_float(value1, value2):
     if value1 is None and value2 is None: 
@@ -56,6 +57,44 @@ class Files(models.Model):
     
     def humansize(self):
         return naturalsize(self.size, binary=True)
+        
+    
+    ##Function to get and create thumbnail if it doesn't exist
+    def get_thumbnail(self):
+#        print(bytes(self.thumbnail[:10]))
+        if self.thumbnail is None or bytes(self.thumbnail)==b"from_migration_i_will_be_regenerated":
+            print("GENERANDO THUMBANIAL")
+            cache_path = '/tmp/preview_cache'
+            with open("/tmp/to_thumbnail", "wb") as f:
+                f.write(self.content)
+
+            manager = PreviewManager(cache_path, create_folder= True)
+            path_to_preview_image = manager.get_jpeg_preview("/tmp/to_thumbnail", width=100, height=100, page=1)
+
+            with open(path_to_preview_image, "rb") as f:
+                data=f.read()
+#                print(data[0:10], len(data))
+            self.thumbnail=data
+            self.save()
+        return self.thumbnail
+ 
+    def get_b64_thumbnail(self):
+        #create
+        return b64encode(self.get_thumbnail()).decode('UTF-8')
+        
+    def get_b64_content(self):
+        #create
+        return b64encode(self.content).decode('UTF-8')
+        
+    #Formato return f"data:{rl.mime};base64,{b64encode(rl.content).decode('UTF-8')}"
+
+    def get_thumbnail_js(self):
+        return f"data:image/jpeg;base64,{self.get_b64_thumbnail()}"
+
+    def get_content_js(self):
+        return f"data:{self.mime};base64,{self.get_b64_content()}"
+
+        
         
 
 class Activities(models.Model):
@@ -838,9 +877,9 @@ class Recipes(models.Model):
         
     ##Returns to add a src <img>
     def main_image(self):
-        for rl in self.recipes_links.all():
+        for rl in self.recipes_links.select_related("files").all():
             if rl.type.id==eRecipeLink.MainPhoto:
-                return f"data:{rl.mime};base64,{b64encode(rl.content).decode('UTF-8')}"
+                return rl.files.get_thumbnail_js()
         return None
     
 class RecipesLinksTypes(models.Model):
@@ -863,10 +902,8 @@ class RecipesLinks(models.Model):
     description=models.TextField( blank=False, null=False)
     type=models.ForeignKey(RecipesLinksTypes, models.DO_NOTHING)
     link=models.TextField( blank=False, null=True)
-    content=models.BinaryField( blank=False, null=True)
     files=models.ForeignKey(Files, on_delete=models.DO_NOTHING, blank=True, null=True) 
     recipes=models.ForeignKey(Recipes, related_name="recipes_links", on_delete=models.DO_NOTHING) 
-    mime=models.TextField( blank=False, null=True)
     class Meta:
         managed = True
         db_table = 'recipes_links'
