@@ -41,7 +41,7 @@ def is_equal_as_float(value1, value2):
 class Files(models.Model):
     content=models.BinaryField(blank=False, null=False)
     size=models.IntegerField(blank=False, null=False)
-    thumbnail=models.BinaryField(blank=False, null=False)
+    thumbnail=models.BinaryField(blank=True, null=True)
     mime=models.TextField(max_length=100, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
     class Meta:
@@ -65,17 +65,15 @@ class Files(models.Model):
         if self.thumbnail is None or bytes(self.thumbnail)==b"from_migration_i_will_be_regenerated":
             print("GENERANDO THUMBANIAL")
             cache_path = '/tmp/preview_cache'
-            with open("/tmp/to_thumbnail", "wb") as f:
+            with open(f"/tmp/{self.id}", "wb") as f:
                 f.write(self.content)
 
             manager = PreviewManager(cache_path, create_folder= True)
-            path_to_preview_image = manager.get_jpeg_preview("/tmp/to_thumbnail", width=100, height=100, page=1)
+            path_to_preview_image = manager.get_jpeg_preview(f"/tmp/{self.id}", width=100, height=100, page=1)
 
             with open(path_to_preview_image, "rb") as f:
-                data=f.read()
-#                print(data[0:10], len(data))
-            self.thumbnail=data
-            self.save()
+                self.thumbnail=f.read()
+                self.save()
         return self.thumbnail
  
     def get_b64_thumbnail(self):

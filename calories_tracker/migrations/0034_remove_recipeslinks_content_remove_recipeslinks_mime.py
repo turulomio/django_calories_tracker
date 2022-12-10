@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('calories_tracker', '0032_recipeslinks_files'),
+        ('calories_tracker', '0033_auto_20221210_0831'),
     ]
 
     operations = [
