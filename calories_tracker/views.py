@@ -10,7 +10,7 @@ from calories_tracker.update_data import update_from_data
 from datetime import datetime
 from decimal import Decimal
 from django.db import transaction
-from django.db.models import Count, Min
+from django.db.models import Count, Min, Prefetch
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -458,7 +458,9 @@ class FilesViewSet(viewsets.ModelViewSet):
         return Response(qs_files[0].get_content_js())
     
 class RecipesViewSet(viewsets.ModelViewSet):
-    queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories")
+    queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories", 
+        Prefetch("recipes_links__files",  models.Files.objects.all().only("id"))
+    )
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
     @extend_schema(
@@ -491,6 +493,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @show_queries
     def list(self, request):
         return viewsets.ModelViewSet.list(self, request)
+    @ptimeit
+    @show_queries
+    def retrieve(self, request, *args, **kwargs):
+        return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
     @ptimeit
     @show_queries
@@ -527,7 +533,7 @@ class RecipesCategoriesViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 class RecipesLinksViewSet(viewsets.ModelViewSet):
-    queryset = models.RecipesLinks.objects.all().select_related("files").defer("files__content")
+    queryset = models.RecipesLinks.objects.all()
     serializer_class = serializers.RecipesLinksSerializer
     permission_classes = [permissions.IsAuthenticated]
 

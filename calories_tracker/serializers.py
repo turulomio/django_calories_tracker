@@ -693,10 +693,12 @@ class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
 
         
 class RecipesSerializer(serializers.HyperlinkedModelSerializer):
-    main_image = serializers.SerializerMethodField()
+##    main_image = serializers.SerializerMethodField()
+    main_image_thumbnail = serializers.SerializerMethodField()
+    main_image_content = serializers.SerializerMethodField()
     class Meta:
         model = models.Recipes
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon', 'recipes_categories', 'main_image')
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon', 'recipes_categories', 'main_image_thumbnail', 'main_image_content')
         
 
     def create(self, validated_data):
@@ -718,6 +720,13 @@ class RecipesSerializer(serializers.HyperlinkedModelSerializer):
         
     def get_main_image(self, o):
         return o.main_image()
+        
+    def get_main_image_thumbnail(self, o):
+        request = self.context.get("request")
+        return o.main_image_thumbnail(request)
+    def get_main_image_content(self, o):
+        request = self.context.get("request")
+        return o.main_image_content(request)
 
 class RecipesLinksTypesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()

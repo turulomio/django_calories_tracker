@@ -17,6 +17,8 @@ from datetime import date, timedelta,  datetime
 from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User # new
+
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from fractions import Fraction
 from humanize import precisedelta, naturalsize
@@ -57,7 +59,7 @@ class Files(models.Model):
     
     def humansize(self):
         return naturalsize(self.size, binary=True)
-        
+
     
     ##Function to get and create thumbnail if it doesn't exist
     def get_thumbnail(self):
@@ -872,11 +874,28 @@ class Recipes(models.Model):
         managed = True
         db_table = 'recipes'
         
+#    ##Returns to add a src <img>
+#    def main_image(self):
+#        for rl in self.recipes_links.select_related("files", "type").all().defer("files__content"):
+#            if rl.type.id==eRecipeLink.MainPhoto:
+#                return rl.files.get_thumbnail_js()
+#        return None
+#        
+
+        
     ##Returns to add a src <img>
-    def main_image(self):
-        for rl in self.recipes_links.select_related("files", "type").all().defer("files__content"):
-            if rl.type.id==eRecipeLink.MainPhoto:
-                return rl.files.get_thumbnail_js()
+    def main_image_thumbnail(self, request):
+        for rl in self.recipes_links.all().select_related("type", "files").values("files__id", "type__id"):
+            if rl["type__id"]==eRecipeLink.MainPhoto:
+                return request.build_absolute_uri(reverse('files-detail', args=(rl["files__id"], )))+"thumbnail/"
+
+        return None    
+    ##Returns to add a src <img>
+    def main_image_content(self, request):
+        for rl in self.recipes_links.all().select_related("type", "files").values("files__id", "type__id"):
+            if rl["type__id"]==eRecipeLink.MainPhoto:
+                return request.build_absolute_uri(reverse('files-detail', args=(rl["files__id"], )))+"content/"
+
         return None
     
 class RecipesLinksTypes(models.Model):
