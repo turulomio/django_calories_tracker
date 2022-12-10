@@ -19,7 +19,8 @@ from django.db import models
 from django.contrib.auth.models import User # new
 from django.utils.translation import gettext as _
 from fractions import Fraction
-from humanize import precisedelta
+from humanize import precisedelta, naturalsize
+from mimetypes import guess_extension
 
 def is_equal_as_float(value1, value2):
     if value1 is None and value2 is None: 
@@ -34,6 +35,28 @@ def is_equal_as_float(value1, value2):
     if a==b:
         return True
     return False
+
+
+class Files(models.Model):
+    content=models.BinaryField(blank=False, null=False)
+    size=models.IntegerField(blank=False, null=False)
+    thumbnail=models.BinaryField(blank=False, null=False)
+    mime=models.TextField(max_length=100, blank=False, null=False)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
+    class Meta:
+        managed = True
+        db_table = 'files'
+        
+    def __str__(self):
+        return _("File '{0} ({1} - {2})").format(self.filename, self.humansize(), self.mime)
+
+    def filename(self, name):
+        return name + guess_extension(self.mime)
+        
+    
+    def humansize(self):
+        return naturalsize(self.size, binary=True)
+        
 
 class Activities(models.Model):
     name = models.TextField()
