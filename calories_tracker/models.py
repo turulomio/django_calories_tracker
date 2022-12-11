@@ -50,11 +50,9 @@ class Files(models.Model):
         managed = True
         db_table = 'files'
         
-    def __str__(self):
-        return _("File '{0} ({1} - {2})").format(self.filename, self.humansize(), self.mime)
-
-    def filename(self, name):
-        return name + guess_extension(self.mime)
+    def extension(self):
+        r=guess_extension(self.mime)
+        return "" if r is None else r
         
     
     def humansize(self):

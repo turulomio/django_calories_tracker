@@ -18,7 +18,7 @@ def move_recipelinkscontent_to_files(apps, schema_editor):
         if rl.mime is None: #If there is some null mime
             with open("delete_me", "wb") as guess_mime_f:
                 guess_mime_f.write(f.content)
-            f.mime=guess_type("delete_me")
+            f.mime=guess_type("delete_me")[0]
         else:
             f.mime=rl.mime
         f.user=rl.recipes.user

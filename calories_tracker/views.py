@@ -460,7 +460,7 @@ class FilesViewSet(viewsets.ModelViewSet):
 ## Only with recipes_Links to get file for main image
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories", 
-        Prefetch("recipes_links__files",  models.Files.objects.all().only("id"))
+        Prefetch("recipes_links__files",  models.Files.objects.all().only("id", "mime", "size"))
     )
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
@@ -517,11 +517,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
 class RecipesFullViewSet(mixins.CreateModelMixin, 
                    mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):## I leave only retrieve, not list
-    queryset = models.Recipes.objects.prefetch_related(
-        "recipes_links", 
-        "elaborations", 
-    )
 
+    queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories", "elaborations", 
+        Prefetch("recipes_links__files",  models.Files.objects.all().only("id", "mime", "size"))
+    )
     serializer_class = serializers.RecipesFullSerializer
     permission_classes = [permissions.IsAuthenticated]      
     http_method_names=['get']
@@ -551,9 +550,12 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        self.perform_destroy(instance)
+        if instance.files is not None:
+            instance.files.delete()
         instance.recipes.last=timezone.now()
         instance.recipes.save()
-        return viewsets.ModelViewSet.destroy(self, request, args, kwargs)
+        return Response(status.HTTP_204_NO_CONTENT)
 
 
 class RecipesLinksTypesViewSet(viewsets.ModelViewSet):

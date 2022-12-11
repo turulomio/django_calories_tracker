@@ -6,6 +6,7 @@ from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from calories_tracker import models
 from calories_tracker.reusing.request_casting import object_from_url
+from mimetypes import guess_type
 
 
 class ActivitiesSerializer(serializers.HyperlinkedModelSerializer):
@@ -262,9 +263,10 @@ class FilesSerializer(serializers.HyperlinkedModelSerializer):
     url_thumbnail = serializers.SerializerMethodField()
     url_content = serializers.SerializerMethodField()
     humansize=serializers.SerializerMethodField()
+    extension=serializers.SerializerMethodField()
     class Meta:
         model = models.Files
-        fields = ('url', 'id', 'mime', 'size', 'humansize', 'url_content', 'url_thumbnail')
+        fields = ('url', 'id', 'mime', 'size', 'humansize', 'url_content', 'url_thumbnail', 'extension')
         
     def get_url_thumbnail(self, o):
         return o.url_thumbnail(self.context.get("request"))
@@ -272,6 +274,8 @@ class FilesSerializer(serializers.HyperlinkedModelSerializer):
         return o.url_content(self.context.get("request"))
     def get_humansize(self, o):
         return o.humansize()
+    def get_extension(self, o):
+        return o.extension()
         
 
 class FormatsSerializer(serializers.HyperlinkedModelSerializer):
@@ -599,6 +603,10 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
             f.size=len(f.content)
             with open("delete_me", "wb") as guess_mime_f:
                 guess_mime_f.write(f.content)
+            guess=guess_type("delete_me", False)
+            print(guess)
+            f.mime=guess_type("delete_me")[0] if guess[0] is not None else ""
+            
             f.user=request.user
             f.save()
             created.files=f
