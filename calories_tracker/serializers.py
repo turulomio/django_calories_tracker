@@ -6,7 +6,7 @@ from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from calories_tracker import models
 from calories_tracker.reusing.request_casting import object_from_url
-from mimetypes import guess_type
+#from mimetypes import guess_type
 
 
 class ActivitiesSerializer(serializers.HyperlinkedModelSerializer):
@@ -601,11 +601,13 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
             f=models.Files()
             f.content=b64decode(request.data['content'].encode('utf-8'))
             f.size=len(f.content)
-            with open("delete_me", "wb") as guess_mime_f:
-                guess_mime_f.write(f.content)
-            guess=guess_type("delete_me", False)
-            print(guess)
-            f.mime=guess_type("delete_me")[0] if guess[0] is not None else ""
+#            with open("delete_me", "wb") as guess_mime_f:
+#                guess_mime_f.write(f.content)
+#            guess=guess_type("delete_me", False)
+#            print(guess)
+#            f.mime=guess_type("delete_me")[0] if guess[0] is not None else ""
+
+            f.mime=request.data["mime"]
             
             f.user=request.user
             f.save()

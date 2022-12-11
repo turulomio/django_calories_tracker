@@ -62,7 +62,7 @@ class Files(models.Model):
     ##Function to get and create thumbnail if it doesn't exist
     def get_thumbnail(self):
         if self.thumbnail is None or bytes(self.thumbnail)==b"from_migration_i_will_be_regenerated":
-            print("GENERANDO THUMBANIAL")
+            print("GENERANDO THUMBANAIL")
             cache_path = '/tmp/preview_cache'
             with open(f"/tmp/{self.id}", "wb") as f:
                 f.write(self.content)

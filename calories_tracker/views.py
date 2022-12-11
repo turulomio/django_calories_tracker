@@ -449,12 +449,11 @@ class FilesViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"],url_path='thumbnail', url_name='thumbnail')
     def thumbnail(self, request, pk=None):
         qs_files=models.Files.objects.filter(user=request.user, pk=pk).only("thumbnail")
-        print(qs_files.query)
         return Response(qs_files[0].get_thumbnail_js())
+
     @action(detail=True, methods=["get"],url_path='content', url_name='content')
     def content(self, request, pk=None):
         qs_files=models.Files.objects.filter(user=request.user, pk=pk).only("content")
-        print(qs_files.query)
         return Response(qs_files[0].get_content_js())
     
 ## Only with recipes_Links to get file for main image
@@ -525,6 +524,7 @@ class RecipesFullViewSet(mixins.CreateModelMixin,
     permission_classes = [permissions.IsAuthenticated]      
     http_method_names=['get']
         
+    
     @ptimeit
     @show_queries
     def retrieve(self, request, *args, **kwargs):
@@ -542,6 +542,11 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     
+    @ptimeit
+    @show_queries
+    def create(self, validated_data):
+        return viewsets.ModelViewSet.create(self, validated_data) 
+
     def get_queryset(self):
         recipes=RequestGetUrl(self.request, "recipes", models.Recipes)
         if all_args_are_not_none(recipes):
