@@ -457,6 +457,7 @@ class FilesViewSet(viewsets.ModelViewSet):
         print(qs_files.query)
         return Response(qs_files[0].get_content_js())
     
+## Only with recipes_Links to get file for main image
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories", 
         Prefetch("recipes_links__files",  models.Files.objects.all().only("id"))
@@ -486,8 +487,12 @@ class RecipesViewSet(viewsets.ModelViewSet):
                     number=50
                 return self.queryset.filter(user=self.request.user).order_by("-last")[0:number]
             else:
-                return self.queryset.filter(user=self.request.user, name__icontains=search).order_by("name")
-        return self.queryset.filter(user=self.request.user).order_by("name")
+                self.queryset.filter(user=self.request.user)
+                arr=search.split(" ")
+                for word in arr:
+                    self.queryset=self.queryset.filter(name__icontains=word)
+                return self.queryset
+        return self.queryset.filter(user=self.request.user)
     
     @ptimeit
     @show_queries

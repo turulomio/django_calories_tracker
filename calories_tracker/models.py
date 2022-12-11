@@ -70,7 +70,7 @@ class Files(models.Model):
                 f.write(self.content)
 
             manager = PreviewManager(cache_path, create_folder= True)
-            path_to_preview_image = manager.get_jpeg_preview(f"/tmp/{self.id}", width=100, height=100, page=1)
+            path_to_preview_image = manager.get_jpeg_preview(f"/tmp/{self.id}", width=100, height=100, page=0)
 
             with open(path_to_preview_image, "rb") as f:
                 self.thumbnail=f.read()
@@ -92,8 +92,12 @@ class Files(models.Model):
 
     def get_content_js(self):
         return f"data:{self.mime};base64,{self.get_b64_content()}"
-
         
+    def url_thumbnail(self, request):
+        return request.build_absolute_uri(reverse('files-detail', args=(self.id, )))+"thumbnail/"
+
+    def url_content(self, request):
+        return request.build_absolute_uri(reverse('files-detail', args=(self.id, )))+"content/"
         
 
 class Activities(models.Model):
@@ -873,30 +877,14 @@ class Recipes(models.Model):
     class Meta:
         managed = True
         db_table = 'recipes'
-        
-#    ##Returns to add a src <img>
-#    def main_image(self):
-#        for rl in self.recipes_links.select_related("files", "type").all().defer("files__content"):
-#            if rl.type.id==eRecipeLink.MainPhoto:
-#                return rl.files.get_thumbnail_js()
-#        return None
-#        
 
-        
-    ##Returns to add a src <img>
-    def main_image_thumbnail(self, request):
+    ##Returns a files url, then you can use content/ or thumbnail/
+    def main_image_files(self, request):
         for rl in self.recipes_links.all().select_related("type", "files").values("files__id", "type__id"):
             if rl["type__id"]==eRecipeLink.MainPhoto:
-                return request.build_absolute_uri(reverse('files-detail', args=(rl["files__id"], )))+"thumbnail/"
+                return request.build_absolute_uri(reverse('files-detail', args=(rl["files__id"], )))
 
         return None    
-    ##Returns to add a src <img>
-    def main_image_content(self, request):
-        for rl in self.recipes_links.all().select_related("type", "files").values("files__id", "type__id"):
-            if rl["type__id"]==eRecipeLink.MainPhoto:
-                return request.build_absolute_uri(reverse('files-detail', args=(rl["files__id"], )))+"content/"
-
-        return None
     
 class RecipesLinksTypes(models.Model):
     name=models.TextField( blank=False, null=False)

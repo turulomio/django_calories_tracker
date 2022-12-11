@@ -259,9 +259,21 @@ class FoodTypesSerializer(serializers.HyperlinkedModelSerializer):
         return  _(obj.name)
 
 class FilesSerializer(serializers.HyperlinkedModelSerializer):
+    url_thumbnail = serializers.SerializerMethodField()
+    url_content = serializers.SerializerMethodField()
+    humansize=serializers.SerializerMethodField()
     class Meta:
         model = models.Files
-        fields = ('url', 'id', 'mime', 'content', 'thumbnail', 'size')
+        fields = ('url', 'id', 'mime', 'size', 'humansize', 'url_content', 'url_thumbnail')
+        
+    def get_url_thumbnail(self, o):
+        return o.url_thumbnail(self.context.get("request"))
+    def get_url_content(self, o):
+        return o.url_content(self.context.get("request"))
+    def get_humansize(self, o):
+        return o.humansize()
+        
+
 class FormatsSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
     class Meta:
@@ -569,7 +581,8 @@ class RecipesCategoriesSerializer(serializers.HyperlinkedModelSerializer):
         return  _(obj.name)
 
 class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
-    
+    files=FilesSerializer(read_only=True)
+
     class Meta:
         model = models.RecipesLinks
         fields = ('url', 'id', 'description', 'type', 'link', 'recipes', 'files')
@@ -577,10 +590,19 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         request = self.context.get("request")
         ## Converts base 64 string to  bytes
-        if request.data['content'] is not None:
-            validated_data['content']=b64decode(request.data['content'].encode('utf-8'))
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         
+        
+        if request.data['content'] is not None:
+            f=models.Files()
+            f.content=b64decode(request.data['content'].encode('utf-8'))
+            f.size=len(f.content)
+            with open("delete_me", "wb") as guess_mime_f:
+                guess_mime_f.write(f.content)
+            f.user=request.user
+            f.save()
+            created.files=f
+        created.save()
         created.recipes.last=timezone.now()
         created.recipes.save()
         return created
@@ -693,12 +715,13 @@ class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
 
         
 class RecipesSerializer(serializers.HyperlinkedModelSerializer):
+    recipes_links=RecipesLinksSerializer(many=True, read_only=True)
 ##    main_image = serializers.SerializerMethodField()
-    main_image_thumbnail = serializers.SerializerMethodField()
-    main_image_content = serializers.SerializerMethodField()
+#    main_image_thumbnail = serializers.SerializerMethodField()
+#    main_image_content = serializers.SerializerMethodField()
     class Meta:
         model = models.Recipes
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon', 'recipes_categories', 'main_image_thumbnail', 'main_image_content')
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon', 'recipes_categories', 'recipes_links')
         
 
     def create(self, validated_data):
