@@ -13,6 +13,7 @@
 
 from base64 import b64encode
 from calories_tracker.reusing.datetime_functions import dtaware2string
+from calories_tracker.reusing.decorators import ptimeit
 from datetime import date, timedelta,  datetime
 from decimal import Decimal
 from django.db import models
@@ -25,6 +26,8 @@ from humanize import precisedelta, naturalsize
 from mimetypes import guess_extension
 from preview_generator.manager import PreviewManager
 
+ptimeit
+
 def is_equal_as_float(value1, value2):
     if value1 is None and value2 is None: 
         return True
@@ -34,7 +37,6 @@ def is_equal_as_float(value1, value2):
         return False
     a=float(value1)
     b=float(value2)
-#    print(a, b)
     if a==b:
         return True
     return False
@@ -60,9 +62,9 @@ class Files(models.Model):
 
     
     ##Function to get and create thumbnail if it doesn't exist
+    @ptimeit
     def get_thumbnail(self):
         if self.thumbnail is None or bytes(self.thumbnail)==b"from_migration_i_will_be_regenerated":
-            print("GENERANDO THUMBANAIL")
             cache_path = '/tmp/preview_cache'
             with open(f"/tmp/{self.id}", "wb") as f:
                 f.write(self.content)
