@@ -601,14 +601,7 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
             f=models.Files()
             f.content=b64decode(request.data['content'].encode('utf-8'))
             f.size=len(f.content)
-#            with open("delete_me", "wb") as guess_mime_f:
-#                guess_mime_f.write(f.content)
-#            guess=guess_type("delete_me", False)
-#            print(guess)
-#            f.mime=guess_type("delete_me")[0] if guess[0] is not None else ""
-
             f.mime=request.data["mime"]
-            
             f.user=request.user
             f.save()
             created.files=f
@@ -619,7 +612,6 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
     
     ## Update doesn't update blob, only changes metadata
     def update(self, instance, validated_data):
-        validated_data['content']=instance.content
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
         updated.recipes.last=timezone.now()
         updated.recipes.save()
