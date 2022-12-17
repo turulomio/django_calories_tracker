@@ -17,6 +17,7 @@ from calories_tracker.reusing.decorators import ptimeit
 from datetime import date, timedelta,  datetime
 from decimal import Decimal
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User # new
 
 from django.urls import reverse
@@ -65,12 +66,12 @@ class Files(models.Model):
     @ptimeit
     def get_thumbnail(self):
         if self.thumbnail is None or bytes(self.thumbnail)==b"from_migration_i_will_be_regenerated":
-            cache_path = '/tmp/preview_cache'
-            with open(f"/tmp/{self.id}", "wb") as f:
+            filename=f"{settings.TMPDIR}/files_{self.id}"
+            with open(filename, "wb") as f:
                 f.write(self.content)
 
-            manager = PreviewManager(cache_path, create_folder= True)
-            path_to_preview_image = manager.get_jpeg_preview(f"/tmp/{self.id}", width=100, height=100, page=0)
+            manager = PreviewManager(settings.TMPDIR_PREVIEW_CACHE, create_folder= False)
+            path_to_preview_image = manager.get_jpeg_preview(filename, width=100, height=100, page=0)
 
             with open(path_to_preview_image, "rb") as f:
                 self.thumbnail=f.read()
