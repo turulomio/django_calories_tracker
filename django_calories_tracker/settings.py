@@ -141,7 +141,11 @@ USE_TZ = True
 
 TMPDIR=f"/tmp/django_calories_tracker-{getuser()}"
 TMPDIR_PREVIEW_CACHE=f"{TMPDIR}/preview_cache"
+TMPDIR_FILES=f"{TMPDIR}/files"
+TMPDIR_REPORTS=f"{TMPDIR}/reports"
 makedirs(TMPDIR_PREVIEW_CACHE, exist_ok=True)
+makedirs(TMPDIR_FILES, exist_ok=True)
+makedirs(TMPDIR_REPORTS, exist_ok=True)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

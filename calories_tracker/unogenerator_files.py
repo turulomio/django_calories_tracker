@@ -1,8 +1,7 @@
 from base64 import b64encode
-from calories_tracker.reusing.datetime_functions import dtnaive2string
 from calories_tracker.reusing.responses_json import json_data_response
 from calories_tracker import __version__
-from datetime import datetime
+from django.conf import settings
 from django.utils.translation import gettext as _
 from mimetypes import guess_type
 from os import path
@@ -10,7 +9,8 @@ from unogenerator import ODT
 
 def response_report_elaboration(request, elaboration):
     template=f"{path.dirname(__file__)}/templates/ReportElaboration.odt"
-    filename='/tmp/Elaboration-{}.pdf'.format(dtnaive2string(datetime.now(), "%Y%m%d%H%M"))
+    diners=_("{0} diners").format(elaboration.diners)
+    filename=f'{settings.TMPDIR_REPORTS}/CT. {elaboration.recipes.name}. {diners}.pdf'
     with ODT(template) as doc:
 
         doc.setMetadata( 
