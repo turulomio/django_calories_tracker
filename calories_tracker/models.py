@@ -79,15 +79,12 @@ class Files(models.Model):
         return self.thumbnail
  
     def get_b64_thumbnail(self):
-        #create
         return b64encode(self.get_thumbnail()).decode('UTF-8')
         
     def get_b64_content(self):
-        #create
         return b64encode(self.content).decode('UTF-8')
         
     #Formato return f"data:{rl.mime};base64,{b64encode(rl.content).decode('UTF-8')}"
-
     def get_thumbnail_js(self):
         return f"data:image/jpeg;base64,{self.get_b64_thumbnail()}"
 
