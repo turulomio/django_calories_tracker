@@ -54,6 +54,7 @@ urlpatterns = [
     path('products/datatransfer/', calories_tracker_views.ProductsDataTransfer, name='ProductsDataTransfer'),
     path('time/', calories_tracker_views.Time, name='Time'),
     path('settings/', calories_tracker_views.Settings, name='Settings'),
+    path('shopping_list/', calories_tracker_views.ShoppingList, name='ShoppingList'),
     path('statistics/', calories_tracker_views.Statistics, name='Statistics'),
     path('products_to_system_products/', calories_tracker_views.Product2SystemProduct, name='Product2SystemProduct'),
     path('system_products_to_products/', calories_tracker_views.SystemProduct2Product, name='SystemProduct2Product'),

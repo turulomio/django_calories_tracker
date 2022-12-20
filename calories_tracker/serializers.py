@@ -677,10 +677,11 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_containers=ElaborationsContainersSerializer(many=True, read_only=True)
     elaborations_experiences=ElaborationsExperiencesSerializer(many=True, read_only=True)
     final_duration = serializers.SerializerMethodField()
+    fullname = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Elaborations
-        fields = ('url', 'id', 'diners', 'final_amount', 'recipes', 'elaborations_products_in', 'elaborations_steps', 
+        fields = ('url', 'id', 'diners', 'final_amount', 'fullname', 'recipes', 'elaborations_products_in', 'elaborations_steps', 
         'elaborations_containers', 'elaborations_experiences', 'final_duration', 'automatic', 'automatic_adaptation_step')
         
     def create(self, validated_data):
@@ -706,6 +707,9 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         response = super().to_representation(instance)
         response["elaborations_steps"] = sorted(response["elaborations_steps"], key=lambda x: x["order"])
         return response
+        
+    def fullname(self, o):
+        return o.fullname()
 
 class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='recipes_full-detail') #To get recipes_full url and do not override recipes url

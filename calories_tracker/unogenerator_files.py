@@ -1,6 +1,7 @@
 from base64 import b64encode
 from calories_tracker.reusing.responses_json import json_data_response
 from calories_tracker import __version__
+from datetime import datetime
 from django.conf import settings
 from django.utils.translation import gettext as _
 from mimetypes import guess_type
@@ -40,6 +41,42 @@ def response_report_elaboration(request, elaboration):
         doc.find_and_delete_until_the_end_of_document('Styles to remove')    
         
         # Document Generation
+        doc.export_pdf(filename)
+    return json_response_file(filename)
+    
+def response_report_shopping_list(request, elaborations):
+    template=f"{path.dirname(__file__)}/templates/ReportElaboration.odt"
+    filename=f'{settings.TMPDIR_REPORTS}/ShoppingList.pdf'
+    with ODT(template) as doc:
+        doc.setMetadata( 
+            _("Shopping list"),  
+            _("This is an automatic generated report from Calories Tracker"), 
+            "Turulomio", 
+            "CaloriesTracker-{}".format(__version__)
+        )
+        
+        doc.find_and_replace("__TITLE__", _("Shopping list"))
+        doc.find_and_replace("__DATETIME__", str(datetime.now()))
+        doc.find_and_replace("__CONTENT__", "")
+        
+        doc.addParagraph(_("Recipes"), "Heading 1")
+        for e in elaborations:
+            doc.addParagraph(e.fullname(), "ElaborationsContainers")
+            
+        ## Generate a dictionary with p as key
+        list={}
+        for e in elaborations:
+            for i in e.elaborationsproductsinthrough_set.all().select_related("products__companies", "measures_types"):
+                if not i.products in list:
+                    list[i.products]=0
+                list[i.products]=list[i.products]+i.final_grams()
+
+        doc.addParagraph(_("Shopping list"), "Heading 1")
+        for k, v in list.items():            
+            doc.addParagraph(f"{int(v)}g\t{k.fullname()}", "ElaborationsContainers")
+            
+        doc.addParagraph("", "Standard")
+        doc.find_and_delete_until_the_end_of_document('Styles to remove')    
         doc.export_pdf(filename)
     return json_response_file(filename)
     

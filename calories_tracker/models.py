@@ -924,11 +924,14 @@ class Elaborations(models.Model):
         db_table = 'elaborations'
         
     def __str__(self):
-        return f"Elaborations: {self.recipes.name} {self.diners}"
+        return self.fullname()
         
     def final_duration(self):
         qs= self.elaborations_steps.aggregate(final_duration=models.Sum('duration'))
         return str(qs["final_duration"])
+        
+    def fullname(self):
+        return _("{0} ({1} diners)").format(self.recipes.name, self.diners)
         
     
 class MeasuresTypes(models.Model):
