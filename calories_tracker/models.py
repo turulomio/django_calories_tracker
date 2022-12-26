@@ -928,7 +928,8 @@ class Elaborations(models.Model):
         
     def final_duration(self):
         qs= self.elaborations_steps.aggregate(final_duration=models.Sum('duration'))
-        return str(qs["final_duration"])
+        return precisedelta(qs["final_duration"], minimum_unit="seconds", format="%d")
+        
         
     def fullname(self):
         return _("{0} ({1} diners)").format(self.recipes.name, self.diners)

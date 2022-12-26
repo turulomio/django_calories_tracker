@@ -33,7 +33,7 @@ def response_report_elaboration(request, elaboration):
         for c in elaboration.elaborations_containers.all().order_by("name"):
             doc.addParagraph(c.name, "ElaborationsContainers")
             
-        doc.addParagraph(_("Recipe steps"), "Heading 1")
+        doc.addParagraph(_("Recipe steps") + f" ({elaboration.final_duration()})", "Heading 1")
         for es in elaboration.elaborations_steps.all().order_by("order"):
             doc.addParagraph(es.wording(), "ElaborationsSteps")
             

@@ -801,7 +801,7 @@ def Settings(request):
 @permission_classes([permissions.IsAuthenticated, ])
 @show_queries
 def ShoppingList(request):
-    elaborations=RequestListUrl(request, "elaborations", models.Elaborations)
+    elaborations=RequestListUrl(request, "elaborations", models.Elaborations, [])
     from calories_tracker.unogenerator_files import response_report_shopping_list
     return response_report_shopping_list(request, elaborations)
 

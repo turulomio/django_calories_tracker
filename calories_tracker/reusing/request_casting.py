@@ -12,20 +12,17 @@ def RequestGetUrl(request, field, class_,  default=None):
     return r
  
 ## Returns a model obect
-def RequestUrl(request, field, class_,  default=None):
+def RequestUrl(request, field, class_,  default=None, select_related=[], prefetch_related=[]):
     try:
-
-        r = object_from_url(request.data.get(field), class_)
+        r = object_from_url(request.data.get(field), class_, select_related, prefetch_related)
     except:
         r=default
     return r 
 
-## Returns a model obect
-def RequestListUrl(request, field, class_,  default=None):
+## Returns a query_set obect
+def RequestListUrl(request, field, class_,  default=None,select_related=[],prefetch_related=[]):
     try:
-        r=[]
-        for f in request.data.get(field):
-            r.append(object_from_url(f, class_))
+       r=queryset_from_list_of_urls(request.data.get(field), class_, select_related, prefetch_related)
     except:
         r=default
     return r
@@ -153,9 +150,22 @@ def id_from_url(url):
     path = parse.urlparse(url).path
     parts=path.split("/")
     return int(parts[len(parts)-2])
-    
-def object_from_url(url, class_):
-    return class_.objects.get(pk=id_from_url(url))
+
+
+def ids_from_list_of_urls(list_):
+    r=[]
+    for url in list_:
+        r.append(id_from_url(url))
+    return r
+
+def object_from_url(url, class_, select_related=[], prefetch_related=[]):
+    print("object_from_url")
+    return class_.objects.get(pk=id_from_url(url)).prefetch_related(*prefetch_related).select_related(*select_related)
+
+def queryset_from_list_of_urls(list_, class_, select_related=[], prefetch_related=[]):
+    print("object_from_list_of_urls")
+    ids=ids_from_list_of_urls(list_)
+    return class_.objects.filter(pk__in=ids).prefetch_related(*prefetch_related).select_related(*select_related)
 
 ## Returns false if some arg is None
 def all_args_are_not_none(*args):
