@@ -124,7 +124,7 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
     
 
 class ElaborationsViewSet(viewsets.ModelViewSet):
-    queryset = models.Elaborations.objects.all()
+    queryset = models.Elaborations.objects.all().select_related("recipes")
     serializer_class = serializers.ElaborationsSerializer
     permission_classes = [permissions.IsAuthenticated]
     

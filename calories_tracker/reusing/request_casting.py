@@ -159,11 +159,9 @@ def ids_from_list_of_urls(list_):
     return r
 
 def object_from_url(url, class_, select_related=[], prefetch_related=[]):
-    print("object_from_url")
     return class_.objects.get(pk=id_from_url(url)).prefetch_related(*prefetch_related).select_related(*select_related)
 
 def queryset_from_list_of_urls(list_, class_, select_related=[], prefetch_related=[]):
-    print("object_from_list_of_urls")
     ids=ids_from_list_of_urls(list_)
     return class_.objects.filter(pk__in=ids).prefetch_related(*prefetch_related).select_related(*select_related)
 

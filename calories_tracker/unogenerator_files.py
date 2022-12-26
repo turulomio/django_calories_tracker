@@ -1,4 +1,5 @@
 from base64 import b64encode
+from calories_tracker.reusing.connection_dj import show_queries
 from calories_tracker.reusing.responses_json import json_data_response
 from calories_tracker import __version__
 from datetime import datetime
@@ -8,6 +9,7 @@ from mimetypes import guess_type
 from os import path
 from unogenerator import ODT
 
+@show_queries
 def response_report_elaboration(request, elaboration):
     template=f"{path.dirname(__file__)}/templates/ReportElaboration.odt"
     diners=_("{0} diners").format(elaboration.diners)
@@ -26,7 +28,7 @@ def response_report_elaboration(request, elaboration):
         
         doc.find_and_replace("__CONTENT__", "")
         doc.addParagraph(_("Ingredients for {0} diners").format(elaboration.diners), "Heading 1")
-        for ingredient in elaboration.elaborationsproductsinthrough_set.all().order_by("-amount"):
+        for ingredient in elaboration.elaborationsproductsinthrough_set.all().order_by("-amount").select_related("products", "measures_types"):
             doc.addParagraph(ingredient.fullname(), "Ingredients")
             
         doc.addParagraph(_("Containers"), "Heading 1")
@@ -34,7 +36,7 @@ def response_report_elaboration(request, elaboration):
             doc.addParagraph(c.name, "ElaborationsContainers")
             
         doc.addParagraph(_("Recipe steps") + f" ({elaboration.final_duration()})", "Heading 1")
-        for es in elaboration.elaborations_steps.all().order_by("order"):
+        for es in elaboration.elaborations_steps.all().order_by("order").select_related("steps",    "temperatures_types", "container", "container_to", "stir_types").prefetch_related("products_in_step", "products_in_step__measures_types", "products_in_step__products"):
             doc.addParagraph(es.wording(), "ElaborationsSteps")
             
         doc.addParagraph("", "Standard")
