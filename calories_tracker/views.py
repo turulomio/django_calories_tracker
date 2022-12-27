@@ -403,6 +403,16 @@ class PotsViewSet(viewsets.ModelViewSet):
     queryset = models.Pots.objects.all()
     serializer_class = serializers.PotsSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    
+    
+    @transaction.atomic
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        if instance.photo is not None:
+            instance.photo.delete()
+        return Response(status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['POST', 'GET'])
 @permission_classes([permissions.IsAuthenticated, ])

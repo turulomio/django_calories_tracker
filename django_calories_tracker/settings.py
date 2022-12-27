@@ -2,6 +2,7 @@ from calories_tracker import __version__
 from getpass import getuser
 from os import makedirs
 from pathlib import Path
+from shutil import rmtree
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,6 +144,7 @@ TMPDIR=f"/tmp/django_calories_tracker-{getuser()}"
 TMPDIR_PREVIEW_CACHE=f"{TMPDIR}/preview_cache"
 TMPDIR_FILES=f"{TMPDIR}/files"
 TMPDIR_REPORTS=f"{TMPDIR}/reports"
+rmtree(TMPDIR, ignore_errors=True)
 makedirs(TMPDIR_PREVIEW_CACHE, exist_ok=True)
 makedirs(TMPDIR_FILES, exist_ok=True)
 makedirs(TMPDIR_REPORTS, exist_ok=True)

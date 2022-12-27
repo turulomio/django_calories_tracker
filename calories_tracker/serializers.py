@@ -385,7 +385,7 @@ class PotsSerializer(serializers.HyperlinkedModelSerializer):
         request=self.context.get("request")
         validated_data['user']=request.user
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
-        if request.data['photo_content'] is not None:
+        if 'photo_content' in request.data and request.data['photo_content'] is not None:
             f=models.Files()
             f.content=b64decode(request.data['photo_content'].encode('utf-8'))
             f.size=len(f.content)
@@ -399,9 +399,8 @@ class PotsSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, instance, validated_data):
         request=self.context.get("request")
         validated_data['user']=self.context.get("request").user
-        print(request.data)
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
-        if request.data['photo_content'] is not None:# There is photo data
+        if 'photo_content' in request.data and request.data['photo_content'] is not None:# There is photo data
             if instance.photo is None:
                 f=models.Files()
             else:
