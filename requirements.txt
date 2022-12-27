@@ -1,4 +1,5 @@
 django
 django-rest-framework
 django-cors-headers
+django-simple-history
 preview-generator

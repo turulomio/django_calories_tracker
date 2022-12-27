@@ -27,6 +27,7 @@ from humanize import precisedelta, naturalsize
 from math import pi
 from mimetypes import guess_extension
 from preview_generator.manager import PreviewManager
+from simple_history.models import HistoricalRecords
 
 ptimeit
 
@@ -206,6 +207,7 @@ class Biometrics(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
     activities = models.ForeignKey(Activities, on_delete=models.DO_NOTHING) 
     weight_wishes = models.ForeignKey(WeightWishes, on_delete=models.DO_NOTHING) 
+    history = HistoricalRecords()
 
     class Meta:
         managed = True
