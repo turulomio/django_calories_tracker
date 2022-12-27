@@ -367,24 +367,52 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
     
 class PotsSerializer(serializers.HyperlinkedModelSerializer):
     fullname = serializers.SerializerMethodField()
+    volume = serializers.SerializerMethodField()
+    photo=FilesSerializer(read_only=True)
     class Meta:
         model = models.Pots
-        fields = ('url', 'id', 'name', 'fullname', 'diameter', 'weight')
+        fields = ('url', 'id', 'name', 'fullname', 'diameter', 'weight', 'height', 'volume', 'photo')
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_fullname(self, obj):
         return  _(obj.fullname())
-        
+
+    @extend_schema_field(OpenApiTypes.FLOAT)
+    def get_volume(self, obj):
+        return  obj.volume()
+
     def create(self, validated_data):
-        validated_data['user']=self.context.get("request").user
+        request=self.context.get("request")
+        validated_data['user']=request.user
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        if request.data['photo_content'] is not None:
+            f=models.Files()
+            f.content=b64decode(request.data['photo_content'].encode('utf-8'))
+            f.size=len(f.content)
+            f.mime=request.data["photo_mime"]
+            f.user=request.user
+            f.save()
+            created.photo=f
         created.save()
         return created
-        
-         
+
     def update(self, instance, validated_data):
+        request=self.context.get("request")
         validated_data['user']=self.context.get("request").user
+        print(request.data)
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        if request.data['photo_content'] is not None:# There is photo data
+            if instance.photo is None:
+                f=models.Files()
+            else:
+                f=instance.photo
+            f.thumbnail=None #Erases old thumbnail
+            f.content=b64decode(request.data['photo_content'].encode('utf-8'))
+            f.size=len(f.content)
+            f.mime=request.data["photo_mime"]
+            f.user=request.user
+            f.save()
+            updated.photo=f
         updated.save()
         return updated
 

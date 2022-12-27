@@ -1,6 +1,6 @@
 from calories_tracker import serializers
 from calories_tracker import models
-from calories_tracker.reusing.connection_dj import show_queries
+from calories_tracker.reusing.connection_dj import show_queries, show_queries_function
 from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.reusing.listdict_functions import listdict_order_by
@@ -26,6 +26,7 @@ from urllib import request as urllib_request
 
 ptimeit
 show_queries
+show_queries_function
 
 class GroupCatalogManager(permissions.BasePermission):
     """Permiso que comprueba si pertenece al grupo Interventor """

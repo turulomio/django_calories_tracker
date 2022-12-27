@@ -24,6 +24,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from fractions import Fraction
 from humanize import precisedelta, naturalsize
+from math import pi
 from mimetypes import guess_extension
 from preview_generator.manager import PreviewManager
 
@@ -63,7 +64,6 @@ class Files(models.Model):
 
     
     ##Function to get and create thumbnail if it doesn't exist
-    @ptimeit
     def get_thumbnail(self):
         if self.thumbnail is None or bytes(self.thumbnail)==b"from_migration_i_will_be_regenerated":
             filename=f"{settings.TMPDIR}/files_{self.id}"
@@ -721,8 +721,8 @@ class ElaboratedProducts(models.Model):
 
 
     def is_glutenfree(self):
-        for pi in self.get_products_in():
-            if pi.products.glutenfree is False:
+        for pi_ in self.get_products_in():
+            if pi_.products.glutenfree is False:
                 return False
         return True
 
@@ -764,12 +764,12 @@ class ElaboratedProducts(models.Model):
     ## @param if Total==False gives component in 100 gramos, else givves component in final_amount gramos
     def getElaboratedProductComponent(self, name, total=False):
         all_pi_component=0
-        for pi in self.get_products_in():
-            pi_product_amount=pi.products.amount
-            pi_product_component=getattr(pi.products, name)
+        for pi_ in self.get_products_in():
+            pi_product_amount=pi_.products.amount
+            pi_product_component=getattr(pi_.products, name)
             if pi_product_component is None or pi_product_amount==0:
                 return None
-            all_pi_component=all_pi_component+ pi.amount*pi_product_component/pi_product_amount
+            all_pi_component=all_pi_component+ pi_.amount*pi_product_component/pi_product_amount
             
         if total is True:
             return all_pi_component
@@ -778,8 +778,8 @@ class ElaboratedProducts(models.Model):
             
     def additives_risk(self):
         r=0
-        for pi in self.get_products_in():
-            ar=pi.products.additives_risk()
+        for pi_ in self.get_products_in():
+            ar=pi_.products.additives_risk()
             if ar>r:
                 r=ar
         return r
@@ -816,6 +816,8 @@ class Pots(models.Model):
     name = models.TextField( blank=False, null=False)
     weight = models.IntegerField( blank=False, null=False)#g
     diameter = models.IntegerField( blank=False, null=False)#cm
+    height = models.IntegerField( blank=False, null=False)#cm
+    photo=models.ForeignKey(Files, on_delete=models.DO_NOTHING, blank=True, null=True) 
 
     class Meta:
         managed = True
@@ -827,6 +829,8 @@ class Pots(models.Model):
     def fullname(self):
         return f"{self.name} ({self.diameter}cm, {self.weight}g)"
         
+    def volume(self):
+        return pi*pow(self.diameter/2, 2)*self.height
 
 class Profiles(models.Model):
     male = models.BooleanField()
@@ -1091,8 +1095,8 @@ class ElaborationsSteps(models.Model):
         
     def string_products_in_step(self):
         r=""
-        for pi in self.products_in_step.all():
-            r= r+ pi.fullname() +", "
+        for pi_ in self.products_in_step.all():
+            r= r+ pi_.fullname() +", "
         return r[:-2]
         
     def string_temperature(self):
