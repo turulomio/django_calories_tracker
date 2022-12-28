@@ -334,6 +334,7 @@ class ElaborationsProductsInThrough(viewsets.ModelViewSet):
         if all_args_are_not_none(elaboration):        
             return self.queryset.filter(elaborations=elaboration)
         return self.queryset
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.elaborations.recipes.last=timezone.now()

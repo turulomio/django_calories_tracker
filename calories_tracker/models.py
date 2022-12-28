@@ -23,7 +23,7 @@ from django.contrib.auth.models import User # new
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from fractions import Fraction
-from humanize import precisedelta, naturalsize
+from humanize import naturalsize
 from math import pi, fmod
 from mimetypes import guess_extension
 from preview_generator.manager import PreviewManager
@@ -934,7 +934,7 @@ class Elaborations(models.Model):
         
     def final_duration(self):
         qs= self.elaborations_steps.aggregate(final_duration=models.Sum('duration'))
-        return precisedelta(qs["final_duration"], minimum_unit="seconds", format="%d")
+        return timedelta_to_string(qs["final_duration"])
         
         
     def fullname(self):
@@ -1123,27 +1123,11 @@ class ElaborationsSteps(models.Model):
             self.comment
         )
         
-    def string_duration(self):
-        s=time_to_timedelta(self.duration).total_seconds()
         
-        dias=int(s/(24*60*60))
-        segundosquedan=fmod(s,24*60*60)
-        horas=int(segundosquedan/(60*60))
-        segundosquedan=fmod(segundosquedan,60*60)
-        minutos=int(segundosquedan/60)
-        segundosquedan=fmod(segundosquedan,60)
-        segundos=int(segundosquedan)
-        r=""
-        if dias>0:
-            r=r+_("{0} days ").format(dias)
-        if horas>0:
-            r=r+_("{0} hours ").format(horas)
-        if minutos>0:
-            r=r+_("{0} minutes ").format(minutos)
-        if segundos>0:
-            r=r+_("{0} seconds ").format(segundos)
-            
-        return r[:-1]
+        
+        
+    def string_duration(self):
+        return timedelta_to_string(time_to_timedelta(self.duration))
         
     def string_comment(self):
         return "" if self.comment is None else f" {self.comment}. "
@@ -1367,3 +1351,26 @@ def get_or_None(model, id):
         return model.objects.get(pk=id)
     except:
         return None
+
+
+def timedelta_to_string(td):
+        s=td.total_seconds()
+        
+        dias=int(s/(24*60*60))
+        segundosquedan=fmod(s,24*60*60)
+        horas=int(segundosquedan/(60*60))
+        segundosquedan=fmod(segundosquedan,60*60)
+        minutos=int(segundosquedan/60)
+        segundosquedan=fmod(segundosquedan,60)
+        segundos=int(segundosquedan)
+        r=""
+        if dias>0:
+            r=r+_("{0} days ").format(dias)
+        if horas>0:
+            r=r+_("{0} hours ").format(horas)
+        if minutos>0:
+            r=r+_("{0} minutes ").format(minutos)
+        if segundos>0:
+            r=r+_("{0} seconds ").format(segundos)
+            
+        return r[:-1]

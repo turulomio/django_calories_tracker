@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-28 08:50+0000\n"
+"POT-Creation-Date: 2022-12-28 10:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -815,6 +815,7 @@ msgid "Zucchini"
 msgstr "Calabacín"
 
 #: calories_tracker/models.py:941
+#, python-brace-format
 msgid "{0} ({1} diners)"
 msgstr "{0} ({1} comensales)"
 
@@ -841,119 +842,124 @@ msgid ""
 "Comment: {7}."
 msgstr ""
 
-#: calories_tracker/models.py:1138
-#, python-brace-format
-msgid "{0} days "
-msgstr "{0} días "
-
-#: calories_tracker/models.py:1140
-#, python-brace-format
-msgid "{0} hours "
-msgstr "{0} horas "
-
-#: calories_tracker/models.py:1142
-#, python-brace-format
-msgid "{0} minutes "
-msgstr "{0} minutos "
-
-#: calories_tracker/models.py:1144
-#, python-brace-format
-msgid "{0} seconds "
-msgstr "{0} segundos"
-
-#: calories_tracker/models.py:1161
+#: calories_tracker/models.py:1145
 #, python-brace-format
 msgid " with {0}ºC"
 msgstr " a {0}ºC"
 
-#: calories_tracker/models.py:1163
+#: calories_tracker/models.py:1147
 msgid " with low heat"
 msgstr " con fuego bajo"
 
-#: calories_tracker/models.py:1165
+#: calories_tracker/models.py:1149
 msgid " with medium heat"
 msgstr " con fuego medio"
 
-#: calories_tracker/models.py:1167
+#: calories_tracker/models.py:1151
 msgid " with high heat"
 msgstr " con fuego alto"
 
-#: calories_tracker/models.py:1173
+#: calories_tracker/models.py:1157
 #, python-brace-format
 msgid " with velocity set to {0}"
 msgstr " con la velocidad puesta a {0}"
 
-#: calories_tracker/models.py:1175
+#: calories_tracker/models.py:1159
 msgid " stiring constantly"
 msgstr " removiendo constantemente"
 
-#: calories_tracker/models.py:1177
+#: calories_tracker/models.py:1161
 #, python-brace-format
 msgid " stiring every {0} minutes"
 msgstr " removiendo cada {0} minutos"
 
-#: calories_tracker/models.py:1179
+#: calories_tracker/models.py:1163
 msgid " without stir"
 msgstr " sin remover"
 
-#: calories_tracker/models.py:1182
+#: calories_tracker/models.py:1166
 msgid "Robot"
 msgstr "Robot"
 
-#: calories_tracker/models.py:1186
+#: calories_tracker/models.py:1170
 #, python-brace-format
 msgid "Set '{0}'{1}{2} during {3}.{4}"
 msgstr "Programa '{0}'{1}{2} durante {3}.{4}"
 
-#: calories_tracker/models.py:1195
+#: calories_tracker/models.py:1179
 #, python-brace-format
 msgid "Add {0} to '{1}'.{2}"
 msgstr "Añade {0} a '{1}'.{2}"
 
-#: calories_tracker/models.py:1202
+#: calories_tracker/models.py:1186
 #, python-brace-format
 msgid "Pour '{0}' into '{1}'.{2}"
 msgstr "Vuelca '{0}' en '{1}'.{2}"
 
-#: calories_tracker/models.py:1214
+#: calories_tracker/models.py:1198
+#, python-brace-format
 msgid "Mix '{0}' content during {1}.{2}"
 msgstr "Mezcla el contenido de '{0}' durante {1}.{2}"
 
-#: calories_tracker/models.py:1221
+#: calories_tracker/models.py:1205
+#, python-brace-format
 msgid "Rest '{0}' content{1} during {2}.{3}"
 msgstr "Deja reposar el contenido de '{0}'{1} durante {2}.{3}"
 
-#: calories_tracker/models.py:1228
+#: calories_tracker/models.py:1212
+#, python-brace-format
 msgid "Fry '{0}' content{1}{2} during {3}.{4}"
 msgstr "Fríe el contenido de '{0}'{1}{2} durante {3}.{4}"
 
-#: calories_tracker/models.py:1236
+#: calories_tracker/models.py:1220
 #, python-brace-format
 msgid "Add {0} to '{1}', then program it{2}{3} during {4}.{5}"
 msgstr "Añade {0} a '{1}', luego programa{2}{3} durante {4}.{5}"
 
-#: calories_tracker/models.py:1246
+#: calories_tracker/models.py:1230
+#, python-brace-format
 msgid "Bring to boil '{0}' content{1}{2}.{3}"
 msgstr "Lleva a ebullición el cotenido de '{0}'{1}{2}.{3}"
 
-#: calories_tracker/models.py:1254
+#: calories_tracker/models.py:1238
 #, python-brace-format
 msgid "Cook '{0}' content{1}{2} during {3}.{4}"
 msgstr "Cocina el contenido de '{0}'{1}{2} durante {3}.{4}"
 
-#: calories_tracker/models.py:1263
+#: calories_tracker/models.py:1247
 #, python-brace-format
 msgid "Soak {0} in '{1}'{2}{3} during {4}.{5}"
 msgstr "Pon a remojo {0} en '{1}'{2}{3} durante {4}.{5}"
 
-#: calories_tracker/models.py:1274
+#: calories_tracker/models.py:1258
+#, python-brace-format
 msgid "Put in the oven '{0}' content{1}{2} during {3}.{4}"
 msgstr "Mete en el horno el contenido de '{0}'{1}{2} durante {3}.{4}"
 
-#: calories_tracker/models.py:1284
+#: calories_tracker/models.py:1268
 #, python-brace-format
 msgid "Drain '{0}' and discard the liquid.{1}"
 msgstr "Escurre '{0}' y tira el líquido.{1}"
+
+#: calories_tracker/models.py:1368
+#, python-brace-format
+msgid "{0} days "
+msgstr "{0} días "
+
+#: calories_tracker/models.py:1370
+#, python-brace-format
+msgid "{0} hours "
+msgstr "{0} horas "
+
+#: calories_tracker/models.py:1372
+#, python-brace-format
+msgid "{0} minutes "
+msgstr "{0} minutos "
+
+#: calories_tracker/models.py:1374
+#, python-brace-format
+msgid "{0} seconds "
+msgstr "{0} segundos "
 
 #: calories_tracker/reusing/connection_pg.py:179
 msgid "Write the password for {}"
@@ -1028,7 +1034,7 @@ msgstr "Pasos de la receta"
 msgid "Shopping list"
 msgstr "Lista de compra"
 
-#: calories_tracker/unogenerator_files.py:64 calories_tracker/views.py:889
+#: calories_tracker/unogenerator_files.py:64 calories_tracker/views.py:890
 msgid "Recipes"
 msgstr "Recetas"
 
@@ -1069,112 +1075,111 @@ msgstr "Creado"
 msgid "{0} for {1} diners ({2})"
 msgstr "{0} para {1} comensales ({2})"
 
-#: calories_tracker/views.py:878
+#: calories_tracker/views.py:879
 msgid "Activities"
 msgstr "Actividades"
 
-#: calories_tracker/views.py:879
+#: calories_tracker/views.py:880
 msgid "Additive risks"
 msgstr "Riesgos del additivo"
 
-#: calories_tracker/views.py:880
+#: calories_tracker/views.py:881
 msgid "Additives"
 msgstr "Additivos"
 
-#: calories_tracker/views.py:881
+#: calories_tracker/views.py:882
 msgid "Biometrics"
 msgstr "Datos biométricos"
 
-#: calories_tracker/views.py:882
+#: calories_tracker/views.py:883
 msgid "Companies"
 msgstr "Compañías"
 
-#: calories_tracker/views.py:883 calories_tracker/views.py:890
+#: calories_tracker/views.py:884 calories_tracker/views.py:891
 msgid "System companies"
 msgstr "Compañías de sistema"
 
-#: calories_tracker/views.py:884
+#: calories_tracker/views.py:885
 msgid "Elaborated products"
 msgstr "Productos elaborados"
 
-#: calories_tracker/views.py:885
+#: calories_tracker/views.py:886
 msgid "Elaborations"
 msgstr "Elaboraciones"
 
-#: calories_tracker/views.py:886
+#: calories_tracker/views.py:887
 msgid "Food types"
 msgstr "Tipos de comida"
 
-#: calories_tracker/views.py:887
+#: calories_tracker/views.py:888
 msgid "Meals"
 msgstr "Comidas"
 
-#: calories_tracker/views.py:888
+#: calories_tracker/views.py:889
 msgid "Products"
 msgstr "Productos"
 
-#: calories_tracker/views.py:891
+#: calories_tracker/views.py:892
 msgid "System products"
 msgstr "Productos de sistema"
 
-#: calories_tracker/views.py:944
+#: calories_tracker/views.py:945
 msgid "Since when there is data in the database?"
 msgstr "¿Desde cuándo hay datos en la base de datos?"
 
-#: calories_tracker/views.py:945
+#: calories_tracker/views.py:946
 #, python-brace-format
 msgid "The first data is from {0}"
 msgstr "El primer dato es de {0}"
 
-#: calories_tracker/views.py:958
+#: calories_tracker/views.py:959
 msgid "Which is the product with highest calories in 100 g?"
 msgstr "¿Cuál es el producto con la mayor cantidad de calorias en 100 g?"
 
-#: calories_tracker/views.py:959
+#: calories_tracker/views.py:960
 #, python-brace-format
 msgid "The product with highest calories is '{0}' with {1} calories."
 msgstr "El producto con mayor calorías es '{0}' con {1} calorías."
 
-#: calories_tracker/views.py:972
+#: calories_tracker/views.py:973
 msgid "Which is the meal with highest calories I had eaten?"
 msgstr ""
 "¿Cual es la comida que he comido que tenía el mayor número de calorías?"
 
-#: calories_tracker/views.py:973
+#: calories_tracker/views.py:974
 msgid ""
 "The meal with the highest calories I ate was '{}' with '{}' calories. I ate "
 "{}g at {}."
 msgstr ""
 
-#: calories_tracker/views.py:986
+#: calories_tracker/views.py:987
 msgid "When did I take the highest calories amount in a day?"
 msgstr "¿Cuándo tome la mayor cantidad de calorías en un día?"
 
-#: calories_tracker/views.py:987
+#: calories_tracker/views.py:988
 msgid "The day I took the highest amount of calories was '{}' and I took {}."
 msgstr ""
 
-#: calories_tracker/views.py:999
+#: calories_tracker/views.py:1000
 msgid "When did I have my highest weight?"
 msgstr "¿Cuándo tuve mi peso más alto?"
 
-#: calories_tracker/views.py:1000
+#: calories_tracker/views.py:1001
 msgid "My highest weight was {} kg at {}"
 msgstr "Mi peso más alto fue de {} kg el {}"
 
-#: calories_tracker/views.py:1012
+#: calories_tracker/views.py:1013
 msgid "When did I have my lowest weight?"
 msgstr "¿Cuando tuve mi peso más bajo?"
 
-#: calories_tracker/views.py:1013
+#: calories_tracker/views.py:1014
 msgid "My lowest weight was {} kg at {}"
 msgstr "Mi peso más bajo fue de {} kg el {}"
 
-#: calories_tracker/views.py:1020
+#: calories_tracker/views.py:1021
 msgid "Which is my median weight?"
 msgstr "¿Cuál es mi peso mediano?"
 
-#: calories_tracker/views.py:1021
+#: calories_tracker/views.py:1022
 msgid "My median weight is {} kg"
 msgstr "Mi peso mediano es {} kg"
-
