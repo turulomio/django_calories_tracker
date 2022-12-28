@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
+from itertools import product
 from json import loads
 from rest_framework import viewsets, permissions,  status, mixins
 from rest_framework.decorators import api_view, permission_classes, action
@@ -343,6 +344,42 @@ class StepsViewSet(viewsets.ModelViewSet):
     queryset = models.Steps.objects.all()
     serializer_class = serializers.StepsSerializer
     permission_classes = [permissions.IsAuthenticated]
+        
+    @action(detail=True, methods=["get"],url_path='wordings', url_name='wordings')
+    def wordings(self, request, pk=None):
+        step=self.get_object()
+##   id  | duration | comment | elaborations_id | steps_id | order | container_id | container_to_id | stir_types_id | stir_values | temperatures_types_id | temperatures_values 
+##-----+----------+---------+-----------------+----------+-------+--------------+-----------------+---------------+-------------+-----------------------+---------------------
+## 848 | 00:09:00 |         |              20 |        1 |     2 |            9 |                 |             1 |           1 |                     1 |                 120
+
+        r={}
+        # Variaciones con repetiión para poder ver todos los resultados posibles
+        for can_products_in_step,  can_container,  can_container_to, can_temperatures, can_stir,  has_comment in product([True, False], repeat=6):
+            if (    (step.can_products_in_step==False and can_products_in_step==True) or
+                            (step.can_container==False and can_container==True) or
+                            (step.can_container_to==False and can_container_to==True) or
+                            (step.can_temperatures==False and can_temperatures==True) or
+                            (step.can_stir==False and can_stir==True)):
+                        pass
+            else:
+                        es=models.ElaborationsSteps.objects.get(pk=848)
+                        es.steps=step
+                                                        
+                        if has_comment:
+                            es.comment="Esto es un comentario"
+                        r[str((can_products_in_step, can_container, can_container_to, can_temperatures, can_stir, has_comment))]={#Dictionary for get unique elements
+                            "can_products_in_step":can_products_in_step, 
+                            "can_container":can_container, 
+                            "can_container_to":can_container_to, 
+                            "can_temperatures":can_temperatures, 
+                            "can_stir":can_stir, 
+                            "has_comment": has_comment, 
+                            "wording": es.wording(), 
+                        }
+        list_=[]
+        for k, v in r.items():
+            list_.append(v)
+        return json_data_response(True, list_,  "Steps actualizados")
 
 class FoodTypesViewSet(viewsets.ModelViewSet):
     queryset = models.FoodTypes.objects.all()

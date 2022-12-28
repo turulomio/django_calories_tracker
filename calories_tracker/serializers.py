@@ -678,7 +678,7 @@ class StepsSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()
     class Meta:
         model = models.Steps
-        fields = ('url', 'id', 'name', 'localname')
+        fields = ('url', 'id', 'name', 'localname', 'can_products_in_step', 'can_container', 'can_container_to', 'can_temperatures', 'can_stir')
     @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)

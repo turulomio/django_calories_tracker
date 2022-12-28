@@ -1028,17 +1028,26 @@ class StirTypes(models.Model):
 
 class Steps(models.Model):
     name=models.TextField( blank=False, null=False)
+    can_products_in_step=models.BooleanField(blank=False, null=False, default=True)
+    can_container=models.BooleanField(blank=False, null=False, default=True)
+    can_container_to=models.BooleanField(blank=False, null=False, default=False)
+    can_temperatures=models.BooleanField(blank=False, null=False, default=True)
+    can_stir=models.BooleanField(blank=False, null=False, default=True)
     class Meta:
         managed = True
         db_table = 'steps'
+    
     def __str__(self):
         return f"Step: {self.name}"
+    
     def json(self):
         return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
+        
     def is_fully_equal(self, other):
         if not self.name==other.name:
             return False
         return True
+    
     def localname(self):
         return _(self.name)
     
