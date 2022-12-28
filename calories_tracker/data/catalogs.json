@@ -1130,7 +1130,12 @@
         { "id": 330, "name": "Parsley", "amount": 100.000, "fat": 0.790, "protein": 2.970, "carbohydrate": 6.330, "calories": 36.000, "salt": null, "cholesterol": null, "sodium": 56.000, "potassium": 554.000, "fiber": 3.300, "sugars": 0.850, "saturated_fat": 0.132, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": true, "calcium": null, "system_companies": null, "food_types": 18, "obsolete": false, "version_parent": null, "version": "2022-12-07T16:59:02Z", "version_description": null, "density": null, "additives" : [], "formats": [] },
         { "id": 331, "name": "Dátiles con bacon", "amount": 100.000, "fat": 14.500, "protein": 11.200, "carbohydrate": 38.000, "calories": 338.000, "salt": 2.300, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 5.100, "sugars": 31.500, "saturated_fat": 5.200, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": true, "calcium": null, "system_companies": 83, "food_types": 4, "obsolete": false, "version_parent": null, "version": "2022-12-07T18:48:27Z", "version_description": null, "density": null, "additives" : [{ "additives": 130 },{ "additives": 137 },{ "additives": 155 }], "formats": [{ "id": 137, "formats": 50, "amount": 75.000 }] },
         { "id": 332, "name": "Broccoli", "amount": 100.000, "fat": 0.370, "protein": 2.820, "carbohydrate": 6.640, "calories": 34.000, "salt": null, "cholesterol": 0.000, "sodium": 33.000, "potassium": 316.000, "fiber": 2.600, "sugars": 2.600, "saturated_fat": 0.039, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": true, "calcium": null, "system_companies": null, "food_types": 2, "obsolete": false, "version_parent": null, "version": "2022-12-08T08:54:39Z", "version_description": null, "density": null, "additives" : [], "formats": [] },
-        { "id": 333, "name": "Curry en polvo", "amount": 100.000, "fat": 13.810, "protein": 12.660, "carbohydrate": 58.150, "calories": 325.000, "salt": null, "cholesterol": 0.000, "sodium": 52.000, "potassium": 1543.000, "fiber": 33.200, "sugars": 2.760, "saturated_fat": 2.237, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": null, "food_types": 18, "obsolete": false, "version_parent": null, "version": "2022-12-08T09:00:12Z", "version_description": null, "density": null, "additives" : [], "formats": [] }
+        { "id": 333, "name": "Curry en polvo", "amount": 100.000, "fat": 13.810, "protein": 12.660, "carbohydrate": 58.150, "calories": 325.000, "salt": null, "cholesterol": 0.000, "sodium": 52.000, "potassium": 1543.000, "fiber": 33.200, "sugars": 2.760, "saturated_fat": 2.237, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": null, "food_types": 18, "obsolete": false, "version_parent": null, "version": "2022-12-08T09:00:12Z", "version_description": null, "density": null, "additives" : [], "formats": [] },
+        { "id": 334, "name": "Spinach", "amount": 100.000, "fat": 0.300, "protein": 2.630, "carbohydrate": 0.610, "calories": 20.740, "salt": null, "cholesterol": null, "sodium": 69.000, "potassium": 554.000, "fiber": 2.580, "sugars": 0.000, "saturated_fat": 0.000, "ferrum": 2.700, "magnesium": 0.000, "phosphor": 46.000, "glutenfree": true, "calcium": 117.000, "system_companies": null, "food_types": 2, "obsolete": false, "version_parent": null, "version": "2022-12-12T13:10:11Z", "version_description": null, "density": null, "additives" : [], "formats": [] },
+        { "id": 335, "name": "Celery", "amount": 100.000, "fat": 0.170, "protein": 0.690, "carbohydrate": 2.970, "calories": 14.000, "salt": null, "cholesterol": 0.000, "sodium": 80.000, "potassium": 260.000, "fiber": 1.600, "sugars": 1.830, "saturated_fat": 0.043, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": true, "calcium": null, "system_companies": null, "food_types": 2, "obsolete": false, "version_parent": null, "version": "2022-12-20T03:59:17Z", "version_description": null, "density": null, "additives" : [], "formats": [] },
+        { "id": 336, "name": "Morcillo de ternera", "amount": 100.000, "fat": 3.480, "protein": 19.150, "carbohydrate": 0.000, "calories": 113.000, "salt": 0.000, "cholesterol": 75.000, "sodium": 84.000, "potassium": 314.000, "fiber": 0.000, "sugars": 0.000, "saturated_fat": 1.060, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": true, "calcium": null, "system_companies": null, "food_types": 4, "obsolete": false, "version_parent": null, "version": "2022-12-20T04:02:46Z", "version_description": null, "density": null, "additives" : [], "formats": [] },
+        { "id": 337, "name": "Cebolla frita", "amount": 100.000, "fat": 44.000, "protein": 6.000, "carbohydrate": 40.000, "calories": 580.000, "salt": 1.000, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 4.500, "sugars": 15.000, "saturated_fat": 20.000, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": 1, "food_types": 14, "obsolete": false, "version_parent": null, "version": "2022-12-20T10:48:05Z", "version_description": null, "density": null, "additives" : [], "formats": [] },
+        { "id": 338, "name": "Ciruelas desecadas sin hueso", "amount": 100.000, "fat": 0.700, "protein": 2.300, "carbohydrate": 50.000, "calories": 230.000, "salt": 0.000, "cholesterol": null, "sodium": null, "potassium": null, "fiber": 7.300, "sugars": 15.000, "saturated_fat": 0.200, "ferrum": null, "magnesium": null, "phosphor": null, "glutenfree": false, "calcium": null, "system_companies": 1, "food_types": 1, "obsolete": false, "version_parent": null, "version": "2022-12-20T11:29:46Z", "version_description": null, "density": null, "additives" : [{ "additives": 94 }], "formats": [] }
     ],
     "stir_types": [
         { "id": 1, "name": "Robot velocity" },
@@ -1162,24 +1167,23 @@
         { "id": 5, "name": "Cup" }
     ],
     "steps": [
-        { "id": 1, "name": "Robot. Set program" },
-        { "id": 2, "name": "Robot. Add ingredients" },
-        { "id": 3, "name": "Robot. Add ingredients and set program counter-clockwise" },
-        { "id": 4, "name": "Peel and cut into wedges and add to a container" },
-        { "id": 5, "name": "Peel and cut into little pieces and add to a container" },
-        { "id": 6, "name": "Add ingredients to a container" },
-        { "id": 7, "name": "Pour contents to another container" },
-        { "id": 8, "name": "Free text" },
-        { "id": 9, "name": "Cut into little pieces and add to a container" },
-        { "id": 10, "name": "Mix" },
-        { "id": 11, "name": "Rest" },
-        { "id": 12, "name": "Fry" },
-        { "id": 13, "name": "Robot. Add ingredients and set program" },
-        { "id": 14, "name": "Bring to a boil" },
-        { "id": 15, "name": "Cook" },
-        { "id": 16, "name": "Soak" },
-        { "id": 17, "name": "Put in the oven" },
-        { "id": 18, "name": "Drain and discard the liquid" }
+        { "id": 1, "name": "Robot. Set program", "can_products_in_step": false, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": true, "can_stir": true, "man_stir": true,  },
+        { "id": 2, "name": "Robot. Add ingredients", "can_products_in_step": true, "man_products_in_step": true, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": false, "man_temperatures": false, "can_stir": false, "man_stir": false,  },
+        { "id": 4, "name": "OBSOLETE Peel and cut into wedges and add to a container", "can_products_in_step": true, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": false, "can_stir": true, "man_stir": false,  },
+        { "id": 5, "name": "OBSOLETE Peel and cut into little pieces and add to a container", "can_products_in_step": true, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": false, "can_stir": true, "man_stir": false,  },
+        { "id": 6, "name": "Add ingredients to a container", "can_products_in_step": true, "man_products_in_step": true, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": false, "man_temperatures": false, "can_stir": false, "man_stir": false,  },
+        { "id": 7, "name": "Pour contents to another container", "can_products_in_step": false, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": true, "man_container_to": true, "can_temperatures": false, "man_temperatures": false, "can_stir": false, "man_stir": false,  },
+        { "id": 8, "name": "Free text", "can_products_in_step": false, "man_products_in_step": false, "can_container": false, "man_container": false, "can_container_to": false, "man_container_to": false, "can_temperatures": false, "man_temperatures": false, "can_stir": false, "man_stir": false,  },
+        { "id": 9, "name": "OBSOLETE Cut into little pieces and add to a container", "can_products_in_step": true, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": false, "can_stir": true, "man_stir": false,  },
+        { "id": 10, "name": "Mix", "can_products_in_step": false, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": false, "man_temperatures": false, "can_stir": false, "man_stir": false,  },
+        { "id": 11, "name": "Rest", "can_products_in_step": false, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": false, "can_stir": false, "man_stir": false,  },
+        { "id": 12, "name": "Fry", "can_products_in_step": false, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": true, "can_stir": true, "man_stir": false,  },
+        { "id": 13, "name": "Robot. Add ingredients and set program", "can_products_in_step": true, "man_products_in_step": true, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": true, "can_stir": true, "man_stir": true,  },
+        { "id": 14, "name": "Bring to a boil", "can_products_in_step": false, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": true, "can_stir": true, "man_stir": false,  },
+        { "id": 15, "name": "Cook", "can_products_in_step": false, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": true, "can_stir": true, "man_stir": false,  },
+        { "id": 16, "name": "Soak", "can_products_in_step": true, "man_products_in_step": true, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": false, "can_stir": true, "man_stir": false,  },
+        { "id": 17, "name": "Put in the oven", "can_products_in_step": false, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": true, "man_temperatures": true, "can_stir": true, "man_stir": false,  },
+        { "id": 18, "name": "Drain and discard the liquid", "can_products_in_step": false, "man_products_in_step": false, "can_container": true, "man_container": true, "can_container_to": false, "man_container_to": false, "can_temperatures": false, "man_temperatures": false, "can_stir": false, "man_stir": false,  }
     ],
     "recipes_categories": [
         { "id": 1, "name": "Rice" },
@@ -1197,6 +1201,12 @@
         { "id": 13, "name": "Pig" },
         { "id": 14, "name": "Soups and creams" },
         { "id": 15, "name": "Eggs" },
-        { "id": 16, "name": "Mushrooms" }
+        { "id": 16, "name": "Mushrooms" },
+        { "id": 18, "name": "Appetizer" },
+        { "id": 19, "name": "Sweet cake" },
+        { "id": 20, "name": "Salty cake" },
+        { "id": 21, "name": "Icecream" },
+        { "id": 22, "name": "Fish" },
+        { "id": 23, "name": "Cookies" }
     ]
 }

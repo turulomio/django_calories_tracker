@@ -24,7 +24,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from fractions import Fraction
 from humanize import precisedelta, naturalsize
-from math import pi
+from math import pi, fmod
 from mimetypes import guess_extension
 from preview_generator.manager import PreviewManager
 from simple_history.models import HistoricalRecords
@@ -1029,10 +1029,15 @@ class StirTypes(models.Model):
 class Steps(models.Model):
     name=models.TextField( blank=False, null=False)
     can_products_in_step=models.BooleanField(blank=False, null=False, default=True)
+    man_products_in_step=models.BooleanField(blank=False, null=False, default=False)#mandatory
     can_container=models.BooleanField(blank=False, null=False, default=True)
+    man_container=models.BooleanField(blank=False, null=False, default=True)#mandatory
     can_container_to=models.BooleanField(blank=False, null=False, default=False)
+    man_container_to=models.BooleanField(blank=False, null=False, default=False)#mandatory
     can_temperatures=models.BooleanField(blank=False, null=False, default=True)
+    man_temperatures=models.BooleanField(blank=False, null=False, default=False)#mandatory
     can_stir=models.BooleanField(blank=False, null=False, default=True)
+    man_stir=models.BooleanField(blank=False, null=False, default=False)#mandatory
     class Meta:
         managed = True
         db_table = 'steps'
@@ -1041,10 +1046,30 @@ class Steps(models.Model):
         return f"Step: {self.name}"
     
     def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "can_products_in_step": {jss(self.can_products_in_step)}, "man_products_in_step": {jss(self.man_products_in_step)}, "can_container": {jss(self.can_container)}, "man_container": {jss(self.man_container)}, "can_container_to": {jss(self.can_container_to)}, "man_container_to": {jss(self.man_container_to)}, "can_temperatures": {jss(self.can_temperatures)}, "man_temperatures": {jss(self.man_temperatures)}, "can_stir": {jss(self.can_stir)}, "man_stir": {jss(self.man_stir)},  }}"""
         
     def is_fully_equal(self, other):
         if not self.name==other.name:
+            return False
+        if not self.can_products_in_step==other.can_products_in_step:
+            return False
+        if not self.man_products_in_step==other.man_products_in_step:
+            return False
+        if not self.can_container==other.can_container:
+            return False
+        if not self.man_container==other.man_container:
+            return False
+        if not self.can_container_to==other.can_container_to:
+            return False
+        if not self.man_container_to==other.man_container_to:
+            return False
+        if not self.can_temperatures==other.can_temperatures:
+            return False
+        if not self.man_temperatures==other.man_temperatures:
+            return False
+        if not self.can_stir==other.can_stir:
+            return False
+        if not self.man_stir==other.man_stir:
             return False
         return True
     
@@ -1099,7 +1124,26 @@ class ElaborationsSteps(models.Model):
         )
         
     def string_duration(self):
-        return precisedelta(time_to_timedelta(self.duration), minimum_unit="seconds", format="%d")
+        s=time_to_timedelta(self.duration).total_seconds()
+        
+        dias=int(s/(24*60*60))
+        segundosquedan=fmod(s,24*60*60)
+        horas=int(segundosquedan/(60*60))
+        segundosquedan=fmod(segundosquedan,60*60)
+        minutos=int(segundosquedan/60)
+        segundosquedan=fmod(segundosquedan,60)
+        segundos=int(segundosquedan)
+        r=""
+        if dias>0:
+            r=r+_("{0} days ").format(dias)
+        if horas>0:
+            r=r+_("{0} hours ").format(horas)
+        if minutos>0:
+            r=r+_("{0} minutes ").format(minutos)
+        if segundos>0:
+            r=r+_("{0} seconds ").format(segundos)
+            
+        return r[:-1]
         
     def string_comment(self):
         return "" if self.comment is None else f" {self.comment}. "
@@ -1153,14 +1197,41 @@ class ElaborationsSteps(models.Model):
                 self.container, 
                 self.string_comment(), 
             )
+            
         elif self.steps.id==7:#Pour contents to another container",
             return _("Pour '{0}' into '{1}'.{2}").format(
                 self.container, 
                 self.container_to, 
                 self.string_comment(), 
             )
+            
         elif self.steps.id==8:#Free text
+            if self.comment is None:
+                return ""
             return self.comment +"."
+
+        elif self.steps.id==10: # Mix
+            return _("Mix '{0}' content during {1}.{2}").format(
+                self.container,
+                self.string_duration(), 
+                self.string_comment(), 
+            )
+
+        elif self.steps.id==11: # Rest
+            return _("Rest '{0}' content{1} during {2}.{3}").format(
+                self.container,
+                self.string_temperature(),
+                self.string_duration(), 
+                self.string_comment(), 
+            )
+        elif self.steps.id==12: # Fry
+            return _("Fry '{0}' content{1}{2} during {3}.{4}").format(
+                self.container,
+                self.string_temperature(), 
+                self.string_stir(), 
+                self.string_duration(), 
+                self.string_comment(), 
+            )
         elif self.steps.id==13: #Robot. Add ingredients and set program",        
             return _("Add {0} to '{1}', then program it{2}{3} during {4}.{5}").format(
                 self.string_products_in_step(), 
@@ -1172,7 +1243,7 @@ class ElaborationsSteps(models.Model):
             )
             
         elif self.steps.id==14: #Bring to a boil  
-            return _("Bring to boil '{0}' content {1}{2}.{3}").format(
+            return _("Bring to boil '{0}' content{1}{2}.{3}").format(
                 self.container, 
                 self.string_temperature(), 
                 self.string_stir(), 
@@ -1188,12 +1259,6 @@ class ElaborationsSteps(models.Model):
                 self.string_comment(), 
             )
 
-#    {
-#        "url": "http://localhost:8011/api/steps/16/",
-#        "id": 16,
-#        "name": "Soak",
-#        "localname": "Poner a remojo"
-#    },            
         elif self.steps.id==16: #Soak
             return _("Soak {0} in '{1}'{2}{3} during {4}.{5}").format(
                 self.string_products_in_step(), 
@@ -1203,14 +1268,18 @@ class ElaborationsSteps(models.Model):
                 self.string_duration(), 
                 self.string_comment(), 
             )
-            #    {
-#        "url": "http://localhost:8011/api/steps/18/",
-#        "id": 18,
-#        "name": "Drain and discard the liquid",
-#        "localname": "Escurre y tira el líquido"
-#    }
-#]
             
+
+        elif self.steps.id==17: # Put in the oven
+            return _("Put in the oven '{0}' content{1}{2} during {3}.{4}").format(
+                self.container, 
+                self.string_temperature(), 
+                self.string_stir(), 
+                self.string_duration(), 
+                self.string_comment(), 
+            )
+
+
         elif self.steps.id==18: #Drain and discard the liquid",
             return _("Drain '{0}' and discard the liquid.{1}").format(
                 self.container, 
@@ -1221,56 +1290,8 @@ class ElaborationsSteps(models.Model):
         else:
             return f"{self.__str__()}"
 
-#        "url": "http://localhost:8011/api/steps/3/",
-#        "id": 3,
-#        "name": "Robot. Add ingredients and set program counter-clockwise",
-#        "localname": "Robot. Añade ingredientes y programa giro inverso"
-#    },
-#    {
-#        "url": "http://localhost:8011/api/steps/4/",
-#        "id": 4,
-#        "name": "Peel and cut into wedges and add to a container",
-#        "localname": "Peel and cut into wedges and add to a container"
-#    },
-#    {
-#        "url": "http://localhost:8011/api/steps/5/",
-#        "id": 5,
-#        "name": "Peel and cut into little pieces and add to a container",
-#        "localname": "Peel and cut into little pieces and add to a container"
-#    },
-
-#    {
-#        "url": "http://localhost:8011/api/steps/9/",
-#        "id": 9,
-#        "name": "Cut into little pieces and add to a container",
-#        "localname": "Corta en pequeños trozos y añade a un recipiente"
-#    },
-#    {
-#        "url": "http://localhost:8011/api/steps/10/",
-#        "id": 10,
-#        "name": "Mix",
-#        "localname": "Remueve"
-#    },
-#    {
-#        "url": "http://localhost:8011/api/steps/11/",
-#        "id": 11,
-#        "name": "Rest",
-#        "localname": "Deja reposar"
-#    },
-#    {
-#        "url": "http://localhost:8011/api/steps/12/",
-#        "id": 12,
-#        "name": "Fry",
-#        "localname": "Fríe"
-#    },
 
 
-#    {
-#        "url": "http://localhost:8011/api/steps/17/",
-#        "id": 17,
-#        "name": "Put in the oven",
-#        "localname": "Mete al horno"
-#    },
 
 
 class ElaborationsExperiences(models.Model):

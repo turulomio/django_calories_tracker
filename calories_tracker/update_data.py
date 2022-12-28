@@ -364,6 +364,16 @@ def process_steps(r,data):
     for d in data["steps"]:
         o=models.Steps()
         o.pk=d["id"]
+        o.can_products_in_step=bool(d["can_products_in_step"])
+        o.man_products_in_step=bool(d["man_products_in_step"])
+        o.can_container=bool(d["can_container"])
+        o.man_container=bool(d["man_container"])
+        o.can_container_to=bool(d["can_container_to"])
+        o.man_container_to=bool(d["man_container_to"])
+        o.can_temperatures=bool(d["can_temperatures"])
+        o.man_temperatures=bool(d["man_temperatures"])
+        o.can_stir=bool(d["can_stir"])
+        o.man_stir=bool(d["man_stir"])
         o.name=checks_and_sets_value(d, "name")
         try:
             before=models.Steps.objects.get(pk=d["id"])#Crash if not found

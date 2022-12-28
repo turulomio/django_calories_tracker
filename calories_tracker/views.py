@@ -356,17 +356,32 @@ class StepsViewSet(viewsets.ModelViewSet):
         # Variaciones con repetiión para poder ver todos los resultados posibles
         for can_products_in_step,  can_container,  can_container_to, can_temperatures, can_stir,  has_comment in product([True, False], repeat=6):
             if (    (step.can_products_in_step==False and can_products_in_step==True) or
-                            (step.can_container==False and can_container==True) or
-                            (step.can_container_to==False and can_container_to==True) or
-                            (step.can_temperatures==False and can_temperatures==True) or
-                            (step.can_stir==False and can_stir==True)):
+                    (step.can_container==False and can_container==True) or
+                    (step.can_container_to==False and can_container_to==True) or
+                    (step.can_temperatures==False and can_temperatures==True) or
+                    (step.can_stir==False and can_stir==True) or 
+                    #Mandatory
+                    (step.man_products_in_step==True and can_products_in_step==False) or
+                    (step.man_container==True and can_container==False) or
+                    (step.man_container_to==True and can_container_to==False) or
+                    (step.man_temperatures==True and can_temperatures==False) or
+                    (step.man_stir==True and can_stir==False)
+                            
+                ):
                         pass
             else:
-                        es=models.ElaborationsSteps.objects.get(pk=848)
+                        es=models.ElaborationsSteps.objects.get(pk=838)
                         es.steps=step
+                        es.container_to=es.container
+                        es.temperatures_types=models.TemperaturesTypes.objects.get(pk=2)
+                        es.temperatures_values=-2
                                                         
                         if has_comment:
                             es.comment="Esto es un comentario"
+                        if can_stir is False:
+                            es.stir_types=None
+                        if can_temperatures is False:
+                            es.temperatures_types=None
                         r[str((can_products_in_step, can_container, can_container_to, can_temperatures, can_stir, has_comment))]={#Dictionary for get unique elements
                             "can_products_in_step":can_products_in_step, 
                             "can_container":can_container, 
@@ -379,6 +394,7 @@ class StepsViewSet(viewsets.ModelViewSet):
         list_=[]
         for k, v in r.items():
             list_.append(v)
+        show_queries_function()
         return json_data_response(True, list_,  "Steps actualizados")
 
 class FoodTypesViewSet(viewsets.ModelViewSet):
