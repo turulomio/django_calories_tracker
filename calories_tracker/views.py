@@ -395,7 +395,6 @@ class StepsViewSet(viewsets.ModelViewSet):
         list_=[]
         for k, v in r.items():
             list_.append(v)
-        show_queries_function()
         return json_data_response(True, list_,  "Steps actualizados")
 
 class FoodTypesViewSet(viewsets.ModelViewSet):
@@ -558,17 +557,12 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return self.queryset
         return self.queryset.filter(user=self.request.user)
     
-    @ptimeit
-    @show_queries
     def list(self, request):
         return viewsets.ModelViewSet.list(self, request)
-    @ptimeit
-    @show_queries
+
     def retrieve(self, request, *args, **kwargs):
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
-    @ptimeit
-    @show_queries
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         models.RecipesLinks.objects.filter(recipes=instance).delete()
@@ -578,7 +572,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class RecipesFullViewSet(mixins.CreateModelMixin, 
+class RecipesFullViewSet(#mixins.CreateModelMixin, 
                    mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):## I leave only retrieve, not list
 
@@ -588,10 +582,7 @@ class RecipesFullViewSet(mixins.CreateModelMixin,
     serializer_class = serializers.RecipesFullSerializer
     permission_classes = [permissions.IsAuthenticated]      
     http_method_names=['get']
-        
-    
-    @ptimeit
-    @show_queries
+
     def retrieve(self, request, *args, **kwargs):
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
@@ -606,9 +597,6 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RecipesLinksSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    
-    @ptimeit
-    @show_queries
     def create(self, validated_data):
         return viewsets.ModelViewSet.create(self, validated_data) 
 
@@ -864,7 +852,6 @@ def Settings(request):
 
 @api_view(['POST', ])
 @permission_classes([permissions.IsAuthenticated, ])
-@show_queries
 def ShoppingList(request):
     elaborations=RequestListUrl(request, "elaborations", models.Elaborations, [])
     from calories_tracker.unogenerator_files import response_report_shopping_list

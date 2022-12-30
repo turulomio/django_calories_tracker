@@ -934,7 +934,7 @@ class Elaborations(models.Model):
         
     def final_duration(self):
         qs= self.elaborations_steps.aggregate(final_duration=models.Sum('duration'))
-        return timedelta_to_string(qs["final_duration"])
+        return timedelta_to_string(qs["final_duration"]) if qs["final_duration"] else _("Elaboration time wasn't defined")
         
         
     def fullname(self):
