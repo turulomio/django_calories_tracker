@@ -50,7 +50,7 @@ class LoginTestCase(APITestCase):
         self.client_other.credentials(HTTP_AUTHORIZATION='Token ' + self.token_user_other)
         
         
-    def test_cross_user_data(self):
+    def test_cross_user_models_security(self):
         test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/biometrics/", {
             "datetime": timezone.now(), 
             "weight": 71, 
@@ -115,4 +115,43 @@ class LoginTestCase(APITestCase):
         file.save()
         
         test_cross_user_data(self, self.client_testing, self.client_other, hlu("files", file.id))
-        print_list(self.client_testing, "/api/steps/")
+        
+        #Creates a product from a system product to test meals models
+        r=self.client_testing.post("/api/system_products/49/create_product/")
+        product=loads(r.content)
+                
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/meals/", {
+            "datetime": timezone.now(), 
+            "products": hlu("products", product["data"]), 
+            "amount": 1, 
+        })
+                
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/pots/", {
+            "name": "My Pot", 
+            "diameter": 1, 
+            "weight": 1, 
+            "height": 1, 
+        })
+        
+        #Test product i don't need to create
+        test_cross_user_data(self, self.client_testing, self.client_other, hlu("products", product["data"]))
+        #Test recipes_full i don't need to create, 
+        test_cross_user_data(self, self.client_testing, self.client_other, hlu("recipes_full", recipe["id"]))
+        
+        
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/recipes_links/", {
+            "description": "My recipe link", 
+            "type":hlu("recipeslinkstypes", 1) , 
+            "recipes": hlu("recipes", recipe["id"]), 
+            "content": None, 
+        })
+                
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborationsproductsinthrough/", {
+            "products": hlu("products", product["data"]), 
+            "amount": 1, 
+            "measures_types": hlu("measurestypes", 1), 
+            "elaborations": hlu("elaborations", elaboration["id"]),
+        })
+        
+        
+        

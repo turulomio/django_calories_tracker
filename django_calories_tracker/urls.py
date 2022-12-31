@@ -57,7 +57,6 @@ urlpatterns = [
     path('shopping_list/', calories_tracker_views.ShoppingList, name='ShoppingList'),
     path('statistics/', calories_tracker_views.Statistics, name='Statistics'),
     path('products_to_system_products/', calories_tracker_views.Product2SystemProduct, name='Product2SystemProduct'),
-    path('system_products_to_products/', calories_tracker_views.SystemProduct2Product, name='SystemProduct2Product'),
     path('system_companies_to_companies/', calories_tracker_views.SystemCompany2Company, name='SystemCompany2Company'),
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

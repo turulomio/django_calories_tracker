@@ -332,8 +332,8 @@ class ElaborationsProductsInThrough(viewsets.ModelViewSet):
     def get_queryset(self):
         elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
         if all_args_are_not_none(elaboration):        
-            return self.queryset.filter(elaborations=elaboration)
-        return self.queryset
+            return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
+        return self.queryset.filter(elaborations__recipes__user=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -424,7 +424,7 @@ class MealsViewSet(viewsets.ModelViewSet):
         day=RequestGetDate(self.request, 'day') 
         if all_args_are_not_none(day):
             return models.Meals.objects.filter(user=self.request.user, datetime__date=day).order_by("datetime")
-        return self.queryset
+        return self.queryset.filter(user=self.request.user)
 
     ## delete_several. meals as an array
     @extend_schema(
@@ -457,6 +457,8 @@ class PotsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.PotsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
     
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
@@ -587,6 +589,9 @@ class RecipesFullViewSet(#mixins.CreateModelMixin,
     permission_classes = [permissions.IsAuthenticated]      
     http_method_names=['get']
 
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+        
     def retrieve(self, request, *args, **kwargs):
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
@@ -607,8 +612,8 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         recipes=RequestGetUrl(self.request, "recipes", models.Recipes)
         if all_args_are_not_none(recipes):
-            return self.queryset.filter(recipes=recipes)
-        return self.queryset
+            return self.queryset.filter(recipes=recipes, recipes__user=self.request.user)
+        return self.queryset.filter(recipes__user=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -677,20 +682,13 @@ class SystemProductsViewSet(viewsets.ModelViewSet):
                     ids.append(p.id)
             return self.queryset.filter(id__in=ids).order_by("name")
         return self.queryset
+
+    @action(detail=True, methods=['POST'], name='Create a product from a system product', url_path="create_product", url_name='create_product', permission_classes=[permissions.IsAuthenticated])
+    def create_product(self, request, pk=None):
+        system_product = self.get_object()
+        product=system_product.update_linked_product(request.user)
+        return json_data_response( True, product.id, "Product created")
     
-
-@api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated, ])
-
-## Links a systemproduct to a product. No todos los system products están por eso se linka
-def SystemProduct2Product(request):
-    system_products=RequestUrl(request, "system_products", models.SystemProducts)
-    if all_args_are_not_none(system_products):
-        system_products.update_linked_product(request.user)
-        return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
-    return JsonResponse( False, encoder=MyDjangoJSONEncoder,     safe=False)
-    
-
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated, GroupCatalogManager ])

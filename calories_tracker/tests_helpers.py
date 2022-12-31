@@ -26,6 +26,8 @@ def test_cross_user_data_with_post(apitestclass, client1,  client2,  post_url, d
         
         Returns the content of the post
         
+        Serializers must have id field
+        
         example:
         test_cross_user_data_with_post(self, client1, client2, "/api/biometrics/", { "datetime": timezone.now(), "weight": 71, "height": 180, "activities": hlu("activities", 0), "weight_wishes": hlu("weightwishes", 0)})
     """
