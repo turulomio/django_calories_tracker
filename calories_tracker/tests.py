@@ -1,4 +1,5 @@
-from calories_tracker.tests_helpers import hlu, call_command_sqlsequencerreset, test_cross_user_data, print_list
+from calories_tracker import models
+from calories_tracker.tests_helpers import hlu, call_command_sqlsequencerreset, test_cross_user_data, test_cross_user_data_with_post, print_list
 from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.utils import timezone
@@ -15,31 +16,31 @@ class LoginTestCase(APITestCase):
         call_command_sqlsequencerreset("calories_tracker")
         
         # User to test api
-        user_testing = User(
+        self.user_testing = User(
             email='testing@testing.com',
             first_name='Testing',
             last_name='Testing',
             username='testing',
         )
-        user_testing.set_password('testing123')
-        user_testing.save()
+        self.user_testing.set_password('testing123')
+        self.user_testing.save()
         
         # User to confront security
-        user_other = User(
+        self.user_other = User(
             email='other@other.com',
             first_name='Other',
             last_name='Other',
             username='other',
         )
-        user_other.set_password('other123')
-        user_other.save()
+        self.user_other.set_password('other123')
+        self.user_other.save()
         
         client = APIClient()
-        response = client.post('/login/', {'username': user_testing.username, 'password': 'testing123',},format='json')
+        response = client.post('/login/', {'username': self.user_testing.username, 'password': 'testing123',},format='json')
         result = loads(response.content)
         self.token_user_testing = result
         
-        response = client.post('/login/', {'username': user_other.username, 'password': 'other123',},format='json')
+        response = client.post('/login/', {'username': self.user_other.username, 'password': 'other123',},format='json')
         result = loads(response.content)
         self.token_user_other = result
         
@@ -50,22 +51,68 @@ class LoginTestCase(APITestCase):
         
         
     def test_cross_user_data(self):
-        test_cross_user_data(self, self.client_testing, self.client_other, "/api/biometrics/", {
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/biometrics/", {
             "datetime": timezone.now(), 
             "weight": 71, 
             "height": 180, 
             "activities": hlu("activities", 0), 
             "weight_wishes": hlu("weightwishes", 0)
         })
-        test_cross_user_data(self, self.client_testing, self.client_other, "/api/companies/", {
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/companies/", {
             "name": "My company", 
             "obsolete":False, 
         })
-        test_cross_user_data(self, self.client_testing, self.client_other, "/api/elaborated_products/", {
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborated_products/", {
             "name": "My elaborated product", 
             "final_amount":1111, 
             "food_types": hlu("foodtypes", 1), 
             "obsolete": False, 
             "products_in": []
         })
-        print_list(self.client_testing, "/api/companies/")
+        recipe=test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/recipes/", {
+            "name": "My recipe", 
+            "final_amount":1111, 
+            "food_types": hlu("foodtypes", 1), 
+            "obsolete": False, 
+            "comment": None,
+            "valoration": 99,
+            "guests": True, 
+            "soon": True, 
+        })
+        
+        elaboration=test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborations/", {
+            "diners": 4, 
+            "final_amount":1111, 
+            "recipes": hlu("recipes", recipe["id"]),
+        })
+
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborations_containers/", {
+            "name": "My elaboration container", 
+            "elaborations": hlu("elaborations", elaboration["id"]),
+        })
+        
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborations_experiences/", {
+            "datetime": timezone.now(), 
+            "experience": "My elaboration experience", 
+            "elaborations": hlu("elaborations", elaboration["id"]),
+        })
+        
+        
+        test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborations_steps/", {
+            "duration": "00:01:00", 
+            "order": 1, 
+            "elaborations": hlu("elaborations", elaboration["id"]),
+            "steps": hlu("steps", 2),
+        })
+        
+        #Files only has get method. Post are mode from recipes_links, pots ....
+        # I do this test manually
+        file=models.Files()
+        file.mime="image/png"
+        file.content=b"MY FILE CONTENT"
+        file.size=len(file.content)
+        file.user=self.user_testing
+        file.save()
+        
+        test_cross_user_data(self, self.client_testing, self.client_other, hlu("files", file.id))
+        print_list(self.client_testing, "/api/steps/")

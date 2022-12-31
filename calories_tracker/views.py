@@ -134,8 +134,8 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         recipes=RequestGetUrl(self.request, "recipes", models.Recipes)
         if all_args_are_not_none(recipes):
-            return self.queryset.filter(recipes=recipes)
-        return self.queryset
+            return self.queryset.filter(recipes=recipes, recipes__user=self.request.user)
+        return self.queryset.filter(recipes__user=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -296,22 +296,22 @@ class ElaborationsContainersViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ElaborationsContainersSerializer
     permission_classes = [permissions.IsAuthenticated]
     
-        
     def get_queryset(self):
         elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
         if all_args_are_not_none(elaboration):        
-            return self.queryset.filter(elaborations=elaboration)
-        return self.queryset
+            return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
+        return self.queryset.filter(elaborations__recipes__user=self.request.user)
 
 class ElaborationsExperiencesViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsExperiences.objects.all()
     serializer_class = serializers.ElaborationsExperiencesSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
         if all_args_are_not_none(elaboration):        
-            return self.queryset.filter(elaborations=elaboration)
-        return self.queryset
+            return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
+        return self.queryset.filter(elaborations__recipes__user=self.request.user)
 
 class ElaborationsStepsViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsSteps.objects.all().order_by("order")
@@ -321,8 +321,8 @@ class ElaborationsStepsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
         if all_args_are_not_none(elaboration):        
-            return self.queryset.filter(elaborations=elaboration).order_by("order")
-        return self.queryset.order_by("order")
+            return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user).order_by("order")
+        return self.queryset.filter(elaborations__recipes__user=self.request.user).order_by("order")
 
 class ElaborationsProductsInThrough(viewsets.ModelViewSet):
     queryset = models.ElaborationsProductsInThrough.objects.all()
@@ -505,11 +505,15 @@ class ProductsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.Products.objects.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
 
-class FilesViewSet(viewsets.ModelViewSet):
+class FilesViewSet(mixins.RetrieveModelMixin,
+                   viewsets.GenericViewSet):
     queryset = models.Files.objects.all()
     serializer_class = serializers.FilesSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
     @action(detail=True, methods=["get"],url_path='thumbnail', url_name='thumbnail')
     def thumbnail(self, request, pk=None):
         qs_files=models.Files.objects.filter(user=request.user, pk=pk).only("thumbnail")

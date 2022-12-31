@@ -20,16 +20,19 @@ def call_command_sqlsequencerreset(appname):
     with connection.cursor() as cursor:
         cursor.execute(sql)
 
-def test_cross_user_data(apitestclass, client1,  client2,  post_url, dict_to_post):
+def test_cross_user_data_with_post(apitestclass, client1,  client2,  post_url, dict_to_post):
     """
         Test to check if a recent post by client 1 is accessed by client2
         
+        Returns the content of the post
+        
         example:
-        test_cross_user_data(self, client1, client2, "/api/biometrics/", { "datetime": timezone.now(), "weight": 71, "height": 180, "activities": hlu("activities", 0), "weight_wishes": hlu("weightwishes", 0)})
+        test_cross_user_data_with_post(self, client1, client2, "/api/biometrics/", { "datetime": timezone.now(), "weight": 71, "height": 180, "activities": hlu("activities", 0), "weight_wishes": hlu("weightwishes", 0)})
     """
     
     r=client1.post(post_url, dict_to_post, format="json")    
     apitestclass.assertEqual(r.status_code, status.HTTP_201_CREATED, f"{post_url}, {r.content}")
+    return_=r.content
     testing_id=loads(r.content)["id"]
     
     #other tries to access url
@@ -38,7 +41,28 @@ def test_cross_user_data(apitestclass, client1,  client2,  post_url, dict_to_pos
     
     #other tries to access url
     r=client2.get(f"{post_url}{testing_id}/")
-    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{post_url}, {r.content}")
+    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{post_url}, {r.content}. WARNING: Client2 can access Client1 post")
+    
+    return loads(return_)
+    
+    
+
+def test_cross_user_data(apitestclass, client1,  client2,  url):
+    """
+        Test to check if a hyperlinked model url can be accesed by client_belongs and not by client_other
+        
+        example:
+        test_cross_user_data(self, client1, client2, "/api/biometrics/2/"})
+    """
+   
+    #other tries to access url
+    r=client1.get(url)
+    apitestclass.assertEqual(r.status_code, status.HTTP_200_OK,  url)
+    
+    #other tries to access url
+    r=client2.get(url)
+    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{url}. WARNING: Client2 can access Client1 post")
+    
 #    
 #def lod_to_headers_and_data(lod):
 #    if len(lod)==0:
