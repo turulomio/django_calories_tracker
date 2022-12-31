@@ -59,10 +59,13 @@ class LoginTestCase(APITestCase):
         })
         test_cross_user_data(self, self.client_testing, self.client_other, "/api/companies/", {
             "name": "My company", 
+            "obsolete":False, 
         })
-#        test_cross_user_data(self, self.client_testing, self.client_other, "/api/elaborated_products/", {
-#            "name": "My elaborated product", 
-#            "final_amount":1000, 
-#            "food_types": hlu("foodtypes", 1), 
-#        })
+        test_cross_user_data(self, self.client_testing, self.client_other, "/api/elaborated_products/", {
+            "name": "My elaborated product", 
+            "final_amount":1111, 
+            "food_types": hlu("foodtypes", 1), 
+            "obsolete": False, 
+            "products_in": []
+        })
         print_list(self.client_testing, "/api/companies/")

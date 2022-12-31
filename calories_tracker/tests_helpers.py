@@ -27,18 +27,18 @@ def test_cross_user_data(apitestclass, client1,  client2,  post_url, dict_to_pos
         example:
         test_cross_user_data(self, client1, client2, "/api/biometrics/", { "datetime": timezone.now(), "weight": 71, "height": 180, "activities": hlu("activities", 0), "weight_wishes": hlu("weightwishes", 0)})
     """
-
-    r=client1.post(post_url, dict_to_post)
-    apitestclass.assertEqual(r.status_code, status.HTTP_201_CREATED)
+    
+    r=client1.post(post_url, dict_to_post, format="json")    
+    apitestclass.assertEqual(r.status_code, status.HTTP_201_CREATED, f"{post_url}, {r.content}")
     testing_id=loads(r.content)["id"]
     
     #other tries to access url
     r=client1.get(f"{post_url}{testing_id}/")
-    apitestclass.assertEqual(r.status_code, status.HTTP_200_OK)
+    apitestclass.assertEqual(r.status_code, status.HTTP_200_OK,  f"{post_url}, {r.content}")
     
     #other tries to access url
     r=client2.get(f"{post_url}{testing_id}/")
-    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND)
+    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{post_url}, {r.content}")
 #    
 #def lod_to_headers_and_data(lod):
 #    if len(lod)==0:
