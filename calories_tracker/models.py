@@ -1046,7 +1046,7 @@ class Steps(models.Model):
         return f"Step: {self.name}"
     
     def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "can_products_in_step": {jss(self.can_products_in_step)}, "man_products_in_step": {jss(self.man_products_in_step)}, "can_container": {jss(self.can_container)}, "man_container": {jss(self.man_container)}, "can_container_to": {jss(self.can_container_to)}, "man_container_to": {jss(self.man_container_to)}, "can_temperatures": {jss(self.can_temperatures)}, "man_temperatures": {jss(self.man_temperatures)}, "can_stir": {jss(self.can_stir)}, "man_stir": {jss(self.man_stir)},  }}"""
+        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "can_products_in_step": {jss(self.can_products_in_step)}, "man_products_in_step": {jss(self.man_products_in_step)}, "can_container": {jss(self.can_container)}, "man_container": {jss(self.man_container)}, "can_container_to": {jss(self.can_container_to)}, "man_container_to": {jss(self.man_container_to)}, "can_temperatures": {jss(self.can_temperatures)}, "man_temperatures": {jss(self.man_temperatures)}, "can_stir": {jss(self.can_stir)}, "man_stir": {jss(self.man_stir)} }}"""
         
     def is_fully_equal(self, other):
         if not self.name==other.name:
