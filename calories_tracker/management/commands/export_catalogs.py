@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from calories_tracker import models
 from tqdm import tqdm
 
+from django.core.management import call_command
 ## qs models must hava json method to convert object to string
 def qs_to_json(qs, root_tab=1, end_coma=True):
     r="[\n"
@@ -54,3 +55,14 @@ class Command(BaseCommand):
             f.write(s)
         
 
+        #Generate fixtures
+                
+        call_command(
+            "dumpdata", 
+            "calories_tracker.additives", 
+            "calories_tracker.additiverisks", 
+            "calories_tracker.weightwishes", 
+            "calories_tracker.activities", 
+            "--indent",  "4", 
+            "-o", "calories_tracker/fixtures/all.json"
+        )

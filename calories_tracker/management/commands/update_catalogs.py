@@ -10,6 +10,7 @@ class Command(BaseCommand):
 
         
     def handle(self, *args, **options):
-            update_from_code()
+        update_from_code()
+        
 
 

@@ -3,6 +3,7 @@ from json import loads
 from urllib import request as urllib_request
 from calories_tracker import models
 from calories_tracker.reusing.datetime_functions import string2dtaware
+from tqdm import tqdm
 _=str
 
 from django.contrib.auth.models import User
@@ -47,6 +48,16 @@ def update_from_data(data):
     r=process_measures_types(r,data)
     r=process_steps(r,data)
     
+## o will have the las object.id
+def trick_to_set_sequence_to_next_value(o):
+    print(o.__class__,  o.id)
+    for i in tqdm(range(o.id)):
+        try:
+            t=o.__class__()
+            t.save()
+        except:
+            pass
+    
     ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read
 def process_catalogs(file_descriptor=None):
     if file_descriptor is None:
@@ -71,6 +82,10 @@ def process_additive_risks(r, data):
         except:
             r["logs"].append({"object":str(o), "log":_("Created additive risks")})
         o.save()
+    trick_to_set_sequence_to_next_value(o)
+    o=models.AdditiveRisks()
+    o.save()
+    print(o.id)
     print("AdditiveRisks", "Total:",  r["total_additive_risks"], "Logs:", len(r["logs"]))
     return r        
 ## @param file_descriptor If None uses INternet, if file_descriptor uses file_descriptor read

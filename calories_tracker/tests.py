@@ -1,40 +1,19 @@
 from calories_tracker import models
-from calories_tracker.tests_helpers import hlu, call_command_sqlsequencerreset, test_cross_user_data, test_cross_user_data_with_post, print_list
+from calories_tracker.tests_helpers import hlu, test_cross_user_data, test_cross_user_data_with_post, print_list
 from django.contrib.auth.models import User
-from django.core.management import call_command
 from django.utils import timezone
 from json import loads
 from rest_framework.test import APIClient, APITestCase
-
 print_list    
 
-class LoginTestCase(APITestCase):
+class CtTestCase(APITestCase):
+    fixtures=["all.json"]
+    catalog_tables=["activities", "additives", "additive_risks"]
 
     def setUp(self):
-        # Call necessary commands
-        call_command("update_catalogs")
-        call_command_sqlsequencerreset("calories_tracker")
-        
-        # User to test api
-        self.user_testing = User(
-            email='testing@testing.com',
-            first_name='Testing',
-            last_name='Testing',
-            username='testing',
-        )
-        self.user_testing.set_password('testing123')
-        self.user_testing.save()
-        
-        # User to confront security
-        self.user_other = User(
-            email='other@other.com',
-            first_name='Other',
-            last_name='Other',
-            username='other',
-        )
-        self.user_other.set_password('other123')
-        self.user_other.save()
-        
+        """
+            Executed on each test case instance
+        """ 
         client = APIClient()
         response = client.post('/login/', {'username': self.user_testing.username, 'password': 'testing123',},format='json')
         result = loads(response.content)
@@ -46,11 +25,57 @@ class LoginTestCase(APITestCase):
         
         self.client_testing=APIClient()
         self.client_testing.credentials(HTTP_AUTHORIZATION='Token ' + self.token_user_testing)
+
         self.client_other=APIClient()
         self.client_other.credentials(HTTP_AUTHORIZATION='Token ' + self.token_user_other)
         
+
+
+    @classmethod
+    def setUpClass(cls):
+        """
+            Only instantiated once
+        """
+        print("SETUP")
+        super().setUpClass()
+        # Call necessary commands
+#        call_command("update_catalogs")
+#        call_command_sqlsequencerreset("calories_tracker")
+        
+        # User to test api
+        cls.user_testing = User(
+            email='testing@testing.com',
+            first_name='Testing',
+            last_name='Testing',
+            username='testing',
+        )
+        cls.user_testing.set_password('testing123')
+        cls.user_testing.save()
+        
+        # User to confront security
+        cls.user_other = User(
+            email='other@other.com',
+            first_name='Other',
+            last_name='Other',
+            username='other',
+        )
+        cls.user_other.set_password('other123')
+        cls.user_other.save()
+        print("SETUP END")
+
+    def test_catalog_tables_only_get(self):
+        print("NOW")
+        """
+            Checks that catalog table can be only accesed to GET method to normal users
+        """
+        for catalog in self.catalog_tables:
+            self.client_testing.post(f"/api/{catalog}", {})
+        
         
     def test_cross_user_models_security(self):
+        """
+            Checks that a user can't see other user registers
+        """
         test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/biometrics/", {
             "datetime": timezone.now(), 
             "weight": 71, 
@@ -96,7 +121,6 @@ class LoginTestCase(APITestCase):
             "experience": "My elaboration experience", 
             "elaborations": hlu("elaborations", elaboration["id"]),
         })
-        
         
         test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborations_steps/", {
             "duration": "00:01:00", 

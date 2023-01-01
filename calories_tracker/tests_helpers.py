@@ -10,6 +10,10 @@ from tabulate import tabulate
 def hlu(name, id):
     return 'http://testserver' + reverse(name+'-detail', kwargs={'pk': id})
 
+## ESTE COMANDO FALLA EN TESTCASE DEBIDO AL ROLLBACK DE CADA CLASE Y NO PERMITE
+## CREAR DOS METODOS EN CADA TESTCASE NI PONIENDOLO EN SETUPDATA
+## NO PERMITE USAR EXECUTE
+## EN UPDATE DATA INTENTO HACER TRICK PARA PONER SEQUENCES A PUNTO
 def call_command_sqlsequencerreset(appname):
     """
         Execute python manager sqlsequencereset
