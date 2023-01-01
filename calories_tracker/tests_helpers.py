@@ -262,6 +262,48 @@ def test_crud(apitestclass, client, tm):
         
         r=client.delete(tm.hlu(id))
         apitestclass.assertEqual(r.status_code, status.HTTP_204_NO_CONTENT, f"delete method of {tm.model_string()}")
+        
+    
+def test_crud_unauthorized_anonymous(apitestclass, client_anonymous, client_authorized, tm):
+    """
+    Function Makes all action operations to tm with client to all examples
+
+    @param apitestclass DESCRIPTION
+    @type TYPE
+    @param client DESCRIPTION
+    @type TYPE
+    @param tm DESCRIPTION
+    @type TYPE
+    """
+    for i in range(len(tm.examples)):
+        r=client_anonymous.post(tm.hlu(), {})
+        
+        apitestclass.assertEqual(r.status_code, status.HTTP_401_UNAUTHORIZED, f"post method of {tm.model_string()}")
+        
+        
+        #Authorized client creates for testing purposes
+        payload=tm.get_examples(i, client_authorized)
+        r=client_authorized.post(tm.hlu(), payload)
+        
+        apitestclass.assertEqual(r.status_code, status.HTTP_201_CREATED, f"post method of {tm.model_string()}")
+        d=loads(r.content)
+        id=d["id"]
+        
+        r=client_anonymous.put(tm.hlu(id), payload)
+        apitestclass.assertEqual(r.status_code, status.HTTP_401_UNAUTHORIZED, f"put method of {tm.model_string()}")
+        
+        r=client_anonymous.patch(tm.hlu(id), payload)
+        apitestclass.assertEqual(r.status_code, status.HTTP_401_UNAUTHORIZED, f"patch method of {tm.model_string()}")
+        
+        
+        r=client_anonymous.get(tm.hlu(id))
+        apitestclass.assertEqual(r.status_code, status.HTTP_401_UNAUTHORIZED, f"get method of {tm.model_string()}")
+        
+        r=client_anonymous.get(tm.hlu())
+        apitestclass.assertEqual(r.status_code, status.HTTP_401_UNAUTHORIZED, f"list method of {tm.model_string()}")
+        
+        r=client_anonymous.delete(tm.hlu(id))
+        apitestclass.assertEqual(r.status_code, status.HTTP_401_UNAUTHORIZED, f"delete method of {tm.model_string()}")
 
     
 def print_list(client, list_url, limit=10):

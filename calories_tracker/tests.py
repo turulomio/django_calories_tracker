@@ -54,11 +54,14 @@ class CtTestCase(APITestCase):
 
         cls.client_other=APIClient()
         cls.client_other.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_other)
+        
+        cls.client_anonymous=APIClient()
 
     def test_catalog_only_retrieve_and_list_actions_allowed(self):
         """
             Checks that catalog table can be only accesed to GET method to normal users
         """
+        print()
         for tm  in self.tmm.catalogs():
             print("test_catalog_only_retrieve_and_list_actions_allowed", tm.__name__)
             tests_helpers.test_only_retrieve_and_list_actions_allowed(self, self.client_testing, tm)
@@ -95,5 +98,15 @@ class CtTestCase(APITestCase):
         for tm  in self.tmm.private():
             print("test_crud_non_catalog", tm.__name__)
             tests_helpers.test_crud(self, self.client_testing, tm)
+            
+
+    def test_anonymous_crud(self):
+        """
+            Anonymous user trys to crud
+        """
+        print()
+        for tm  in self.tmm.private():
+            print("test_anonymous_crud", tm.__name__)
+            tests_helpers.test_crud_unauthorized_anonymous(self, self.client_anonymous, self.client_testing,  tm)
 
         
