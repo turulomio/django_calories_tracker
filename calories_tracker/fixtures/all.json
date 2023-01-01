@@ -18477,6 +18477,38 @@
     }
 },
 {
+    "model": "calories_tracker.systemproducts",
+    "pk": 342,
+    "fields": {
+        "name": "REUSEME",
+        "amount": "1111.000",
+        "fat": null,
+        "protein": null,
+        "carbohydrate": null,
+        "calories": "111.000",
+        "salt": null,
+        "cholesterol": null,
+        "sodium": null,
+        "potassium": null,
+        "fiber": null,
+        "sugars": null,
+        "saturated_fat": null,
+        "ferrum": null,
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": false,
+        "calcium": null,
+        "system_companies": null,
+        "food_types": 8,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-01-01T10:07:06.314Z",
+        "version_description": null,
+        "additives": []
+    }
+},
+{
     "model": "calories_tracker.temperaturestypes",
     "pk": 1,
     "fields": {

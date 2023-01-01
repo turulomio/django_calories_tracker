@@ -42,35 +42,39 @@ def CatalogManager(request):
     return JsonResponse( request.user.groups.filter(name="CatalogManager").exists(), encoder=MyDjangoJSONEncoder, safe=False)
 
 
+class CatalogModelViewSet(viewsets.ModelViewSet):
+    def get_permissions(self):    
+        """
+            Overrides get_permissions to set GroupCatalogManager permission for CRUD actions
+            Only list and get actions authenticated, ther rest for GroupCatalogManager.
+        """
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            self.permission_classes = [permissions.IsAuthenticated, GroupCatalogManager]
+        else:# get and custome actions
+            self.permission_classes = [permissions.IsAuthenticated]
+        return viewsets.ModelViewSet.get_permissions(self)
+
 @api_view(['GET', ])
 @permission_classes([permissions.IsAuthenticated, ])
 def Time(request):
     return JsonResponse( timezone.now(), encoder=MyDjangoJSONEncoder, safe=False)
     
     
-class WeightWishesViewSet(viewsets.ModelViewSet):
+class WeightWishesViewSet(CatalogModelViewSet):
     queryset = models.WeightWishes.objects.all()
     serializer_class = serializers.WeightWishesSerializer
-    permission_classes = [permissions.IsAuthenticated]      
-    http_method_names=['get']
 
-class ActivitiesViewSet(viewsets.ModelViewSet):
+class ActivitiesViewSet(CatalogModelViewSet):
     queryset = models.Activities.objects.all()
     serializer_class = serializers.ActivitiesSerializer
-    permission_classes = [permissions.IsAuthenticated]     
-    http_method_names=['get']
 
-class AdditiveRisksViewSet(viewsets.ModelViewSet):
+class AdditiveRisksViewSet(CatalogModelViewSet):
     queryset = models.AdditiveRisks.objects.all()
     serializer_class = serializers.AdditiveRisksSerializer
-    permission_classes = [permissions.IsAuthenticated]      
-    http_method_names=['get']
 
-class AdditivesViewSet(viewsets.ModelViewSet):
+class AdditivesViewSet(CatalogModelViewSet):
     queryset = models.Additives.objects.all()
     serializer_class = serializers.AdditivesSerializer
-    permission_classes = [permissions.IsAuthenticated]      
-    http_method_names=['get']
 
 class BiometricsViewSet(viewsets.ModelViewSet):    
     """
@@ -341,10 +345,9 @@ class ElaborationsProductsInThrough(viewsets.ModelViewSet):
         instance.elaborations.recipes.save()
         return viewsets.ModelViewSet.destroy(self, request, args, kwargs)
 
-class StepsViewSet(viewsets.ModelViewSet):
+class StepsViewSet(CatalogModelViewSet):
     queryset = models.Steps.objects.all()
     serializer_class = serializers.StepsSerializer
-    permission_classes = [permissions.IsAuthenticated]
         
     @action(detail=True, methods=["get"],url_path='wordings', url_name='wordings')
     def wordings(self, request, pk=None):
@@ -397,22 +400,17 @@ class StepsViewSet(viewsets.ModelViewSet):
             list_.append(v)
         return json_data_response(True, list_,  "Steps actualizados")
 
-class FoodTypesViewSet(viewsets.ModelViewSet):
+class FoodTypesViewSet(CatalogModelViewSet):
     queryset = models.FoodTypes.objects.all()
     serializer_class = serializers.FoodTypesSerializer
-    permission_classes = [permissions.IsAuthenticated]      
-    http_method_names=['get']
 
-class FormatsViewSet(viewsets.ModelViewSet):
+class FormatsViewSet(CatalogModelViewSet):
     queryset = models.Formats.objects.all()
     serializer_class = serializers.FormatsSerializer
-    permission_classes = [permissions.IsAuthenticated]  
-    http_method_names=['get']
     
-class MeasuresTypesViewSet(viewsets.ModelViewSet):
+class MeasuresTypesViewSet(CatalogModelViewSet):
     queryset = models.MeasuresTypes.objects.all()
     serializer_class = serializers.MeasuresTypesSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 class MealsViewSet(viewsets.ModelViewSet):
     queryset = models.Meals.objects.all()
@@ -596,10 +594,9 @@ class RecipesFullViewSet(#mixins.CreateModelMixin,
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
 
-class RecipesCategoriesViewSet(viewsets.ModelViewSet):
+class RecipesCategoriesViewSet(CatalogModelViewSet):
     queryset = models.RecipesCategories.objects.all()
     serializer_class = serializers.RecipesCategoriesSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 class RecipesLinksViewSet(viewsets.ModelViewSet):
     queryset = models.RecipesLinks.objects.all()
@@ -625,25 +622,21 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
         return Response(status.HTTP_204_NO_CONTENT)
 
 
-class RecipesLinksTypesViewSet(viewsets.ModelViewSet):
+class RecipesLinksTypesViewSet(CatalogModelViewSet):
     queryset = models.RecipesLinksTypes.objects.all()
     serializer_class = serializers.RecipesLinksTypesSerializer
-    permission_classes = [permissions.IsAuthenticated]
     
-class StirTypesViewSet(viewsets.ModelViewSet):
+class StirTypesViewSet(CatalogModelViewSet):
     queryset = models.StirTypes.objects.all()    
     serializer_class = serializers.StirTypesSerializer
-    permission_classes = [permissions.IsAuthenticated]
     
-class TemperaturesTypesViewSet(viewsets.ModelViewSet):
+class TemperaturesTypesViewSet(CatalogModelViewSet):
     queryset = models.TemperaturesTypes.objects.all()    
     serializer_class = serializers.TemperaturesTypesSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
-class SystemCompaniesViewSet(viewsets.ModelViewSet):
+class SystemCompaniesViewSet(CatalogModelViewSet):
     queryset = models.SystemCompanies.objects.all().order_by("name")
     serializer_class = serializers.SystemCompaniesSerializer
-    permission_classes = [permissions.IsAuthenticated]      
 
     ## api/system_products/search_not_in=hol. Search all system products that desn't hava a product yet with hol
     ## api/system_companies/search=hol. Search all system companies that desn't hava a company jet with hol
@@ -660,10 +653,9 @@ class SystemCompaniesViewSet(viewsets.ModelViewSet):
         return self.queryset
 
 
-class SystemProductsViewSet(viewsets.ModelViewSet):
+class SystemProductsViewSet(CatalogModelViewSet):
     queryset = models.SystemProducts.objects.select_related("system_companies").prefetch_related("additives",  "additives__additive_risks","systemproductsformatsthrough_set").all()
-    serializer_class = serializers.SystemProductsSerializer
-    permission_classes = [permissions.IsAuthenticated]      
+    serializer_class = serializers.SystemProductsSerializer  
     
     ## api/system_products/search_not_in=hol. Search all system products that desn't hava a product yet with hol
     ## api/system_products/search=hol. Search all system products that contains search string in name
