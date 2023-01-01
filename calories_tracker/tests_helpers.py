@@ -20,6 +20,10 @@ class TestModel:
     example=[]
     first_fixture_id=1#First id in model with fixture
     
+    def __repr__ (cls):
+        return cls.model_string()
+    def __str__ (cls):
+        return cls.model_string()
     
     @classmethod
     def url_model_name(cls):
@@ -28,20 +32,30 @@ class TestModel:
         """
         return sub('(?!^)([A-Z]+)', r'_\1', cls.model_string()).lower()
         
+        
+        
+    @classmethod
+    def create(cls, index, client):
+        """
+            returns dict creation
+        """
+        r=client.post(cls.hlu(), cls.get_examples(0, client)) #Linka al primer recipe. Debería crear todo nuevo recursivo, pero parece funciona
+        #print("Creado", cls.model_string(),  r.content)
+        return loads(r.content)
+        
     @classmethod
     def get_examples(cls, index, client):
         if index+1>len(cls.examples):
             print(cls.model_string(),"No existen examples")
             r= {}
         else:
+            r={}#Se crea uno nuevo porque modificamos y sino modificariamos la class
             for k, v in cls.examples[index].items():
                 if  isclass(v) and issubclass(v, TestModel):#Creates a new item a set value its hlu
-                    r=client.post(v.hlu(), v.get_examples(0, client))
-                    print("Creado", v.model_string(),  r.content)
-                    cls.examples[index][k]=v.hlu(loads(r.content)["id"])
-            r=cls.examples[index]
-        #print(cls.model_string(), "examples",  index,  r)
-            
+                    d=v.create(0, client)
+                    r[k]=v.hlu(d["id"])
+                else:
+                    r[k]=v           
         return r
         
     @classmethod
@@ -53,7 +67,7 @@ class TestModel:
     
     @classmethod
     def hlu(cls, id=None):
-        hlu_base=f"/api/{cls.url_model_name()}/"
+        hlu_base=f"http://testserver/api/{cls.url_model_name()}/"
         if id is None:
             return hlu_base
         return f"{hlu_base}{id}/"
@@ -212,22 +226,43 @@ def test_only_retrieve_and_list_actions_allowed(apitestclass,  client,  tm):
     r=client.delete(tm.hlu_first_fixture())
     apitestclass.assertEqual(r.status_code, status.HTTP_403_FORBIDDEN, f"destroy method of {tm.model_string()}")
     
-    
-    
-    
-#    
-#def lod_to_headers_and_data(lod):
-#    if len(lod)==0:
-#        return None
-#    
-#    headers=lod[0].keys()
-#    data=[]
-#    for d in lod:
-#        data_row=[]
-#        for header in headers:
-#            data_row.append(d[header])
-#        data.append(data_row)
-#    return headers, data
+def test_crud(apitestclass, client, tm):
+    """
+    Function Makes all action operations to tm with client to all examples
+
+    @param apitestclass DESCRIPTION
+    @type TYPE
+    @param client DESCRIPTION
+    @type TYPE
+    @param tm DESCRIPTION
+    @type TYPE
+    """
+    for i in range(len(tm.examples)):
+        payload=tm.get_examples(i, client)
+#        print(tm.__name__,"PAYLOAD", payload)
+
+        r=client.post(tm.hlu(), payload)
+        
+        apitestclass.assertEqual(r.status_code, status.HTTP_201_CREATED, f"post method of {tm.model_string()}")
+        d=loads(r.content)
+        id=d["id"]
+        
+        r=client.put(tm.hlu(id), payload)
+        apitestclass.assertEqual(r.status_code, status.HTTP_200_OK, f"put method of {tm.model_string()}")
+        
+        r=client.patch(tm.hlu(id), payload)
+        apitestclass.assertEqual(r.status_code, status.HTTP_200_OK, f"patch method of {tm.model_string()}")
+        
+        
+        r=client.get(tm.hlu(id))
+        apitestclass.assertEqual(r.status_code, status.HTTP_200_OK, f"get method of {tm.model_string()}")
+        
+        r=client.get(tm.hlu())
+        apitestclass.assertEqual(r.status_code, status.HTTP_200_OK, f"list method of {tm.model_string()}")
+        
+        r=client.delete(tm.hlu(id))
+        apitestclass.assertEqual(r.status_code, status.HTTP_204_NO_CONTENT, f"delete method of {tm.model_string()}")
+
     
 def print_list(client, list_url, limit=10):
     r=client.get(list_url)

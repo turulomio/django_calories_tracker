@@ -155,13 +155,15 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['last']=timezone.now()
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         created.save()
-        for d in data["products_in"]:
-            #Create all new
-            th=models.ElaboratedProductsProductsInThrough()
-            th.amount=d["amount"]
-            th.products=object_from_url(d["products"], models.Products)
-            th.elaborated_products=created
-            th.save()
+        if "products_in" in data:
+            for d in data["products_in"]:
+                #Create all new
+                th=models.ElaboratedProductsProductsInThrough()
+                th.amount=d["amount"]
+                th.products=object_from_url(d["products"], models.Products)
+                th.elaborated_products=created
+                th.save()
+        created.save()
         created.update_associated_product()
         return created
         
@@ -180,12 +182,14 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
             qs.delete()
 
         #Create all new
-        for d in data["products_in"]:
-            th=models.ElaboratedProductsProductsInThrough()
-            th.amount=d["amount"]
-            th.products=object_from_url(d["products"], models.Products)
-            th.elaborated_products=updated
-            th.save()
+        if "products_in" in data:
+            for d in data["products_in"]:
+                th=models.ElaboratedProductsProductsInThrough()
+                th.amount=d["amount"]
+                th.products=object_from_url(d["products"], models.Products)
+                th.elaborated_products=updated
+                th.save()
+        updated.save()
         
         updated.update_associated_product()
         return updated
@@ -445,13 +449,15 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['version']=timezone.now()
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         created.save()
-        for d in data["formats"]:
-            #Create all new
-            th=models.ProductsFormatsThrough()
-            th.amount=d["amount"]
-            th.formats=object_from_url(d["formats"], models.Formats)
-            th.products=created
-            th.save()
+        if "formats" in data:
+            for d in data["formats"]:
+                #Create all new
+                th=models.ProductsFormatsThrough()
+                th.amount=d["amount"]
+                th.formats=object_from_url(d["formats"], models.Formats)
+                th.products=created
+                th.save()
+        created.save()
         
         created.uses=0#Needed to create although is read-only
         return created
@@ -471,12 +477,14 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
             qs.delete()
 
         #Create all new
-        for d in data["formats"]:
-            th=models.ProductsFormatsThrough()
-            th.amount=d["amount"]
-            th.formats=object_from_url(d["formats"], models.Formats)
-            th.products=updated
-            th.save()
+        if "formats" in data:
+            for d in data["formats"]:
+                th=models.ProductsFormatsThrough()
+                th.amount=d["amount"]
+                th.formats=object_from_url(d["formats"], models.Formats)
+                th.products=updated
+                th.save()
+        updated.save()
         
         return updated
         

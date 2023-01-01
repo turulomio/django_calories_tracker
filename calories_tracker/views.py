@@ -125,7 +125,7 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
         if len(qs)>0:
             qs[0].delete()
         self.perform_destroy(instance)
-        return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
     
 
@@ -148,7 +148,7 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         instance.recipes.last=timezone.now()
         instance.recipes.save()
         self.perform_destroy(instance)
-        return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
         
         
     @action(detail=True, methods=['POST'], name='Hace un update masivo de todos los steps', url_path="update_steps", url_name='update_steps', permission_classes=[permissions.IsAuthenticated])
@@ -464,7 +464,7 @@ class PotsViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         if instance.photo is not None:
             instance.photo.delete()
-        return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['POST', 'GET'])
@@ -619,7 +619,7 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
             instance.files.delete()
         instance.recipes.last=timezone.now()
         instance.recipes.save()
-        return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RecipesLinksTypesViewSet(CatalogModelViewSet):

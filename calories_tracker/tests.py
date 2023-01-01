@@ -1,6 +1,7 @@
-#from calories_tracker import models
+from calories_tracker import models
 from calories_tracker import tests_helpers 
-from calories_tracker.tests_helpers import  print_list, TestModelManager
+from calories_tracker.tests_helpers import  print_list, TestModelManager, hlu
+from calories_tracker import tests_data as td
 from django.contrib.auth.models import User
 #from django.utils import timezone
 from json import loads
@@ -59,7 +60,7 @@ class CtTestCase(APITestCase):
             Checks that catalog table can be only accesed to GET method to normal users
         """
         for tm  in self.tmm.catalogs():
-            print("test_catalog_only_retrieve_and_list_actions_allowed", tm)
+            print("test_catalog_only_retrieve_and_list_actions_allowed", tm.__name__)
             tests_helpers.test_only_retrieve_and_list_actions_allowed(self, self.client_testing, tm)
             
         
@@ -67,71 +68,32 @@ class CtTestCase(APITestCase):
         """
             Checks that a user can't see other user registers
         """
+        print()
         for tm  in self.tmm.private():
-            print("test_cross_user_models_security", tm)
+            print("test_cross_user_models_security", tm.__name__)
             tests_helpers.test_cross_user_data_with_post(self, self.client_testing, self.client_other, tm)
 
+        #Files only has get method. Post are mode from recipes_links, pots ....
+        # I do this test manually
+        file=models.Files()
+        file.mime="image/png"
+        file.content=b"MY FILE CONTENT"
+        file.size=len(file.content)
+        file.user=self.user_testing
+        file.save()
+        tests_helpers.test_cross_user_data(self, self.client_testing, self.client_other, hlu("files", file.id))
 
-#        tests_helpers.test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborations_experiences/", {
-#            "datetime": timezone.now(), 
-#            "experience": "My elaboration experience", 
-#            "elaborations": hlu("elaborations", elaboration["id"]),
-#        })
-#        
-#        tests_helpers.test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborations_steps/", {
-#            "duration": "00:01:00", 
-#            "order": 1, 
-#            "elaborations": hlu("elaborations", elaboration["id"]),
-#            "steps": hlu("steps", 2),
-#        })
-#        
-#        #Files only has get method. Post are mode from recipes_links, pots ....
-#        # I do this test manually
-#        file=models.Files()
-#        file.mime="image/png"
-#        file.content=b"MY FILE CONTENT"
-#        file.size=len(file.content)
-#        file.user=self.user_testing
-#        file.save()
-#        
-#        tests_helpers.test_cross_user_data(self, self.client_testing, self.client_other, hlu("files", file.id))
-#        
-#        #Creates a product from a system product to test meals models
-#        r=self.client_testing.post("/api/system_products/49/create_product/")
-#        product=loads(r.content)
-#                
-#        tests_helpers.test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/meals/", {
-#            "datetime": timezone.now(), 
-#            "products": hlu("products", product["data"]), 
-#            "amount": 1, 
-#        })
-#                
-#        tests_helpers.test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/pots/", {
-#            "name": "My Pot", 
-#            "diameter": 1, 
-#            "weight": 1, 
-#            "height": 1, 
-#        })
-#        
-#        #Test product i don't need to create
-#        tests_helpers.test_cross_user_data(self, self.client_testing, self.client_other, hlu("products", product["data"]))
-#        #Test recipes_full i don't need to create, 
-#        tests_helpers.test_cross_user_data(self, self.client_testing, self.client_other, hlu("recipes_full", recipe["id"]))
-#        
-#        
-#        tests_helpers.test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/recipes_links/", {
-#            "description": "My recipe link", 
-#            "type":hlu("recipeslinkstypes", 1) , 
-#            "recipes": hlu("recipes", recipe["id"]), 
-#            "content": None, 
-#        })
-#                
-#        tests_helpers.test_cross_user_data_with_post(self, self.client_testing, self.client_other, "/api/elaborationsproductsinthrough/", {
-#            "products": hlu("products", product["data"]), 
-#            "amount": 1, 
-#            "measures_types": hlu("measurestypes", 1), 
-#            "elaborations": hlu("elaborations", elaboration["id"]),
-#        })
-#        
-        
+        #Test recipes_full i don't need to create, 
+        recipe=td.tmRecipes.create(0, self.client_testing)
+        tests_helpers.test_cross_user_data(self, self.client_testing, self.client_other, hlu("recipes_full", recipe["id"]))
+  
+    def test_crud_non_catalog(self):
+        """
+            Checks crud operations to not catalog models
+        """
+        print()
+        for tm  in self.tmm.private():
+            print("test_crud_non_catalog", tm.__name__)
+            tests_helpers.test_crud(self, self.client_testing, tm)
+
         
