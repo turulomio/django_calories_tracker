@@ -3,10 +3,15 @@ from calories_tracker import tests_helpers
 from calories_tracker.tests_helpers import  print_list, TestModelManager, hlu
 from calories_tracker import tests_data as td
 from django.contrib.auth.models import User
+from django.test import tag
 #from django.utils import timezone
 from json import loads
+from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
+from django.contrib.auth.models import Group
+
 print_list    
+tag
 
 class CtTestCase(APITestCase):
     fixtures=["all.json"] #Para cargar datos por defecto
@@ -39,6 +44,18 @@ class CtTestCase(APITestCase):
         )
         cls.user_other.set_password('other123')
         cls.user_other.save()
+        
+                
+        # User to test api
+        cls.user_catalog_manager = User(
+            email='catalog_manager@catalog_manager.com',
+            first_name='Catalog',
+            last_name='Manager',
+            username='catalog_manager',
+        )
+        cls.user_catalog_manager.set_password('catalog_manager123')
+        cls.user_catalog_manager.save()
+        cls.user_catalog_manager.groups.add(Group.objects.get(name='CatalogManager'))
 
         client = APIClient()
         response = client.post('/login/', {'username': cls.user_testing.username, 'password': 'testing123',},format='json')
@@ -48,6 +65,10 @@ class CtTestCase(APITestCase):
         response = client.post('/login/', {'username': cls.user_other.username, 'password': 'other123',},format='json')
         result = loads(response.content)
         cls.token_user_other = result
+
+        response = client.post('/login/', {'username': cls.user_catalog_manager.username, 'password': 'catalog_manager123',},format='json')
+        result = loads(response.content)
+        cls.token_user_catalog_manager=result
         
         cls.client_testing=APIClient()
         cls.client_testing.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_testing)
@@ -56,6 +77,9 @@ class CtTestCase(APITestCase):
         cls.client_other.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_other)
         
         cls.client_anonymous=APIClient()
+        
+        cls.client_catalog_manager=APIClient()
+        cls.client_catalog_manager.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_catalog_manager)
 
     def test_catalog_only_retrieve_and_list_actions_allowed(self):
         """
@@ -109,4 +133,24 @@ class CtTestCase(APITestCase):
             print("test_anonymous_crud", tm.__name__)
             tests_helpers.test_crud_unauthorized_anonymous(self, self.client_anonymous, self.client_testing,  tm)
 
+    @tag('current')
+    def test_extra_actions(self):
+        """
+            Test extra actions security
+        """
+        print()
+        print("test_extra_actions")
+        #Meals ranking
+        url="/api/meals/ranking/?from_date=2023-01-01"
+        for i in range(3):
+            td.tmMeals.create(0, self.client_testing)
+        r=self.client_testing.get(url)
+        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
         
+        #Products to system products
+        product=td.tmProducts.create(0, self.client_testing)
+        url=f"{product['url']}convert_to_system/"
+        r=self.client_testing.post(url) #Normal user
+        self.assertEqual(r.status_code, status.HTTP_403_FORBIDDEN,  f"Error @action {url}")
+        r=self.client_catalog_manager.post(url) #CatalogManager user
+        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")

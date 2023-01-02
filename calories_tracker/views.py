@@ -439,6 +439,28 @@ class MealsViewSet(viewsets.ModelViewSet):
             return Response('Meals.delete_several success')
         return Response('Meals.delete_several failure')
         
+        
+
+    @action(detail=False, methods=["get"], name='Shows user meals ranking', url_path="ranking", url_name='ranking', permission_classes=[permissions.IsAuthenticated])
+    def ranking(self, request):
+        from_date=RequestGetDate(request, "from_date")
+        qs_meals=models.Meals.objects.select_related("products").filter(user=request.user)
+        if from_date is not None:
+            qs_meals=qs_meals.filter(datetime__date__gte=from_date)
+        dict_meals_by_day_amount={}
+        for m in qs_meals:
+            dict_meals_by_day_amount[m.products.id]=dict_meals_by_day_amount.get(m.products.id, 0)+m.amount
+
+        r=[]
+        for key, value in dict_meals_by_day_amount.items():
+            r.append({
+                "product": request.build_absolute_uri(reverse('products-detail', args=(key, ))), 
+                "amount": value, 
+            })
+
+        r=listdict_order_by(r, "amount", reverse=True)
+        return JsonResponse(r, safe=False)
+        
 @extend_schema_view(
     list=extend_schema(
         description="The list action returns all available actions."
@@ -503,7 +525,79 @@ class ProductsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
-        return models.Products.objects.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
+        if self.request.user.groups.filter(name="CatalogManager").exists():#User can convert a product to a system_product that it's not of its own
+            return self.queryset.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).order_by("name")
+        else:
+            return self.queryset.select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).filter(user=self.request.user).order_by("name")
+
+
+
+    @action(detail=True, methods=['POST'], name='Converts a product into a system product, linking it to a new system product', url_path="convert_to_system", url_name='convert_to_system', permission_classes=[permissions.IsAuthenticated, GroupCatalogManager])
+    def convert_to_system(self, request, pk=None):
+        product=self.get_object()
+        if all_args_are_not_none(product):
+            if product.system_products is not None or product.elaborated_products is not None:
+                return json_success_response( False, "This product can't be converted to system product")
+            sp=models.SystemProducts()
+            sp.name=product.name
+            sp.amount=product.amount
+            sp.fat=product.fat
+            sp.protein=product.protein
+            sp.carbohydrate=product.carbohydrate
+            sp.calories=product.calories
+            sp.salt=product.salt
+            sp.cholesterol=product.cholesterol
+            sp.sodium=product.sodium
+            sp.potassium=product.potassium
+            sp.fiber=product.fiber
+            sp.sugars=product.sugars
+            sp.saturated_fat=product.saturated_fat
+            sp.ferrum=product.ferrum
+            sp.magnesium=product.magnesium
+            sp.phosphor=product.phosphor
+            sp.glutenfree=product.glutenfree
+            sp.calcium=product.calcium
+            sp.food_types=product.food_types
+            sp.obsolete=product.obsolete
+            sp.version=timezone.now()
+            
+            #System company
+            if product.companies==None:
+                sp.system_companies=None
+            else:
+                if product.companies.system_companies is None: #El producto no tiene una companía del sistema
+                    sc=models.SystemCompanies()
+                    sc.name=product.companies.name
+                    sc.last=timezone.now()
+                    sc.obsolete=False
+                    sc.save()
+                else:
+                    sc=product.companies.system_companies
+                sp.system_companies=sc
+            sp.save()
+            
+            #Additives
+            sp.additives.set(product.additives.all())
+            sp.save()
+            #Systemproductsformats
+                    
+            ## Refresh system products formats
+            for f in product.productsformatsthrough_set.all():
+                spft=models.SystemProductsFormatsThrough()
+                spft.amount=f.amount
+                spft.formats=f.formats
+                spft.system_products=sp
+                spft.save()
+            sp.save()
+                
+            product.system_products=sp
+            product.save()
+
+
+            r=serializers.ProductsSerializer(product, context={'request': request}).data
+            return json_data_response( True, r, "Product converted to system product")
+        return json_success_response( False, "Product couldn't be converted to system product")
+
 
 class FilesViewSet(mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):
@@ -681,81 +775,6 @@ class SystemProductsViewSet(CatalogModelViewSet):
         product=system_product.update_linked_product(request.user)
         return json_data_response( True, product.id, "Product created")
     
-
-@api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated, GroupCatalogManager ])
-def Product2SystemProduct(request):
-    """
-    Este método solo debe ser usada por el catalog manager.
-    Convierte el product en un system product, linkandolo con el nuevo system product
-    
-    @param request DESCRIPTION
-    @type TYPE
-    @return DESCRIPTION
-    @rtype TYPE
-    """
-    product=RequestUrl(request, "product", models.Products)
-    if all_args_are_not_none(product):
-        if product.system_products is not None or product.elaborated_products is not None:
-            return json_success_response( False, "This product can't be converted to system product")
-        sp=models.SystemProducts()
-        sp.name=product.name
-        sp.amount=product.amount
-        sp.fat=product.fat
-        sp.protein=product.protein
-        sp.carbohydrate=product.carbohydrate
-        sp.calories=product.calories
-        sp.salt=product.salt
-        sp.cholesterol=product.cholesterol
-        sp.sodium=product.sodium
-        sp.potassium=product.potassium
-        sp.fiber=product.fiber
-        sp.sugars=product.sugars
-        sp.saturated_fat=product.saturated_fat
-        sp.ferrum=product.ferrum
-        sp.magnesium=product.magnesium
-        sp.phosphor=product.phosphor
-        sp.glutenfree=product.glutenfree
-        sp.calcium=product.calcium
-        sp.food_types=product.food_types
-        sp.obsolete=product.obsolete
-        sp.version=timezone.now()
-        
-        #System company
-        if product.companies==None:
-            sp.system_companies=None
-        else:
-            if product.companies.system_companies is None: #El producto no tiene una companía del sistema
-                sc=models.SystemCompanies()
-                sc.name=product.companies.name
-                sc.last=timezone.now()
-                sc.obsolete=False
-                sc.save()
-            else:
-                sc=product.companies.system_companies
-            sp.system_companies=sc
-        sp.save()
-        
-        #Additives
-        sp.additives.set(product.additives.all())
-        sp.save()
-        #Systemproductsformats
-                
-        ## Refresh system products formats
-        for f in product.productsformatsthrough_set.all():
-            spft=models.SystemProductsFormatsThrough()
-            spft.amount=f.amount
-            spft.formats=f.formats
-            spft.system_products=sp
-            spft.save()
-        sp.save()
-            
-        product.system_products=sp
-        product.save()
-
-
-        return json_success_response( True, "Product converted to system product")
-    return json_success_response( False, "Product couldn't be converted to system product")
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated, ])
@@ -1006,23 +1025,3 @@ def Curiosities(request):
     return JsonResponse(r, safe=False)
 
 
-@api_view(['GET', ])
-@permission_classes([permissions.IsAuthenticated, ])
-def MealsRanking(request):
-    from_date=RequestGetDate(request, "from_date")
-    qs_meals=models.Meals.objects.select_related("products").filter(user=request.user)
-    if from_date is not None:
-        qs_meals=qs_meals.filter(datetime__date__gte=from_date)
-    dict_meals_by_day_amount={}
-    for m in qs_meals:
-        dict_meals_by_day_amount[m.products.id]=dict_meals_by_day_amount.get(m.products.id, 0)+m.amount
-
-    r=[]
-    for key, value in dict_meals_by_day_amount.items():
-        r.append({
-            "product": request.build_absolute_uri(reverse('products-detail', args=(key, ))), 
-            "amount": value, 
-        })
-
-    r=listdict_order_by(r, "amount", reverse=True)
-    return JsonResponse(r, safe=False)

@@ -1,8 +1,8 @@
 {
   "header": {
     "comment": "eric project file for project django_calories_tracker",
-    "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-12-10, 23:57:12"
+    "copyright": "Copyright (C) 2023 , ",
+    "saved": "2023-01-02, 07:45:04"
   },
   "project": {
     "AUTHOR": "",
@@ -74,7 +74,9 @@
       "calories_tracker/admin.py",
       "calories_tracker/apps.py",
       "calories_tracker/hardcoded_strings.py",
+      "calories_tracker/management/commands/coverage.py",
       "calories_tracker/management/commands/doxygen.py",
+      "calories_tracker/management/commands/dumpdata_catalogs.py",
       "calories_tracker/management/commands/dumppostgres.py",
       "calories_tracker/management/commands/export_catalogs.py",
       "calories_tracker/management/commands/import_recipes_from_directory.py",
@@ -131,6 +133,8 @@
       "calories_tracker/reusing/views_login.py",
       "calories_tracker/serializers.py",
       "calories_tracker/tests.py",
+      "calories_tracker/tests_data.py",
+      "calories_tracker/tests_helpers.py",
       "calories_tracker/unogenerator_files.py",
       "calories_tracker/update_data.py",
       "calories_tracker/views.py",
