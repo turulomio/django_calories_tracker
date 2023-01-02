@@ -487,35 +487,6 @@ class PotsViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['POST', 'GET'])
-@permission_classes([permissions.IsAuthenticated, ])
-@transaction.atomic
-def ProductsDataTransfer(request):
-    if request.method=="GET":
-        product_from=RequestGetUrl(request, "product_from", models.Products)
-        product_to=RequestGetUrl(request, "product_to", models.Products)
-    
-        if all_args_are_not_none(product_from, product_to):
-            r=[]
-            for p in (product_from, product_to):
-                r.append({
-                    "product": request.build_absolute_uri(reverse('products-detail', args=(p.id, ))), 
-                    "products_in": models.ElaboratedProductsProductsInThrough.objects.filter(products=p).count(), 
-                    "meals": models.Meals.objects.filter(products=p).count(),
-                })
-            return JsonResponse( r, encoder=MyDjangoJSONEncoder, safe=False)
-    else:# request.method=="POST":
-        product_from=RequestUrl(request, "product_from", models.Products)
-        product_to=RequestUrl(request, "product_to", models.Products)
-    
-        if all_args_are_not_none(product_from, product_to):
-            for pi in models.ElaboratedProductsProductsInThrough.objects.filter(products=product_from):
-                pi.products=product_to
-                pi.save()
-            for m in models.Meals.objects.filter(products=product_from):
-                m.products=product_to
-                m.save()            
-            return JsonResponse( True, encoder=MyDjangoJSONEncoder, safe=False)
 
 
 class ProductsViewSet(viewsets.ModelViewSet):
@@ -595,6 +566,37 @@ class ProductsViewSet(viewsets.ModelViewSet):
             r=serializers.ProductsSerializer(product, context={'request': request}).data
             return json_data_response( True, r, "Product converted to system product")
         return json_success_response( False, "Product couldn't be converted to system product")
+
+
+    @action(detail=True, methods=['GET'], name='Returns data from both products to valorate a data transfer', url_path="get_data_transfer", url_name='get_data_transfer', permission_classes=[permissions.IsAuthenticated])
+    def get_data_transfer(self, request, pk=None):
+        product_from=self.get_object()
+        product_to=RequestGetUrl(request, "product_to", models.Products)
+    
+        if all_args_are_not_none(product_from, product_to):
+            r=[]
+            for p in (product_from, product_to):
+                r.append({
+                    "product": request.build_absolute_uri(reverse('products-detail', args=(p.id, ))), 
+                    "products_in": models.ElaboratedProductsProductsInThrough.objects.filter(products=p).count(), 
+                    "meals": models.Meals.objects.filter(products=p).count(),
+                })
+            return JsonResponse( r, encoder=MyDjangoJSONEncoder, safe=False)
+
+    @action(detail=True, methods=['POST'], name='Transfers data from a product to other', url_path="data_transfer", url_name='data_transfer', permission_classes=[permissions.IsAuthenticated, GroupCatalogManager])
+    def data_transfer(self, request, pk=None):
+        product_from=self.get_object()
+        product_to=RequestUrl(request, "product_to", models.Products)
+    
+        if all_args_are_not_none(product_from, product_to):
+            for pi in models.ElaboratedProductsProductsInThrough.objects.filter(products=product_from):
+                pi.products=product_to
+                pi.save()
+            for m in models.Meals.objects.filter(products=product_from):
+                m.products=product_to
+                m.save()            
+            return JsonResponse( True, encoder=MyDjangoJSONEncoder, safe=False)
+
 
 
 class FilesViewSet(mixins.RetrieveModelMixin,

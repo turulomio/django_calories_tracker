@@ -1,11 +1,9 @@
-from django.urls import path,  include
-from django.contrib import admin# Need to import this since auth models get registered on import.
-
-from rest_framework import routers
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-
 from calories_tracker import views as calories_tracker_views
 from calories_tracker.reusing import views_login as calories_tracker_views_login
+from django.urls import path,  include
+from django.contrib import admin# Need to import this since auth models get registered on import.
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r'activities', calories_tracker_views.ActivitiesViewSet)
@@ -38,10 +36,6 @@ router.register(r'weight_wishes', calories_tracker_views.WeightWishesViewSet)
 router.register(r'temperatures_types', calories_tracker_views.TemperaturesTypesViewSet)
 router.register(r'elaborationsproductsinthrough', calories_tracker_views.ElaborationsProductsInThrough)
 
-
-
-
-
 urlpatterns = [
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
@@ -50,7 +44,6 @@ urlpatterns = [
     path('login/', calories_tracker_views_login.login, name="login"), 
     path('logout/', calories_tracker_views_login.logout, name="logout"), 
     path('maintenance/catalogs/update/', calories_tracker_views.MaintenanceCatalogsUpdate, name='MaintenanceCatalogsUpdate'),
-    path('products/datatransfer/', calories_tracker_views.ProductsDataTransfer, name='ProductsDataTransfer'),
     path('time/', calories_tracker_views.Time, name='Time'),
     path('settings/', calories_tracker_views.Settings, name='Settings'),
     path('shopping_list/', calories_tracker_views.ShoppingList, name='ShoppingList'),
