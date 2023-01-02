@@ -140,6 +140,7 @@ class CtTestCase(APITestCase):
         """
         print()
         print("test_extra_actions")
+        
         #Meals ranking
         url="/api/meals/ranking/?from_date=2023-01-01"
         for i in range(3):
@@ -154,3 +155,15 @@ class CtTestCase(APITestCase):
         self.assertEqual(r.status_code, status.HTTP_403_FORBIDDEN,  f"Error @action {url}")
         r=self.client_catalog_manager.post(url) #CatalogManager user
         self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
+        
+        #System product to product
+        url=f"{td.tmSystemProducts.hlu(28)}create_product/"
+        r=self.client_testing.post(url) #Normal user
+        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
+        self.assertNotEqual(loads(r.content)["system_products"], None,  f"Error getting system_companies {url}")
+        
+        #System company to company
+        url=f"{td.tmSystemCompanies.hlu(27)}create_company/"
+        r=self.client_testing.post(url) #Normal user
+        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
+        self.assertNotEqual(loads(r.content)["system_companies"], None,  f"Error getting system_companies {url}")

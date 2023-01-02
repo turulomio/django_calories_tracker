@@ -745,7 +745,31 @@ class SystemCompaniesViewSet(CatalogModelViewSet):
         if all_args_are_not_none(search):
             return models.SystemCompanies.objects.filter(name__icontains=search).order_by("name")
         return self.queryset
+    
 
+    @action(detail=True, methods=['POST'], name='Creates a company from a system company', url_path="create_company", url_name='create_company', permission_classes=[permissions.IsAuthenticated])
+    def create_company(self, request, pk=None):
+        """
+            <div style="background-color:BurlyWood;">
+            <p>Creates and liks a company with a system company</p>
+            
+            <table class="parameters table table-bordered ">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>system_companies<span class="label label-warning">required</span></td><td>SystemCompany url</td><td>Company will be created with this system company url</td></tr>
+
+            </tbody>
+            </table>
+            </div>
+        """
+        
+
+        system_companies=self.get_object()
+        company=system_companies.update_linked_company(request.user)
+        company.uses=0#Needed
+        return JsonResponse(serializers.CompaniesSerializer(company, context={'request': request}).data, status=200)
 
 class SystemProductsViewSet(CatalogModelViewSet):
     queryset = models.SystemProducts.objects.select_related("system_companies").prefetch_related("additives",  "additives__additive_risks","systemproductsformatsthrough_set").all()
@@ -773,34 +797,9 @@ class SystemProductsViewSet(CatalogModelViewSet):
     def create_product(self, request, pk=None):
         system_product = self.get_object()
         product=system_product.update_linked_product(request.user)
-        return json_data_response( True, product.id, "Product created")
-    
+        product.uses=-1#Needed
+        return JsonResponse(serializers.ProductsSerializer(product, context={'request': request}).data, status=200)
 
-@api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated, ])
-## Links a systemproduct to a product. No todos los system products están por eso se linka
-def SystemCompany2Company(request):
-    """
-        <div style="background-color:BurlyWood;">
-        <p>Creates and liks a company with a system company</p>
-        
-        <table class="parameters table table-bordered ">
-        <thead>
-            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-        </thead>
-        <tbody>
-            <tr><td>system_companies<span class="label label-warning">required</span></td><td>SystemCompany url</td><td>Company will be created with this system company url</td></tr>
-
-        </tbody>
-        </table>
-        </div>
-    """
-
-    system_companies=RequestUrl(request, "system_companies", models.SystemCompanies)
-    if all_args_are_not_none(system_companies):
-        system_companies.update_linked_company(request.user)
-        return JsonResponse( True, encoder=MyDjangoJSONEncoder,     safe=False)
-    return JsonResponse( False, encoder=MyDjangoJSONEncoder,     safe=False)
     
 
 @api_view(['GET', 'POST'])
