@@ -5,7 +5,7 @@ from calories_tracker import tests_data as td
 from django.contrib.auth.models import User
 from django.test import tag
 #from django.utils import timezone
-from json import loads
+from json import loads, dumps
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from django.contrib.auth.models import Group
@@ -141,6 +141,17 @@ class CtTestCase(APITestCase):
         print()
         print("test_extra_actions")
         
+        # Update steps
+        elaboration=td.tmElaborations.create(0, self.client_testing)
+        url=f"{elaboration['url']}update_steps/"
+        steps=[]
+        elaboration_step=td.tmElaborationsSteps.create(0, self.client_testing)
+        steps.append(elaboration_step)
+        del elaboration_step["url"]#preparando elaboration_step, sin url
+        steps.append(elaboration_step)#Adds second step
+        r=self.client_testing.post(url, dumps({"steps":steps}), content_type='application/json') #Normal user
+        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
+
         #Meals ranking
         url="/api/meals/ranking/?from_date=2023-01-01"
         for i in range(3):

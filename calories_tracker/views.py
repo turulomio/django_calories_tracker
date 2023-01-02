@@ -156,7 +156,6 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         elaboration=self.get_object()
         ##Lista con todos que se va quitando para borrar al final
         to_delete=list(models.ElaborationsSteps.objects.filter(elaborations=elaboration).values_list("id", flat=True))
-                
         for d in request.data["steps"]:
             es=models.ElaborationsSteps()
             if "url" in d:
@@ -164,7 +163,6 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
                     id=id_from_url(d["url"])
                     to_delete.remove(id)# Va borrando de la lista a borrar los que están en el post
                     es=models.ElaborationsSteps.objects.get(pk=id)
-                
             es.elaborations=object_from_url(d["elaborations"], models.Elaborations)
             es.order=d["order"]
             es.steps=object_from_url(d["steps"], models.Steps)
