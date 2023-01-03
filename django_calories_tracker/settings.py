@@ -25,6 +25,8 @@ REST_FRAMEWORK={
     ], 
     'COERCE_DECIMAL_TO_STRING': False, 
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5
 }
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Django Calories Tracker API Documentation',

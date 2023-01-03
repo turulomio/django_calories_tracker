@@ -4,7 +4,7 @@ from calories_tracker.reusing.connection_dj import show_queries, show_queries_fu
 from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.reusing.listdict_functions import listdict_order_by
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url, RequestInteger
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url, RequestInteger, RequestGetInteger
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response, json_data_response
 from calories_tracker.update_data import update_from_data
 from datetime import datetime
@@ -21,6 +21,7 @@ from itertools import product
 from json import loads
 from rest_framework import viewsets, permissions,  status, mixins
 from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from statistics import median
 from urllib import request as urllib_request
@@ -618,6 +619,31 @@ class FilesViewSet(mixins.RetrieveModelMixin,
         qs_files=models.Files.objects.filter(user=request.user, pk=pk).only("content")
         return Response(qs_files[0].get_content_js())
     
+class PagePaginationWithTotalPages(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+    def get_paginated_response(self, data):
+        return Response({
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'count': self.page.paginator.count,
+            'total_pages': self.page.paginator.num_pages,
+            'page': self.page.number, 
+            'results': data, 
+        })
+        #De v-data-table footer
+#  page: number,
+#  itemsPerPage: number,
+#  sortBy: string[],
+#  sortDesc: boolean[],
+#  groupBy: string[],
+#  groupDesc: boolean[],
+#  multiSort: boolean,
+#  mustSort: boolean
+#}
+    
 ## Only with recipes_Links to get file for main image
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories", 
@@ -625,6 +651,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
+    pagination_class=PagePaginationWithTotalPages
     @extend_schema(
         parameters=[
             OpenApiParameter(name='search', description='String used to search recipes. ', required=True, type=str), 
@@ -680,9 +707,15 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
     
     def list(self, request):
-        r= viewsets.ModelViewSet.list(self, request)
+        #r= viewsets.ModelViewSet.list(self, request)
         #show_queries_function()
-        return r
+        page = self.paginate_queryset(self.queryset)
+        print(page, "Ahora")
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(self.queryset, many=True)
+        return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
