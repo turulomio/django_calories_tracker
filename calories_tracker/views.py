@@ -620,8 +620,7 @@ class FilesViewSet(mixins.RetrieveModelMixin,
         return Response(qs_files[0].get_content_js())
     
 class PagePaginationWithTotalPages(PageNumberPagination):
-    page_size = 5
-    page_size_query_param = 'page_size'
+    page_size = 10
     max_page_size = 1000
 
     def get_paginated_response(self, data):
@@ -633,16 +632,7 @@ class PagePaginationWithTotalPages(PageNumberPagination):
             'page': self.page.number, 
             'results': data, 
         })
-        #De v-data-table footer
-#  page: number,
-#  itemsPerPage: number,
-#  sortBy: string[],
-#  sortDesc: boolean[],
-#  groupBy: string[],
-#  groupDesc: boolean[],
-#  multiSort: boolean,
-#  mustSort: boolean
-#}
+
     
 ## Only with recipes_Links to get file for main image
 class RecipesViewSet(viewsets.ModelViewSet):
@@ -652,35 +642,13 @@ class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
     pagination_class=PagePaginationWithTotalPages
+    order_by="-last"
     @extend_schema(
         parameters=[
             OpenApiParameter(name='search', description='String used to search recipes. ', required=True, type=str), 
         ],
     )
     def get_queryset(self):
-        def get_number_of_recipes(search, default=20):
-            arr=search.split(":")
-            from_=0
-            to_=default
-            if len(arr)==2: #:LAST
-                from_=0
-                to_=default
-            if len(arr)==3:#:LAST:20
-                try:
-                    from_=0
-                    to_= int(arr[2])
-                except:
-                    from_=0
-                    to_=default
-            if len(arr)==4: #:LAST:20:40
-                try:
-                    from_=int(arr[2])
-                    to_= int(arr[3])
-                except:
-                    from_=0
-                    to_=default
-            return (from_, to_)
-        ###################
         search=RequestGetString(self.request, 'search') 
         if all_args_are_not_none(search):
             
@@ -689,15 +657,16 @@ class RecipesViewSet(viewsets.ModelViewSet):
             elif search==":GUESTS":
                 return self.queryset.filter(user=self.request.user, guests=True)
             elif search==":VALORATION":
+                self.order_by="-valoration"
                 return self.queryset.filter(user=self.request.user, valoration__isnull=False)
             elif search==":WITH_ELABORATIONS":
                 recipes_ids=list(models.Elaborations.objects.filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
                 return self.queryset.filter(pk__in=recipes_ids, user=self.request.user)
             elif search.startswith(":WITHOUT_MAINPHOTO"):
                 recipes_with_photo_ids=list(models.RecipesLinks.objects.filter(type_id=models.eRecipeLink.MainPhoto).filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
-                return self.queryset.exclude(pk__in=recipes_with_photo_ids).filter(user=self.request.user)[get_number_of_recipes(search)[0]:get_number_of_recipes(search)[1]]
+                return self.queryset.exclude(pk__in=recipes_with_photo_ids).filter(user=self.request.user)
             elif search.startswith(":LAST"):
-                return self.queryset.filter(user=self.request.user).order_by("-last")[get_number_of_recipes(search)[0]: get_number_of_recipes(search)[1]]
+                return self.queryset.filter(user=self.request.user)
             else:
                 self.queryset.filter(user=self.request.user)
                 arr=search.split(" ")
@@ -707,15 +676,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
     
     def list(self, request):
-        #r= viewsets.ModelViewSet.list(self, request)
-        #show_queries_function()
-        page = self.paginate_queryset(self.queryset)
-        print(page, "Ahora")
+        page = self.paginate_queryset(self.queryset.order_by(self.order_by))
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(self.queryset, many=True)
-        return Response(serializer.data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def retrieve(self, request, *args, **kwargs):
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
