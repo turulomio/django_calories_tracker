@@ -621,7 +621,7 @@ class FilesViewSet(mixins.RetrieveModelMixin,
     
 class PagePaginationWithTotalPages(PageNumberPagination):
     page_size = 10
-    max_page_size = 1000
+    max_page_size = 10000
 
     def get_paginated_response(self, data):
         return Response({
@@ -676,7 +676,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
     
     def list(self, request):
-        page = self.paginate_queryset(self.queryset.order_by(self.order_by))
+        page = self.paginate_queryset(self.get_queryset().order_by(self.order_by))
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
