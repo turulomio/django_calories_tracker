@@ -640,6 +640,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return self.queryset.filter(user=self.request.user, guests=True)
             elif search==":VALORATION":
                 return self.queryset.filter(user=self.request.user, valoration__isnull=False)
+            elif search==":WITH_ELABORATIONS":
+                recipes_ids=list(models.Elaborations.objects.filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
+                return self.queryset.filter(pk__in=recipes_ids, user=self.request.user)
             elif search.startswith(":LAST"):
                 arr=search.split(":")
                 try:
@@ -656,7 +659,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
     
     def list(self, request):
-        return viewsets.ModelViewSet.list(self, request)
+        r= viewsets.ModelViewSet.list(self, request)
+        #show_queries_function()
+        return r
 
     def retrieve(self, request, *args, **kwargs):
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
