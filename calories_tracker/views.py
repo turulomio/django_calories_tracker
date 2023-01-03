@@ -631,6 +631,29 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ],
     )
     def get_queryset(self):
+        def get_number_of_recipes(search, default=20):
+            arr=search.split(":")
+            from_=0
+            to_=default
+            if len(arr)==2: #:LAST
+                from_=0
+                to_=default
+            if len(arr)==3:#:LAST:20
+                try:
+                    from_=0
+                    to_= int(arr[2])
+                except:
+                    from_=0
+                    to_=default
+            if len(arr)==4: #:LAST:20:40
+                try:
+                    from_=int(arr[2])
+                    to_= int(arr[3])
+                except:
+                    from_=0
+                    to_=default
+            return (from_, to_)
+        ###################
         search=RequestGetString(self.request, 'search') 
         if all_args_are_not_none(search):
             
@@ -643,13 +666,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
             elif search==":WITH_ELABORATIONS":
                 recipes_ids=list(models.Elaborations.objects.filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
                 return self.queryset.filter(pk__in=recipes_ids, user=self.request.user)
+            elif search.startswith(":WITHOUT_MAINPHOTO"):
+                recipes_with_photo_ids=list(models.RecipesLinks.objects.filter(type_id=models.eRecipeLink.MainPhoto).filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
+                return self.queryset.exclude(pk__in=recipes_with_photo_ids).filter(user=self.request.user)[get_number_of_recipes(search)[0]:get_number_of_recipes(search)[1]]
             elif search.startswith(":LAST"):
-                arr=search.split(":")
-                try:
-                    number=int(arr[2])
-                except:
-                    number=50
-                return self.queryset.filter(user=self.request.user).order_by("-last")[0:number]
+                return self.queryset.filter(user=self.request.user).order_by("-last")[get_number_of_recipes(search)[0]: get_number_of_recipes(search)[1]]
             else:
                 self.queryset.filter(user=self.request.user)
                 arr=search.split(" ")
