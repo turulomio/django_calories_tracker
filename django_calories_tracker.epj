@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-01-02, 07:45:04"
+    "saved": "2023-01-04, 10:11:31"
   },
   "project": {
     "AUTHOR": "",
@@ -118,6 +118,8 @@
       "calories_tracker/migrations/0032_recipeslinks_files.py",
       "calories_tracker/migrations/__init__.py",
       "calories_tracker/models.py",
+      "calories_tracker/paginators.py",
+      "calories_tracker/permissions.py",
       "calories_tracker/reusing/call_by_name.py",
       "calories_tracker/reusing/casts.py",
       "calories_tracker/reusing/connection_dj.py",
