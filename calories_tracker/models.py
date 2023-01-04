@@ -921,7 +921,7 @@ class Elaborations(models.Model):
     diners = models.IntegerField( blank=False, null=False)
     elaborations_products_in = models.ManyToManyField(Products, through='ElaborationsProductsInThrough', blank=True)
     recipes=models.ForeignKey(Recipes, related_name="elaborations", on_delete=models.DO_NOTHING) 
-    final_amount = models.DecimalField(max_digits=10, decimal_places=3)
+    final_amount = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     automatic=models.BooleanField(blank=False, null=False, default=False)
     automatic_adaptation_step=models.TextField(blank=True, null=True)
     
