@@ -4,10 +4,10 @@ from calories_tracker.reusing.connection_dj import show_queries, show_queries_fu
 from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.reusing.listdict_functions import listdict_order_by
+from calories_tracker.paginators import PagePaginationWithTotalPages
+from calories_tracker.permissions import GroupCatalogManager
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url, RequestInteger
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response, json_data_response
-from calories_tracker.update_data import update_from_data
-from datetime import datetime
 from decimal import Decimal
 from django.db import transaction
 from django.db.models import Count, Min, Prefetch
@@ -18,23 +18,14 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
 from itertools import product
-from json import loads
 from rest_framework import viewsets, permissions,  status, mixins
 from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from statistics import median
-from urllib import request as urllib_request
 
 ptimeit
 show_queries
 show_queries_function
-
-class GroupCatalogManager(permissions.BasePermission):
-    """Permiso que comprueba si pertenece al grupo Interventor """
-    def has_permission(self, request, view):
-        return request.user.groups.filter(name="CatalogManager").exists()
-    
 
 
 @permission_classes([permissions.IsAuthenticated, ])
@@ -618,20 +609,6 @@ class FilesViewSet(mixins.RetrieveModelMixin,
     def content(self, request, pk=None):
         qs_files=models.Files.objects.filter(user=request.user, pk=pk).only("content")
         return Response(qs_files[0].get_content_js())
-    
-class PagePaginationWithTotalPages(PageNumberPagination):
-    page_size = 10
-    max_page_size = 10000
-
-    def get_paginated_response(self, data):
-        return Response({
-            'next': self.get_next_link(),
-            'previous': self.get_previous_link(),
-            'count': self.page.paginator.count,
-            'total_pages': self.page.paginator.num_pages,
-            'page': self.page.number, 
-            'results': data, 
-        })
 
     
 ## Only with recipes_Links to get file for main image
@@ -916,38 +893,6 @@ def Statistics(request):
     ):
         r.append({"name": name, "value":cls.objects.all().count()})
     return JsonResponse(r, safe=False)
-
-
-
-@api_view(['POST', ])
-@permission_classes([permissions.IsAuthenticated, ])
-@transaction.atomic
-def MaintenanceCatalogsUpdate(request):
-    start=datetime.now()
-    auto=RequestBool(request, "auto", False) ## Uses automatic request with settings globals investing.com   
-    if auto is True:
-        response = urllib_request. urlopen("https://raw.githubusercontent.com/turulomio/django_calories_tracker/main/calories_tracker/data/catalogs.json")
-        data =  loads(response. read())
-        update_from_data(data)
-    else:
-        # if not GET, then proceed
-        if "json_file1" not in request.FILES:
-            return Response({'status': 'You must upload a file'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            json_file = request.FILES["json_file1"]
-            
-        if not json_file.name.endswith('.json'):
-            return Response({'status': 'File has not .json extension'}, status=status.HTTP_404_NOT_FOUND)
-
-        data=loads(json_file.read())
-        update_from_data(data)
-
-    print(f"Update catalogs took {datetime.now()-start}")
-
-    return JsonResponse( True, encoder=MyDjangoJSONEncoder, safe=False)
-    
-    
-
 
 @api_view(['GET', ])
 @permission_classes([permissions.IsAuthenticated, ])
