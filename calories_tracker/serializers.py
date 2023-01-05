@@ -543,7 +543,7 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.SystemProducts
         fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname', 'additives_risk','density')
-
+    
     def create(self, validated_data):
         request=self.context.get("request")
         validated_data['version']=timezone.now()
@@ -556,8 +556,8 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
             th.formats=object_from_url(d["formats"], models.Formats)
             th.system_products=created
             th.save()
-        created.update_linked_product(request.user)
-        
+        created.save()
+        #created.update_linked_product(request.user)
         return created
         
          
@@ -580,6 +580,7 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
             th.formats=object_from_url(d["formats"], models.Formats)
             th.system_products=updated
             th.save()
+        updated.save()
         updated.update_linked_product(request.user)
         
         return updated

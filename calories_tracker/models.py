@@ -342,12 +342,9 @@ class SystemProducts(models.Model):
     version= models.DateTimeField()
     version_description=models.TextField(blank=True, null=True)
 
-
     class Meta:
         managed = True
         db_table = 'system_products'
-
-
 
     def __str__(self):
         return self.fullname()
@@ -359,12 +356,8 @@ class SystemProducts(models.Model):
         version_parent=""
         if self.version_parent is not None:
             version_parent=f" v{self.version.date()}"
-        
-        
         return f"{_(self.name)}{company}{version_parent}"
-        
-        
-                
+
     ## @param sp SystemProducts to link to Product
     ## Solo debe usarse cuando se linke o se sepa que es un systemproduct
     def update_linked_product(self, user):
@@ -416,14 +409,10 @@ class SystemProducts(models.Model):
         ## Refresh system products formats
         for f in self.formats.all():
             spft=SystemProductsFormatsThrough.objects.get(system_products=self, formats=f)
-            
-            
-
             th=ProductsFormatsThrough()
             th.amount=spft.amount
             th.formats=spft.formats
             th.products=p
-            
             th.save()
             
         p.save()

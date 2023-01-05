@@ -20,13 +20,17 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 REST_FRAMEWORK={ 
     'DEFAULT_AUTHENTICATION_CLASSES':[
-        #'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication', 
     ], 
     'COERCE_DECIMAL_TO_STRING': False, 
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-
 }
+
+if 'rest_framework.authentication.BasicAuthentication' in REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"]:
+    print ("You should remove BasicAuthentication for production systems")
+
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Django Calories Tracker API Documentation',
     'DESCRIPTION': 'Interactive documentation',
