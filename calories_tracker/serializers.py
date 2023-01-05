@@ -6,7 +6,6 @@ from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from calories_tracker import models
 from calories_tracker.reusing.request_casting import object_from_url
-#from mimetypes import guess_type
 
 
 class ActivitiesSerializer(serializers.HyperlinkedModelSerializer):

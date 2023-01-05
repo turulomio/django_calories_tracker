@@ -776,16 +776,9 @@ class SystemProductsViewSet(CatalogModelViewSet):
     queryset = models.SystemProducts.objects.select_related("system_companies").prefetch_related("additives",  "additives__additive_risks","systemproductsformatsthrough_set").all()
     serializer_class = serializers.SystemProductsSerializer  
     
-    ## api/system_products/search_not_in=hol. Search all system products that desn't hava a product yet with hol
     ## api/system_products/search=hol. Search all system products that contains search string in name
     def get_queryset(self):
-        search_not_in=RequestGetString(self.request, 'search_not_in') 
-        search=RequestGetString(self.request, 'search') 
-        if all_args_are_not_none(search_not_in):
-            ## Gets system_companies_id already in companies
-            ids_in_products=models.Products.objects.filter(user=self.request.user).values("system_products_id")
-            ## Filter by name and exclude already
-            return self.queryset.filter(name__icontains=search).exclude(id__in=[o['system_products_id'] for o in ids_in_products]).order_by("name")
+        search=RequestGetString(self.request, 'search')
         if all_args_are_not_none(search):
             ids=[]
             for p in self.queryset:

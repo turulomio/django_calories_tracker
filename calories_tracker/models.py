@@ -12,7 +12,6 @@
 #CAda vez que se crea un producto, se copia y se linka de system_products si existiera 
 
 from base64 import b64encode
-from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.reusing.decorators import ptimeit
 from datetime import date, timedelta,  datetime
 from decimal import Decimal
@@ -30,20 +29,6 @@ from preview_generator.manager import PreviewManager
 from simple_history.models import HistoricalRecords
 
 ptimeit
-
-def is_equal_as_float(value1, value2):
-    if value1 is None and value2 is None: 
-        return True
-    if value1 is None and value2 is not None:
-        return False
-    if value1 is not None and value2 is None:
-        return False
-    a=float(value1)
-    b=float(value2)
-    if a==b:
-        return True
-    return False
-
 
 class Files(models.Model):
     content=models.BinaryField(blank=False, null=False)
@@ -111,35 +96,12 @@ class Activities(models.Model):
     def __str__(self):
         return self.name
 
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        if not self.description==other.description:
-            return False
-        if not is_equal_as_float(self.multiplier, other.multiplier):
-            return False
-        return True
-    
-    ## Returns a json string
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "description": {jss(self.description)}, "multiplier": {jss(self.multiplier)} }}"""
-        
-
-
 class AdditiveRisks(models.Model):
     name = models.TextField()
 
     class Meta:
         managed = True
         db_table = 'additive_risks'
-        
-    ## Returns a json string
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        return True
         
     def __str__(self):
         return self.name
@@ -150,13 +112,6 @@ class WeightWishes(models.Model):
     class Meta:
         managed = True
         db_table = 'weight_wishes'
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        return True
-    ## Returns a json string
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
         
     def __str__(self):
         return self.name
@@ -169,19 +124,6 @@ class Additives(models.Model):
     class Meta:
         managed = True
         db_table = 'additives'
-        
-    ## Returns a json string
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "description": {jss(self.description)}, "additive_risks": {jss(self.additive_risks.id)} }}"""
-    
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        if not self.description==other.description:
-            return False
-        if not self.additive_risks==other.additive_risks:
-            return False
-        return True
         
     def __str__(self):
         return self.name
@@ -299,13 +241,6 @@ class FoodTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'food_types'
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        return True
-    ## Returns a json string
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
         
     def __str__(self):
         return self.name
@@ -318,18 +253,6 @@ class SystemCompanies(models.Model):
     class Meta:
         managed = True
         db_table = 'system_companies'
-
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        if not self.last==other.last:
-            return False
-        if not self.obsolete==other.obsolete:
-            return False
-        return True
-    ## Returns a json string
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "last": {jss(self.last)}, "obsolete": {jss(self.obsolete)} }}"""
         
     def __str__(self):
         return self.name
@@ -383,14 +306,6 @@ class Formats(models.Model):
     class Meta:
         managed = True
         db_table = 'formats'
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        return True
-        
-    ## Returns a json string
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
 
     def __str__(self):
         return self.name
@@ -427,80 +342,12 @@ class SystemProducts(models.Model):
     version= models.DateTimeField()
     version_description=models.TextField(blank=True, null=True)
 
-    ## Returns a json string
-    def json(self):
-        system_companies=None if self.system_companies is None else self.system_companies.id
-        food_types=None if self.food_types is None else self.food_types.id
-        version_parent=None if self.version_parent is None else self.version_parent.id
-        
-        additives=""
-        for a in self.additives.all().order_by("id"):#Son objetos additives
-            additives=additives+f"""{{ "additives": {jss(a.id)} }},"""
-        additives=additives[:-1]
-        
-        formats=""
-        for spf in self.systemproductsformatsthrough_set.all().order_by("id"):#Son objetos additives
-            formats=formats+f"""{{ "id": {jss(spf.id)}, "formats": {jss(spf.formats.id)}, "amount": {jss(spf.amount)} }},"""
-        formats=formats[:-1]
-        
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "amount": {jss(self.amount)}, "fat": {jss(self.fat)}, "protein": {jss(self.protein)}, "carbohydrate": {jss(self.carbohydrate)}, "calories": {jss(self.calories)}, "salt": {jss(self.salt)}, "cholesterol": {jss(self.cholesterol)}, "sodium": {jss(self.sodium)}, "potassium": {jss(self.potassium)}, "fiber": {jss(self.fiber)}, "sugars": {jss(self.sugars)}, "saturated_fat": {jss(self.saturated_fat)}, "ferrum": {jss(self.ferrum)}, "magnesium": {jss(self.magnesium)}, "phosphor": {jss(self.phosphor)}, "glutenfree": {jss(self.glutenfree)}, "calcium": {jss(self.calcium)}, "system_companies": {jss(system_companies)}, "food_types": {jss(food_types)}, "obsolete": {jss(self.obsolete)}, "version_parent": {jss(version_parent)}, "version": {jss(self.version)}, "version_description": {jss(self.version_description)}, "density": {jss(self.density)}, "additives" : [{additives}], "formats": [{formats}] }}"""
-
 
     class Meta:
         managed = True
         db_table = 'system_products'
 
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        if not is_equal_as_float( self.amount,other.amount):
-            return False
-        if not is_equal_as_float( self.protein,other.protein):
-            return False
-        if not is_equal_as_float( self.carbohydrate,other.carbohydrate):
-            return False
-        if not is_equal_as_float( self.calories,other.calories):
-            return False
-        if not is_equal_as_float( self.salt,other.salt):
-            return False
-        if not is_equal_as_float( self.cholesterol,other.cholesterol):
-            return False
-        if not is_equal_as_float( self.sodium,other.sodium):
-            return False
-        if not is_equal_as_float( self.potassium,other.potassium):
-            return False
-        if not is_equal_as_float( self.fiber,other.fiber):
-            return False
-        if not is_equal_as_float( self.sugars,other.sugars):
-            return False
-        if not is_equal_as_float( self.saturated_fat,other.saturated_fat):
-            return False
-        if not is_equal_as_float( self.ferrum,other.ferrum):
-            return False
-        if not is_equal_as_float( self.magnesium,other.magnesium):
-            return False
-        if not is_equal_as_float( self.phosphor,other.phosphor):
-            return False
-        if not self.glutenfree==other.glutenfree:
-            return False
-        if not is_equal_as_float( self.calcium,other.calcium):
-            return False
-        if not is_equal_as_float( self.density,other.density):
-            return False
-        if not self.system_companies==other.system_companies:
-            return False
-        if not self.food_types==other.food_types:
-            return False
-        if not self.additives==other.additives:
-            return False
-        if not self.formats==other.formats:
-            return False
-        if not self.obsolete==other.obsolete:
-            return False
-        if not self.version_parent==other.version_parent:
-            return False
-        if not self.version==other.version:
-            return False
+
 
     def __str__(self):
         return self.fullname()
@@ -857,14 +704,6 @@ class RecipesCategories(models.Model):
     
     def __str__(self):
         return self.name
-        
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
-        
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        return True
 
 class Recipes(models.Model):
     name = models.TextField()
@@ -895,16 +734,9 @@ class RecipesLinksTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'recipes_links_types'
+        
     def __str__(self):
         return self.name
-        ## Returns a json string
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
-        
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        return True
 
 class RecipesLinks(models.Model):
     description=models.TextField( blank=False, null=False)
@@ -946,15 +778,9 @@ class MeasuresTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'measures_types'
+        
     def __str__(self):
         return self.name
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
-        
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        return True
 
     def localname(self):
         return _(self.name)
@@ -999,15 +825,9 @@ class TemperaturesTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'temperatures_types'
+
     def __str__(self):
         return self.name
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
-        
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        return True
 
 class StirTypes(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -1016,15 +836,9 @@ class StirTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'stir_types'
+
     def __str__(self):
         return self.name
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)} }}"""
-        
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        return True
 
 class Steps(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -1044,34 +858,6 @@ class Steps(models.Model):
     
     def __str__(self):
         return f"Step: {self.name}"
-    
-    def json(self):
-        return f"""{{ "id": {jss(self.id)}, "name": {jss(self.name)}, "can_products_in_step": {jss(self.can_products_in_step)}, "man_products_in_step": {jss(self.man_products_in_step)}, "can_container": {jss(self.can_container)}, "man_container": {jss(self.man_container)}, "can_container_to": {jss(self.can_container_to)}, "man_container_to": {jss(self.man_container_to)}, "can_temperatures": {jss(self.can_temperatures)}, "man_temperatures": {jss(self.man_temperatures)}, "can_stir": {jss(self.can_stir)}, "man_stir": {jss(self.man_stir)} }}"""
-        
-    def is_fully_equal(self, other):
-        if not self.name==other.name:
-            return False
-        if not self.can_products_in_step==other.can_products_in_step:
-            return False
-        if not self.man_products_in_step==other.man_products_in_step:
-            return False
-        if not self.can_container==other.can_container:
-            return False
-        if not self.man_container==other.man_container:
-            return False
-        if not self.can_container_to==other.can_container_to:
-            return False
-        if not self.man_container_to==other.man_container_to:
-            return False
-        if not self.can_temperatures==other.can_temperatures:
-            return False
-        if not self.man_temperatures==other.man_temperatures:
-            return False
-        if not self.can_stir==other.can_stir:
-            return False
-        if not self.man_stir==other.man_stir:
-            return False
-        return True
     
     def localname(self):
         return _(self.name)
@@ -1323,24 +1109,6 @@ class eWeightWish:
 class eRecipeLink:
     MainPhoto=7
 
-## Converts a value to a json strings, depending its value
-## str >> "str"
-
-def jss(value):
-    if value is None:
-        return "null"
-    elif value.__class__.__name__=="str":
-        return f'"{value}"'
-    elif value.__class__.__name__ in ("int", "float", "Decimal"):
-        return f"{value}"
-    elif value.__class__.__name__=="time":
-        return f'"{value}"'
-    elif value.__class__.__name__=="bool":
-        return f"{str(value).lower()}"
-    elif value.__class__.__name__=="datetime":
-        return f'"{dtaware2string(value, "JsUtcIso")}"'
-    else:
-        print(f"Rare value '{value}' ({value.__class__.__name__}) in jss")
 
 def time_to_timedelta(time):
     d=datetime(2022, 12, 1, 0, 0, 0, 0)
