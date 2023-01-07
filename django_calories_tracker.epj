@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-01-04, 10:11:31"
+    "saved": "2023-01-05, 09:55:05"
   },
   "project": {
     "AUTHOR": "",
@@ -78,12 +78,10 @@
       "calories_tracker/management/commands/doxygen.py",
       "calories_tracker/management/commands/dumpdata_catalogs.py",
       "calories_tracker/management/commands/dumppostgres.py",
-      "calories_tracker/management/commands/export_catalogs.py",
       "calories_tracker/management/commands/import_recipes_from_directory.py",
       "calories_tracker/management/commands/makedbmessages.py",
       "calories_tracker/management/commands/migrate_from_caloriestracker.py",
       "calories_tracker/management/commands/procedure.py",
-      "calories_tracker/management/commands/update_catalogs.py",
       "calories_tracker/migrations/0001_initial.py",
       "calories_tracker/migrations/0002_remove_profiles_id_alter_products_additives_and_more.py",
       "calories_tracker/migrations/0003_add_group_catalog_manager.py",
@@ -138,7 +136,6 @@
       "calories_tracker/tests_data.py",
       "calories_tracker/tests_helpers.py",
       "calories_tracker/unogenerator_files.py",
-      "calories_tracker/update_data.py",
       "calories_tracker/views.py",
       "django_calories_tracker/__init__.py",
       "django_calories_tracker/asgi.py",
