@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-01-05, 09:55:05"
+    "saved": "2023-01-24, 19:28:26"
   },
   "project": {
     "AUTHOR": "",
@@ -73,6 +73,7 @@
       "calories_tracker/__init__.py",
       "calories_tracker/admin.py",
       "calories_tracker/apps.py",
+      "calories_tracker/factory.py",
       "calories_tracker/hardcoded_strings.py",
       "calories_tracker/management/commands/coverage.py",
       "calories_tracker/management/commands/doxygen.py",
@@ -114,6 +115,14 @@
       "calories_tracker/migrations/0030_elaborations_automatic_and_more.py",
       "calories_tracker/migrations/0031_files.py",
       "calories_tracker/migrations/0032_recipeslinks_files.py",
+      "calories_tracker/migrations/0033_auto_20221210_0831.py",
+      "calories_tracker/migrations/0034_remove_recipeslinks_content_remove_recipeslinks_mime.py",
+      "calories_tracker/migrations/0035_alter_files_thumbnail.py",
+      "calories_tracker/migrations/0036_pots_height_pots_photo.py",
+      "calories_tracker/migrations/0037_historicalbiometrics.py",
+      "calories_tracker/migrations/0038_steps_can_container_steps_can_container_to_and_more.py",
+      "calories_tracker/migrations/0039_steps_man_container_steps_man_container_to_and_more.py",
+      "calories_tracker/migrations/0040_alter_elaborations_final_amount.py",
       "calories_tracker/migrations/__init__.py",
       "calories_tracker/models.py",
       "calories_tracker/paginators.py",
@@ -124,6 +133,7 @@
       "calories_tracker/reusing/connection_pg.py",
       "calories_tracker/reusing/datetime_functions.py",
       "calories_tracker/reusing/decorators.py",
+      "calories_tracker/reusing/factory_helpers.py",
       "calories_tracker/reusing/github.py",
       "calories_tracker/reusing/libmanagers.py",
       "calories_tracker/reusing/listdict_functions.py",
