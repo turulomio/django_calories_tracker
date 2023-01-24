@@ -5,3 +5,5 @@ django-simple-history
 preview-generator
 tabulate
 coverage
+factory-boy
+faker

@@ -1,5 +1,6 @@
-from calories_tracker import models
+from calories_tracker import models, factory
 from calories_tracker import tests_helpers 
+from calories_tracker.reusing import factory_helpers
 from calories_tracker.tests_helpers import  print_list, TestModelManager, hlu
 from calories_tracker import tests_data as td
 from django.contrib.auth.models import User
@@ -133,7 +134,6 @@ class CtTestCase(APITestCase):
             print("test_anonymous_crud", tm.__name__)
             tests_helpers.test_crud_unauthorized_anonymous(self, self.client_anonymous, self.client_testing,  tm)
 
-    @tag('current')
     def test_extra_actions(self):
         """
             Test extra actions security
@@ -178,3 +178,13 @@ class CtTestCase(APITestCase):
         r=self.client_testing.post(url) #Normal user
         self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
         self.assertNotEqual(loads(r.content)["system_companies"], None,  f"Error getting system_companies {url}")
+        
+    def test_elaborated_product(self):
+        pass
+
+    @tag('current')
+    def test_recipes(self):
+        mf=factory_helpers.MyFactory(factory.RecipesFactory, "Private", "/api/recipes/")
+        recipe=mf.factory.create(user=self.user_testing, recipes_categories=factory.RecipesCategoriesFactory.create_batch(2))
+        print(factory_helpers.serialize(recipe))
+#        self.client_testing.post(mf.url,  mf.post_payload(user=self.user_testing))
