@@ -5,7 +5,6 @@ from calories_tracker.tests_helpers import  print_list, TestModelManager, hlu
 from calories_tracker import tests_data as td
 from django.contrib.auth.models import User
 from django.test import tag
-#from django.utils import timezone
 from json import loads, dumps
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
@@ -13,6 +12,26 @@ from django.contrib.auth.models import Group
 
 print_list    
 tag
+
+def post_payload_recipes(user=None):
+    user=User.objects.get(username="testing") if user is None else user
+    o=factory.RecipesFactory.create(user=user)
+    d=factory_helpers.serialize(o)
+    o.delete()
+    del d["id"]
+    del d["url"]
+    return d
+    
+def post_payload_recipes_links(user=None):
+    user=User.objects.get(username="testing") if user is None else user
+    recipe=factory.RecipesFactory.create(user=user)
+    o=factory.RecipesLinksFactory.create(recipes=recipe, files__user=user )
+    d=factory_helpers.serialize(o)
+    del d["id"]
+    del d["url"]
+    del d["files"]
+    return d
+
 
 class CtTestCase(APITestCase):
     fixtures=["all.json"] #Para cargar datos por defecto
@@ -25,11 +44,16 @@ class CtTestCase(APITestCase):
         super().setUpClass()
         
         cls.factories_manager=factory_helpers.MyFactoriesManager()
+        cls.factories_manager.append(factory.AdditivesFactory, "PrivateEditableCatalog", "/api/additives/")
+        cls.factories_manager.append(factory.AdditiveRisksFactory, "PrivateEditableCatalog", "/api/additive_risks/")
         cls.factories_manager.append(factory.FoodTypesFactory, "PrivateEditableCatalog", "/api/food_types/")
+        cls.factories_manager.append(factory.FormatsFactory, "PrivateEditableCatalog", "/api/formats/")
         cls.factories_manager.append(factory.RecipesCategoriesFactory, "PrivateEditableCatalog", "/api/recipes_categories/")
         cls.factories_manager.append(factory.RecipesLinksTypesFactory, "PrivateEditableCatalog", "/api/recipes_links_types/")
-        #cls.factories_manager.append(factory.RecipesFactory, "Private", "/api/recipes/")
-#        cls.factories_manager.append(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
+        cls.factories_manager.append(factory.RecipesFactory, "Private", "/api/recipes/", post_payload_recipes)
+        cls.factories_manager.append(factory.RecipesLinksFactory, "Private", "/api/recipes_links/", post_payload_recipes_links) 
+        cls.factories_manager.append(factory.SystemCompaniesFactory, "PrivateEditableCatalog", "/api/system_companies/")
+
 
         cls.tmm=TestModelManager.from_module_with_testmodels("calories_tracker.tests_data")
         
@@ -79,14 +103,18 @@ class CtTestCase(APITestCase):
         cls.token_user_catalog_manager=result
         
         cls.client_authorized_1=APIClient()
+        cls.client_authorized_1.user=cls.user_authorized_1
         cls.client_authorized_1.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_authorized_1)
 
         cls.client_authorized_2=APIClient()
+        cls.client_authorized_2.user=cls.user_authorized_2
         cls.client_authorized_2.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_authorized_2)
         
         cls.client_anonymous=APIClient()
+        cls.client_anonymous.user=None
         
         cls.client_catalog_manager=APIClient()
+        cls.client_catalog_manager.user=cls.user_catalog_manager
         cls.client_catalog_manager.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_catalog_manager)
 
     def test_catalog_only_retrieve_and_list_actions_allowed(self):
@@ -187,27 +215,37 @@ class CtTestCase(APITestCase):
         self.assertNotEqual(loads(r.content)["system_companies"], None,  f"Error getting system_companies {url}")
         
 
+    @tag("current")
     def test_factory_by_type(self):
         print()
         for f in self.factories_manager:
             print("test_factory_by_type", f.type,  f)
             f.test_by_type(self, self.client_authorized_1, self.client_authorized_2, self.client_anonymous, self.client_catalog_manager)
 
-    def test_elaborated_product(self):
+    @tag("current")
+    def test_system_product(self):
+        """
+            Checks system product logic
+        """
+        
         pass
 
+    @tag("current")
     def test_recipes(self):
+        print()
+        print("test_recipes")
         mf=factory_helpers.MyFactory(factory.RecipesFactory, "Private", "/api/recipes/")
         recipe=mf.factory.create(user=self.user_authorized_1, recipes_categories=factory.RecipesCategoriesFactory.create_batch(2))
         recipe
 #        print(factory_helpers.serialize(recipe))
 #        self.client_authorized_1.post(mf.url,  mf.post_payload(user=self.user_authorized_1))
 
+    @tag("current")
     def test_recipes_links(self):
         print()
         print("test_recipes_links")
         mf=factory_helpers.MyFactory(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
-        payload=mf.post_payload(recipes__user=self.user_authorized_1)#Needs user to create a object, then delete id and url, and delete it. client.post doesn't need user
-        print(payload)
-        recipe=self.client_authorized_1.post(mf.url, payload)
-        print(recipe, recipe.content)
+        recipe=self.client_authorized_1.post(mf.url, post_payload_recipes_links(self.user_authorized_1), format="json")
+        self.assertEqual(recipe.status_code, status.HTTP_201_CREATED)
+        
+        

@@ -697,9 +697,6 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RecipesLinksSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def create(self, validated_data):
-        return viewsets.ModelViewSet.create(self, validated_data) 
-
     def get_queryset(self):
         recipes=RequestGetUrl(self.request, "recipes", models.Recipes)
         if all_args_are_not_none(recipes):

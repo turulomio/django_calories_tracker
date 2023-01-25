@@ -632,7 +632,7 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         
         
-        if request.data['content'] is not None:
+        if "content" in request.data and request.data['content'] is not None:
             f=models.Files()
             f.content=b64decode(request.data['content'].encode('utf-8'))
             f.size=len(f.content)

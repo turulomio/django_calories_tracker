@@ -7,3 +7,4 @@ tabulate
 coverage
 factory-boy
 faker
+Pillow
