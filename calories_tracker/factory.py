@@ -126,13 +126,7 @@ class SystemCompaniesFactory(DjangoModelFactory):
     name = Faker("bothify", text="System Company ??????")
     last = timezone.now()
     obsolete = False
-                
-class SystemProductsFormatsThroughFactory(DjangoModelFactory):
-    class Meta:
-        model= models.SystemProductsFormatsThrough
-#    system_products = SubFactory(SystemProductsFactory)
-    formats = SubFactory(FormatsFactory)
-    amount = Faker("random_int")
+
     
 class SystemProductsFactory(DjangoModelFactory):
     class Meta:
@@ -147,27 +141,24 @@ class SystemProductsFactory(DjangoModelFactory):
     salt=Faker("random_int")
     cholesterol=Faker("random_int")
     sodium=Faker("random_int")
-    postassium=Faker("random_int")
+    potassium=Faker("random_int")
     fiber=Faker("random_int")
     sugars=Faker("random_int")
     saturated_fat=Faker("random_int")
     ferrum=Faker("random_int")
     magnesium=Faker("random_int")
     phosphor=Faker("random_int")
-    glutenfree=Faker("random_int")
+    glutenfree=Faker("boolean")
     calcium=Faker("random_int")
     system_companies=SubFactory(SystemCompaniesFactory)
     food_types=SubFactory(FoodTypesFactory)
-    formats = RelatedFactory( #M2M
-        SystemProductsFormatsThroughFactory,
-        factory_related_name='formats'
-    )
+
 
     density=Faker("random_int")
     obsolete=False
     version_parent=None
-    version=Faker("datetime")
-    version_description=Faker("sentence")
+    version=timezone.now()
+    version_description=None
 
         
     @post_generation
@@ -180,3 +171,16 @@ class SystemProductsFactory(DjangoModelFactory):
 
 
         
+                
+class SystemProductsFormatsThroughFactory(DjangoModelFactory):
+    class Meta:
+        model= models.SystemProductsFormatsThrough
+    system_products = SubFactory(SystemProductsFactory)
+    formats = SubFactory(FormatsFactory)
+    amount = Faker("random_int")
+    
+class SystemProductsFactoryWithFormats(SystemProductsFactory):
+    formats = RelatedFactory(
+        SystemProductsFormatsThroughFactory,
+        factory_related_name='formats',
+    )

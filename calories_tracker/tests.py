@@ -13,24 +13,43 @@ from django.contrib.auth.models import Group
 print_list    
 tag
 
-def post_payload_recipes(user=None):
-    user=User.objects.get(username="testing") if user is None else user
-    o=factory.RecipesFactory.create(user=user)
-    d=factory_helpers.serialize(o)
-    o.delete()
-    del d["id"]
-    del d["url"]
-    return d
-    
-def post_payload_recipes_links(user=None):
-    user=User.objects.get(username="testing") if user is None else user
-    recipe=factory.RecipesFactory.create(user=user)
-    o=factory.RecipesLinksFactory.create(recipes=recipe, files__user=user )
-    d=factory_helpers.serialize(o)
-    del d["id"]
-    del d["url"]
-    del d["files"]
-    return d
+class PostPayload:
+    @staticmethod
+    def Recipes(user=None):
+        user=User.objects.get(username="testing") if user is None else user
+        o=factory.RecipesFactory.create(user=user)
+        d=factory_helpers.serialize(o)
+        o.delete()
+        del d["id"]
+        del d["url"]
+        return d
+
+    @staticmethod
+    def RecipesLinks(user=None):
+        user=User.objects.get(username="testing") if user is None else user
+        recipe=factory.RecipesFactory.create(user=user)
+        o=factory.RecipesLinksFactory.create(recipes=recipe, files__user=user )
+        d=factory_helpers.serialize(o)
+        del d["id"]
+        del d["url"]
+        del d["files"]
+        return d
+
+    @staticmethod
+    def SystemProducts(user=None, with_format=False):
+        """
+            Formats are empty
+            @param with_format If true adds a systemproductsformatthrough. If false for common factory_helpers testers don't
+        """
+        user=User.objects.get(username="catalog_manager") if user is None else user
+        sp=factory.SystemProductsFactory.create()
+        format=factory.FormatsFactory.create()
+        if with_format is True:
+            factory.SystemProductsFormatsThroughFactory(system_products=sp, formats=format)
+        d=factory_helpers.serialize(sp)
+        del d["id"]
+        del d["url"]
+        return d
 
 
 class CtTestCase(APITestCase):
@@ -50,9 +69,10 @@ class CtTestCase(APITestCase):
         cls.factories_manager.append(factory.FormatsFactory, "PrivateEditableCatalog", "/api/formats/")
         cls.factories_manager.append(factory.RecipesCategoriesFactory, "PrivateEditableCatalog", "/api/recipes_categories/")
         cls.factories_manager.append(factory.RecipesLinksTypesFactory, "PrivateEditableCatalog", "/api/recipes_links_types/")
-        cls.factories_manager.append(factory.RecipesFactory, "Private", "/api/recipes/", post_payload_recipes)
-        cls.factories_manager.append(factory.RecipesLinksFactory, "Private", "/api/recipes_links/", post_payload_recipes_links) 
+        cls.factories_manager.append(factory.RecipesFactory, "Private", "/api/recipes/", PostPayload.Recipes)
+        cls.factories_manager.append(factory.RecipesLinksFactory, "Private", "/api/recipes_links/", PostPayload.RecipesLinks) 
         cls.factories_manager.append(factory.SystemCompaniesFactory, "PrivateEditableCatalog", "/api/system_companies/")
+        cls.factories_manager.append(factory.SystemProductsFactory, "PrivateEditableCatalog", "/api/system_products/", PostPayload.SystemProducts)
 
 
         cls.tmm=TestModelManager.from_module_with_testmodels("calories_tracker.tests_data")
@@ -245,7 +265,7 @@ class CtTestCase(APITestCase):
         print()
         print("test_recipes_links")
         mf=factory_helpers.MyFactory(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
-        recipe=self.client_authorized_1.post(mf.url, post_payload_recipes_links(self.user_authorized_1), format="json")
+        recipe=self.client_authorized_1.post(mf.url, PostPayload.RecipesLinks(self.user_authorized_1), format="json")
         self.assertEqual(recipe.status_code, status.HTTP_201_CREATED)
         
         

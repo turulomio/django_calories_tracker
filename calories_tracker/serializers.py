@@ -581,7 +581,7 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
             th.system_products=updated
             th.save()
         updated.save()
-        updated.update_linked_product(request.user)
+#        updated.update_linked_product(request.user)
         
         return updated
 
