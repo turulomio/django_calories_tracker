@@ -27,7 +27,9 @@ class CtTestCase(APITestCase):
         cls.factories_manager=factory_helpers.MyFactoriesManager()
         cls.factories_manager.append(factory.FoodTypesFactory, "PrivateEditableCatalog", "/api/food_types/")
         cls.factories_manager.append(factory.RecipesCategoriesFactory, "PrivateEditableCatalog", "/api/recipes_categories/")
-        cls.factories_manager.append(factory.RecipesFactory, "Private", "/api/recipes/")
+        cls.factories_manager.append(factory.RecipesLinksTypesFactory, "PrivateEditableCatalog", "/api/recipes_links_types/")
+        #cls.factories_manager.append(factory.RecipesFactory, "Private", "/api/recipes/")
+#        cls.factories_manager.append(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
 
         cls.tmm=TestModelManager.from_module_with_testmodels("calories_tracker.tests_data")
         
@@ -197,5 +199,15 @@ class CtTestCase(APITestCase):
     def test_recipes(self):
         mf=factory_helpers.MyFactory(factory.RecipesFactory, "Private", "/api/recipes/")
         recipe=mf.factory.create(user=self.user_authorized_1, recipes_categories=factory.RecipesCategoriesFactory.create_batch(2))
-        print(factory_helpers.serialize(recipe))
+        recipe
+#        print(factory_helpers.serialize(recipe))
 #        self.client_authorized_1.post(mf.url,  mf.post_payload(user=self.user_authorized_1))
+
+    def test_recipes_links(self):
+        print()
+        print("test_recipes_links")
+        mf=factory_helpers.MyFactory(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
+        payload=mf.post_payload(recipes__user=self.user_authorized_1)#Needs user to create a object, then delete id and url, and delete it. client.post doesn't need user
+        print(payload)
+        recipe=self.client_authorized_1.post(mf.url, payload)
+        print(recipe, recipe.content)

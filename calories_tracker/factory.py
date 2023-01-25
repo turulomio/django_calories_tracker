@@ -29,6 +29,12 @@ class RecipesCategoriesFactory(DjangoModelFactory):
         model= models.RecipesCategories
         
     name = Faker("bothify", text="Recipe Category ??????")
+    
+class RecipesLinksTypesFactory(DjangoModelFactory):
+    class Meta:
+        model= models.RecipesLinksTypes
+        
+    name = Faker("bothify", text="Recipe Link Type ??????")
 
 
 
@@ -54,6 +60,16 @@ class RecipesFactory(DjangoModelFactory):
 
         # Add the iterable of groups using bulk addition
         self.recipes_categories.add(*extracted)
+
+class RecipesLinksFactory(DjangoModelFactory):
+    class Meta:
+        model= models.RecipesLinks
+        
+    description = Faker("bothify", text="Recipe Link ??????")
+    type=SubFactory(RecipesLinksTypesFactory)
+    link=Faker("uri")
+    files=None
+    recipes=SubFactory(RecipesFactory)
 
 class ElaboratedProductsFactory(DjangoModelFactory):
     class Meta:

@@ -280,7 +280,6 @@ class Companies(models.Model):
     last = models.DateTimeField(auto_now_add=True)
     obsolete = models.BooleanField()
     system_companies = models.ForeignKey(SystemCompanies, on_delete=models.DO_NOTHING,  blank=True, null=True) # Can be none
-
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
     class Meta:
         managed = True
