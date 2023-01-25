@@ -11,6 +11,16 @@ tag
 
 class PostPayload:
     @staticmethod
+    def Biometrics(user=None):
+        user=User.objects.get(username="catalog_manager") if user is None else user
+        o=factory.BiometricsFactory.create(user=user)
+        d=factory_helpers.serialize(o)
+        o.delete()
+        del d["id"]
+        del d["url"]
+        return d
+
+    @staticmethod
     def Recipes(user=None):
         user=User.objects.get(username="testing") if user is None else user
         o=factory.RecipesFactory.create(user=user)
@@ -59,8 +69,10 @@ class CtTestCase(APITestCase):
         super().setUpClass()
         
         cls.factories_manager=factory_helpers.MyFactoriesManager()
+        cls.factories_manager.append(factory.ActivitiesFactory, "PrivateEditableCatalog", "/api/activities/")
         cls.factories_manager.append(factory.AdditivesFactory, "PrivateEditableCatalog", "/api/additives/")
         cls.factories_manager.append(factory.AdditiveRisksFactory, "PrivateEditableCatalog", "/api/additive_risks/")
+        cls.factories_manager.append(factory.BiometricsFactory, "Private", "/api/biometrics/", PostPayload.Biometrics)
         cls.factories_manager.append(factory.FoodTypesFactory, "PrivateEditableCatalog", "/api/food_types/")
         cls.factories_manager.append(factory.FormatsFactory, "PrivateEditableCatalog", "/api/formats/")
         cls.factories_manager.append(factory.RecipesCategoriesFactory, "PrivateEditableCatalog", "/api/recipes_categories/")
@@ -68,8 +80,9 @@ class CtTestCase(APITestCase):
         cls.factories_manager.append(factory.RecipesFactory, "Private", "/api/recipes/", PostPayload.Recipes)
         cls.factories_manager.append(factory.RecipesLinksFactory, "Private", "/api/recipes_links/", PostPayload.RecipesLinks) 
         cls.factories_manager.append(factory.SystemCompaniesFactory, "PrivateEditableCatalog", "/api/system_companies/")
-        cls.factories_manager.append(factory.SystemProductsFactory, "PrivateEditableCatalog", "/api/system_products/", PostPayload.SystemProducts)
-        
+        cls.factories_manager.append(factory.SystemProductsFactory, "PrivateEditableCatalog", "/api/system_products/", PostPayload.SystemProducts)        
+        cls.factories_manager.append(factory.WeightWishesFactory, "PrivateEditableCatalog", "/api/weight_wishes/")
+
         # User to test api
         cls.user_authorized_1 = User(
             email='testing@testing.com',

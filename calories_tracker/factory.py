@@ -1,22 +1,33 @@
-#from django.contrib.auth.models import User
+
 from factory import Faker, SubFactory, lazy_attribute, post_generation, RelatedFactory
 from factory.django import DjangoModelFactory
-#from django.contrib.auth.hashers import make_password
 from calories_tracker import models
 from django.utils import timezone
 #https://faker.readthedocs.io/en/master/providers/faker.providers.currency.html
 
-#
-#class UserFactory(DjangoModelFactory):
-#    class Meta:
-#        model = User
-#
-#    first_name = "Sophia"
-#    last_name = "Ball"
-#    username = "clowngirl@heaven.com"
-#    password = make_password("CHANGEME")
-#    email = "clowngirl@heaven.com"
-#    is_active = True
+class ActivitiesFactory(DjangoModelFactory):
+    class Meta:
+        model= models.Activities
+        
+    name = Faker("bothify", text="Activities ??????")
+    description = Faker("sentence")
+    multiplier = Faker("random_int")
+    
+    
+class WeightWishesFactory(DjangoModelFactory):
+    class Meta:
+        model= models.WeightWishes
+        
+    name = Faker("bothify", text="Weight Wish ??????")
+
+class BiometricsFactory(DjangoModelFactory):
+    class Meta:
+        model= models.Biometrics
+    datetime = timezone.now()
+    weight = Faker("random_int")
+    height = Faker("random_int")
+    activities = SubFactory(ActivitiesFactory)
+    weight_wishes = SubFactory(WeightWishesFactory) 
 
 class FoodTypesFactory(DjangoModelFactory):
     class Meta:
@@ -29,6 +40,14 @@ class RecipesCategoriesFactory(DjangoModelFactory):
         model= models.RecipesCategories
         
     name = Faker("bothify", text="Recipe Category ??????")
+
+class ActivitiesFactory(DjangoModelFactory):
+    class Meta:
+        model= models.Activities
+        
+    name = Faker("bothify", text="Activities ??????")
+    description = Faker("sentence")
+    multiplier = Faker("random_int")
 
 class AdditiveRisksFactory(DjangoModelFactory):
     class Meta:
