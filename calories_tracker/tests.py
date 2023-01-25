@@ -1,8 +1,5 @@
-from calories_tracker import models, factory
-from calories_tracker import tests_helpers 
+from calories_tracker import factory
 from calories_tracker.reusing import factory_helpers
-from calories_tracker.tests_helpers import  print_list, TestModelManager, hlu
-from calories_tracker import tests_data as td
 from django.contrib.auth.models import User
 from django.test import tag
 from json import loads, dumps
@@ -10,7 +7,6 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from django.contrib.auth.models import Group
 
-print_list    
 tag
 
 class PostPayload:
@@ -73,9 +69,6 @@ class CtTestCase(APITestCase):
         cls.factories_manager.append(factory.RecipesLinksFactory, "Private", "/api/recipes_links/", PostPayload.RecipesLinks) 
         cls.factories_manager.append(factory.SystemCompaniesFactory, "PrivateEditableCatalog", "/api/system_companies/")
         cls.factories_manager.append(factory.SystemProductsFactory, "PrivateEditableCatalog", "/api/system_products/", PostPayload.SystemProducts)
-
-
-        cls.tmm=TestModelManager.from_module_with_testmodels("calories_tracker.tests_data")
         
         # User to test api
         cls.user_authorized_1 = User(
@@ -137,57 +130,6 @@ class CtTestCase(APITestCase):
         cls.client_catalog_manager.user=cls.user_catalog_manager
         cls.client_catalog_manager.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_catalog_manager)
 
-    def test_catalog_only_retrieve_and_list_actions_allowed(self):
-        """
-            Checks that catalog table can be only accesed to GET method to normal users
-        """
-        print()
-        for tm  in self.tmm.catalogs():
-            print("test_catalog_only_retrieve_and_list_actions_allowed", tm.__name__)
-            tests_helpers.test_only_retrieve_and_list_actions_allowed(self, self.client_authorized_1, tm)
-            
-        
-    def test_cross_user_models_security(self):
-        """
-            Checks that a user can't see other user registers
-        """
-        print()
-        for tm  in self.tmm.private():
-            print("test_cross_user_models_security", tm.__name__)
-            tests_helpers.test_cross_user_data_with_post(self, self.client_authorized_1, self.client_authorized_2, tm)
-
-        #Files only has get method. Post are mode from recipes_links, pots ....
-        # I do this test manually
-        file=models.Files()
-        file.mime="image/png"
-        file.content=b"MY FILE CONTENT"
-        file.size=len(file.content)
-        file.user=self.user_authorized_1
-        file.save()
-        tests_helpers.test_cross_user_data(self, self.client_authorized_1, self.client_authorized_2, hlu("files", file.id))
-
-        #Test recipes_full i don't need to create, 
-        recipe=td.tmRecipes.create(0, self.client_authorized_1)
-        tests_helpers.test_cross_user_data(self, self.client_authorized_1, self.client_authorized_2, hlu("recipes_full", recipe["id"]))
-  
-    def test_crud_non_catalog(self):
-        """
-            Checks crud operations to not catalog models
-        """
-        print()
-        for tm  in self.tmm.private():
-            print("test_crud_non_catalog", tm.__name__)
-            tests_helpers.test_crud(self, self.client_authorized_1, tm)
-            
-
-    def test_anonymous_crud(self):
-        """
-            Anonymous user trys to crud
-        """
-        print()
-        for tm  in self.tmm.private():
-            print("test_anonymous_crud", tm.__name__)
-            tests_helpers.test_crud_unauthorized_anonymous(self, self.client_anonymous, self.client_authorized_1,  tm)
 
     def test_extra_actions(self):
         """
