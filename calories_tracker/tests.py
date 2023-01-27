@@ -10,10 +10,24 @@ from django.contrib.auth.models import Group
 tag
 
 class PostPayload:
+    """
+        This methods are for generic factory_helpers methods
+    """
     @staticmethod
     def Biometrics(user=None):
         user=User.objects.get(username="catalog_manager") if user is None else user
         o=factory.BiometricsFactory.create(user=user)
+        d=factory_helpers.serialize(o)
+        o.delete()
+        del d["id"]
+        del d["url"]
+        return d
+
+    @staticmethod
+    def Companies(user=None):
+        user=User.objects.get(username="testing") if user is None else user
+        o=factory.CompaniesFactory.create(user=user)
+        o.uses=0
         d=factory_helpers.serialize(o)
         o.delete()
         del d["id"]
@@ -73,6 +87,7 @@ class CtTestCase(APITestCase):
         cls.factories_manager.append(factory.AdditivesFactory, "PrivateEditableCatalog", "/api/additives/")
         cls.factories_manager.append(factory.AdditiveRisksFactory, "PrivateEditableCatalog", "/api/additive_risks/")
         cls.factories_manager.append(factory.BiometricsFactory, "Private", "/api/biometrics/", PostPayload.Biometrics)
+        cls.factories_manager.append(factory.CompaniesFactory, "Private", "/api/companies/", PostPayload.Companies)
         cls.factories_manager.append(factory.FoodTypesFactory, "PrivateEditableCatalog", "/api/food_types/")
         cls.factories_manager.append(factory.FormatsFactory, "PrivateEditableCatalog", "/api/formats/")
         cls.factories_manager.append(factory.RecipesCategoriesFactory, "PrivateEditableCatalog", "/api/recipes_categories/")

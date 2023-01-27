@@ -146,6 +146,13 @@ class SystemCompaniesFactory(DjangoModelFactory):
     last = timezone.now()
     obsolete = False
 
+class CompaniesFactory(DjangoModelFactory):
+    class Meta:
+        model= models.Companies
+    name = Faker("bothify", text="System Company ??????")
+    last = timezone.now()
+    obsolete = False
+    system_companies=None
     
 class SystemProductsFactory(DjangoModelFactory):
     class Meta:
