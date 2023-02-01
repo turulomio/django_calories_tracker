@@ -6505,6 +6505,41 @@
     }
 },
 {
+    "model": "calories_tracker.recipescategories",
+    "pk": 26,
+    "fields": {
+        "name": "Pasta"
+    }
+},
+{
+    "model": "calories_tracker.recipescategories",
+    "pk": 27,
+    "fields": {
+        "name": "Gratin pasta"
+    }
+},
+{
+    "model": "calories_tracker.recipescategories",
+    "pk": 28,
+    "fields": {
+        "name": "Shellfish"
+    }
+},
+{
+    "model": "calories_tracker.recipescategories",
+    "pk": 29,
+    "fields": {
+        "name": "Octopus & Squid"
+    }
+},
+{
+    "model": "calories_tracker.recipescategories",
+    "pk": 30,
+    "fields": {
+        "name": "Dessert"
+    }
+},
+{
     "model": "calories_tracker.recipeslinkstypes",
     "pk": 1,
     "fields": {
@@ -6635,23 +6670,6 @@
         "can_temperatures": false,
         "man_temperatures": false,
         "can_stir": false,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 9,
-    "fields": {
-        "name": "OBSOLETE Cut into little pieces and add to a container",
-        "can_products_in_step": true,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": true,
-        "man_temperatures": false,
-        "can_stir": true,
         "man_stir": false
     }
 },
@@ -18504,6 +18522,198 @@
         "obsolete": false,
         "version_parent": null,
         "version": "2023-01-01T10:07:06.314Z",
+        "version_description": null,
+        "additives": []
+    }
+},
+{
+    "model": "calories_tracker.systemproducts",
+    "pk": 343,
+    "fields": {
+        "name": "Turmeric",
+        "amount": "100.000",
+        "fat": "10.000",
+        "protein": "8.000",
+        "carbohydrate": "65.000",
+        "calories": "354.000",
+        "salt": "0.000",
+        "cholesterol": "0.000",
+        "sodium": "32.000",
+        "potassium": "2525.000",
+        "fiber": "21.000",
+        "sugars": "3.200",
+        "saturated_fat": "3.100",
+        "ferrum": "41.400",
+        "magnesium": "193.000",
+        "phosphor": null,
+        "glutenfree": false,
+        "calcium": "13.000",
+        "system_companies": null,
+        "food_types": 18,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-01-02T11:20:26.037Z",
+        "version_description": null,
+        "additives": []
+    }
+},
+{
+    "model": "calories_tracker.systemproducts",
+    "pk": 344,
+    "fields": {
+        "name": "Red pepper",
+        "amount": "100.000",
+        "fat": "0.900",
+        "protein": "1.250",
+        "carbohydrate": "6.030",
+        "calories": "32.900",
+        "salt": "0.000",
+        "cholesterol": "0.000",
+        "sodium": null,
+        "potassium": "211.000",
+        "fiber": "2.000",
+        "sugars": "4.200",
+        "saturated_fat": "0.300",
+        "ferrum": null,
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": true,
+        "calcium": null,
+        "system_companies": null,
+        "food_types": 2,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-01-08T10:26:50.997Z",
+        "version_description": null,
+        "additives": []
+    }
+},
+{
+    "model": "calories_tracker.systemproducts",
+    "pk": 345,
+    "fields": {
+        "name": "Nora",
+        "amount": "100.000",
+        "fat": "12.890",
+        "protein": "14.140",
+        "carbohydrate": "53.990",
+        "calories": "282.000",
+        "salt": null,
+        "cholesterol": "0.000",
+        "sodium": "68.000",
+        "potassium": "2280.000",
+        "fiber": "34.900",
+        "sugars": null,
+        "saturated_fat": "2.140",
+        "ferrum": "21.140",
+        "magnesium": null,
+        "phosphor": "314.000",
+        "glutenfree": true,
+        "calcium": "229.000",
+        "system_companies": null,
+        "food_types": 2,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-01-08T10:36:19.022Z",
+        "version_description": null,
+        "additives": []
+    }
+},
+{
+    "model": "calories_tracker.systemproducts",
+    "pk": 346,
+    "fields": {
+        "name": "Masa Filo",
+        "amount": "100.000",
+        "fat": "1.100",
+        "protein": "9.000",
+        "carbohydrate": "60.000",
+        "calories": "290.000",
+        "salt": "0.750",
+        "cholesterol": null,
+        "sodium": null,
+        "potassium": null,
+        "fiber": null,
+        "sugars": "4.000",
+        "saturated_fat": "0.200",
+        "ferrum": null,
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": false,
+        "calcium": null,
+        "system_companies": 1,
+        "food_types": 9,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-01-21T06:04:25.832Z",
+        "version_description": null,
+        "additives": []
+    }
+},
+{
+    "model": "calories_tracker.systemproducts",
+    "pk": 347,
+    "fields": {
+        "name": "Dill",
+        "amount": "100.000",
+        "fat": "0.800",
+        "protein": "3.460",
+        "carbohydrate": "42.200",
+        "calories": "29.880",
+        "salt": null,
+        "cholesterol": "0.000",
+        "sodium": "61.000",
+        "potassium": "738.000",
+        "fiber": "37.600",
+        "sugars": "0.000",
+        "saturated_fat": "0.030",
+        "ferrum": "6.590",
+        "magnesium": "55.000",
+        "phosphor": "66.000",
+        "glutenfree": true,
+        "calcium": "208.000",
+        "system_companies": null,
+        "food_types": 18,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-01-21T06:12:12.908Z",
+        "version_description": null,
+        "additives": []
+    }
+},
+{
+    "model": "calories_tracker.systemproducts",
+    "pk": 348,
+    "fields": {
+        "name": "Nutmeg",
+        "amount": "100.000",
+        "fat": "36.310",
+        "protein": "5.840",
+        "carbohydrate": "49.290",
+        "calories": "525.000",
+        "salt": null,
+        "cholesterol": "0.000",
+        "sodium": "16.000",
+        "potassium": "350.000",
+        "fiber": "20.800",
+        "sugars": "28.490",
+        "saturated_fat": "25.940",
+        "ferrum": null,
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": false,
+        "calcium": null,
+        "system_companies": null,
+        "food_types": 18,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-02-01T17:21:54.928Z",
         "version_description": null,
         "additives": []
     }
