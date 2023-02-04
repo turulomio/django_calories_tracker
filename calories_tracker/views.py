@@ -660,7 +660,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
-
+    @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         models.RecipesLinks.objects.filter(recipes=instance).delete()
