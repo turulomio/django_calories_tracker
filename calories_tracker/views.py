@@ -652,8 +652,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     
     def list(self, request):
         order_by=vtabledata_options2orderby(self.request, "-last")
-        print(order_by)
-        page = self.paginate_queryset(self.get_queryset().order_by(order_by))
+        page = self.paginate_queryset(self.get_queryset().order_by(*order_by))
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)

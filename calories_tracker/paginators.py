@@ -18,20 +18,23 @@ class PagePaginationWithTotalPages(PageNumberPagination):
         
 
 def vtabledata_options2orderby(request, default):
+    def get_index(index):
+        if index<=len(sortBy)-1 and index<=len(sortDesc)-1:
+            if sortDesc[index] is True:
+                return f"-{sortBy[index]}"
+            else:
+                return sortBy[index]
+        return default
     ## CHECK PARAMS in 
     sortBy=RequestGetListOfStrings(request, "sortBy[]")
     sortDesc=RequestGetListOfBooleans(request, "sortDesc[]")
     multiSort=RequestGetBool(request, "multiSort")
-    print(multiSort, sortBy, sortDesc)
     if multiSort is False:
-        if len(sortBy)>0:
-            if sortDesc[0] is True:
-                return f"-{sortBy[0]}"
-            else:
-                return sortBy[0]
-        else:
-            return default
-    else:
-        print("vtabledata_options2orderby Multisort Trye")
-        return default
-    
+        r= [get_index(0)]
+    else: #Multi sort true
+        r=[]
+        for i in range(len(sortDesc)):
+            r.append(get_index(i))
+            
+    #print("vtabledata_options2orderby",  sortBy, sortDesc, multiSort, "==>",  r)
+    return r
