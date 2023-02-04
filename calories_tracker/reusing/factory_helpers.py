@@ -26,11 +26,17 @@ FACTORY_TYPES=        [
             "Anonymous",  #Anonymous users can LR and CUD
         ]
 
-def serialize( o, serializer=None):
+def serialize( o, remove_id_url=False, serializer=None):
     f = APIRequestFactory()
     request = f.post('/', {})
     serializer=o.__class__.__name__+"Serializer" if serializer is None else serializer
-    return getattr(serializers, serializer)(o, context={'request': request}).data
+    r=getattr(serializers, serializer)(o, context={'request': request}).data
+    if remove_id_url is True:
+        if "id" in r:
+            del r["id"]
+        if "url" in r:
+            del r["url"]
+    return r
 
 class MyFactory:
     def __init__(self, factory, type, url, post_payload_function=None):
@@ -54,6 +60,9 @@ class MyFactory:
     #Hyperlinkurl
     def hlu(self, id):
         return f'http://testserver{self.url}{id}/'
+        
+    def serialize(self, o, remove_id_url):
+        return serialize(o, remove_id_url)
 
     def post_payload(self, client):
         """
@@ -68,9 +77,7 @@ class MyFactory:
         ## factory.create. Creates an object with all dependencies. Si le quito "id" y "url" sería uno nuevo
         o=self.factory.create()
         o.delete()
-        payload=serialize(o)
-        del payload["id"]
-        del payload["url"]
+        payload=serialize(o, remove_id_url=True)
         return payload
 
     def test_by_type(self, apitestclass,  client_authenticated_1, client_authenticated_2, client_anonymous, client_catalog_manager):
@@ -83,8 +90,10 @@ class MyFactory:
         
     ## action can be None, to ignore test or status_code returned
     def common_actions_tests(self, apitestclass,  client,  post=status.HTTP_200_OK, get=status.HTTP_200_OK, list=status.HTTP_200_OK,  put=status.HTTP_200_OK, patch=status.HTTP_200_OK, delete=status.HTTP_200_OK):
+#        print(self.post_payload(client))
         r=client.post(self.url, self.post_payload(client),format="json")
-        apitestclass.assertEqual(r.status_code, post, f"create action of {self}")
+#        print(r, r.content)
+        apitestclass.assertEqual(r.status_code, post, f"create action of {self}. {r}. {r.content}")
 
         created_json=loads(r.content)
         try:
@@ -134,7 +143,7 @@ class MyFactory:
         Function Makes all action operations to factory with client to all examples
 
         """
-        client_authenticated_1.post(self.url, self.post_payload(client_authenticated_1)) #Always will be one to test anonymous
+        client_authenticated_1.post(self.url, self.post_payload(client_authenticated_1), format="json") #Always will be one to test anonymous
         
         ### TEST OF CLIENT_AUTHENTICATED_1
         self.common_actions_tests(apitestclass, client_authenticated_1, 

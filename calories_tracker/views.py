@@ -4,7 +4,7 @@ from calories_tracker.reusing.connection_dj import show_queries, show_queries_fu
 from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.reusing.listdict_functions import listdict_order_by
-from calories_tracker.paginators import PagePaginationWithTotalPages
+from calories_tracker.paginators import PagePaginationWithTotalPages, vtabledata_options2orderby
 from calories_tracker.permissions import GroupCatalogManager
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url, RequestInteger
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response, json_data_response
@@ -610,6 +610,7 @@ class FilesViewSet(mixins.RetrieveModelMixin,
         return Response(qs_files[0].get_content_js())
 
     
+
 ## Only with recipes_Links to get file for main image
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories", 
@@ -618,7 +619,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RecipesSerializer
     permission_classes = [permissions.IsAuthenticated]      
     pagination_class=PagePaginationWithTotalPages
-    order_by="-last"
     @extend_schema(
         parameters=[
             OpenApiParameter(name='search', description='String used to search recipes. ', required=True, type=str), 
@@ -627,7 +627,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         search=RequestGetString(self.request, 'search') 
         if all_args_are_not_none(search):
-            
             if search==":SOON":
                 return self.queryset.filter(user=self.request.user, soon=True)
             elif search==":GUESTS":
@@ -652,7 +651,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
     
     def list(self, request):
-        page = self.paginate_queryset(self.get_queryset().order_by(self.order_by))
+        order_by=vtabledata_options2orderby(self.request, "-last")
+        print(order_by)
+        page = self.paginate_queryset(self.get_queryset().order_by(order_by))
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)

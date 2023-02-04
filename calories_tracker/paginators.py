@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from .reusing.request_casting import RequestGetBool, RequestGetListOfBooleans, RequestGetListOfStrings
 
 class PagePaginationWithTotalPages(PageNumberPagination):
     page_size = 10
@@ -14,3 +15,23 @@ class PagePaginationWithTotalPages(PageNumberPagination):
             'page': self.page.number, 
             'results': data, 
         })
+        
+
+def vtabledata_options2orderby(request, default):
+    ## CHECK PARAMS in 
+    sortBy=RequestGetListOfStrings(request, "sortBy[]")
+    sortDesc=RequestGetListOfBooleans(request, "sortDesc[]")
+    multiSort=RequestGetBool(request, "multiSort")
+    print(multiSort, sortBy, sortDesc)
+    if multiSort is False:
+        if len(sortBy)>0:
+            if sortDesc[0] is True:
+                return f"-{sortBy[0]}"
+            else:
+                return sortBy[0]
+        else:
+            return default
+    else:
+        print("vtabledata_options2orderby Multisort Trye")
+        return default
+    

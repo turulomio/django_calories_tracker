@@ -82,7 +82,7 @@ def RequestGetString(request, field, default=None):
         r=default
     return r
 
-def RequestGetListOfIntegers(request, field, default=None, separator=","):    
+def RequestGetListOfStringIntegers(request, field, default=None, separator=","):    
     try:
         r = string2list_of_integers(request.GET.get(field), separator)
     except:
@@ -96,12 +96,32 @@ def RequestGetListOfIntegers(request, field, default=None, separator=","):
     ##            return axios.get(`${this.$store.state.apiroot}/api/dividends/`, headers)
     ## request.GET returns <QueryDict: {'investments[]': ['428', '447'], 'otra': ['OTRA']}>
 
-def RequestGetArrayOfIntegers(request, field, default=[]):    
+def RequestGetListOfIntegers(request, field, default=[]):    
     try:
         r=[]
         items=request.GET.getlist(field, [])
         for i in items:
             r.append(int(i))
+    except:
+        r=default
+    return r
+
+def RequestGetListOfStrings(request, field, default=[]):    
+    try:
+        r=[]
+        items=request.GET.getlist(field, [])
+        for i in items:
+            r.append(str(i))
+    except:
+        r=default
+    return r
+
+def RequestGetListOfBooleans(request, field, default=[]):    
+    try:
+        r=[]
+        items=request.GET.getlist(field, [])
+        for i in items:
+            r.append(str2bool(i))
     except:
         r=default
     return r
