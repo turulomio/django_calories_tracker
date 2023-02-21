@@ -8,3 +8,4 @@ coverage
 factory-boy
 faker
 Pillow
+unogenerator
