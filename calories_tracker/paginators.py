@@ -4,7 +4,8 @@ from .reusing.request_casting import RequestGetBool, RequestGetListOfBooleans, R
 
 class PagePaginationWithTotalPages(PageNumberPagination):
     page_size = 10
-    max_page_size = 1000000
+    page_size_query_param="itemsPerPage"
+    max_page_size = 30
 
     def get_paginated_response(self, data):
         return Response({
