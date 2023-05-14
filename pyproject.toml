@@ -10,7 +10,7 @@ packages = [{include = "django_calories_tracker"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 Django = "^4.2.1"
-django-cors-headers = "^3.14.0"
+django-cors-headers = "^4.0.0"
 djangorestframework = "^3.14.0"
 django-simple-history = "^3.3.0"
 preview-generator = "^0.29"
@@ -29,3 +29,11 @@ poethepoet = "^0.20.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+reusing = { script = "calories_tracker.poethepoet:reusing" }
+
+[project.urls]
+homepage = "https://github.com/turulomio/django_calories_tracker/"
+repository = "https://github.com/turulomio/django_calories_tracker/"
+changelog = "https://github.com/turulomio/django_calories_tracker#changelog"
