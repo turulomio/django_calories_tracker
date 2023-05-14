@@ -3,7 +3,6 @@ from calories_tracker import models
 from calories_tracker.reusing.connection_dj import show_queries, show_queries_function
 from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
-from calories_tracker.reusing.listdict_functions import listdict_order_by
 from calories_tracker.paginators import PagePaginationWithTotalPages, vtabledata_options2orderby
 from calories_tracker.permissions import GroupCatalogManager
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url, RequestInteger
@@ -18,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
 from itertools import product
+from pydicts import lod
 from rest_framework import viewsets, permissions,  status, mixins
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
@@ -448,7 +448,7 @@ class MealsViewSet(viewsets.ModelViewSet):
                 "amount": value, 
             })
 
-        r=listdict_order_by(r, "amount", reverse=True)
+        r=lod.lod_order_by(r, "amount", reverse=True)
         return JsonResponse(r, safe=False)
         
 @extend_schema_view(
