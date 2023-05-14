@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-02-04, 14:32:01"
+    "saved": "2023-05-14, 18:47:04"
   },
   "project": {
     "AUTHOR": "",
@@ -53,8 +53,7 @@
     "MIXEDLANGUAGE": false,
     "OTHERS": [
       "README.md",
-      "django_calories_tracker.epj",
-      "requirements.txt"
+      "django_calories_tracker.epj"
     ],
     "OTHERTOOLSPARMS": {},
     "PACKAGERSPARMS": {},
@@ -127,6 +126,7 @@
       "calories_tracker/models.py",
       "calories_tracker/paginators.py",
       "calories_tracker/permissions.py",
+      "calories_tracker/poethepoet.py",
       "calories_tracker/reusing/call_by_name.py",
       "calories_tracker/reusing/casts.py",
       "calories_tracker/reusing/connection_dj.py",
