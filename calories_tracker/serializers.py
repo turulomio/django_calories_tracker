@@ -752,14 +752,14 @@ class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
     elaborations= ElaborationsSerializer( many=True, read_only=True)
     class Meta:
         model = models.Recipes
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'recipes_links', 'valoration', 'guests', 'soon', 'elaborations')
+        fields = ('url', 'id', 'name', 'last', 'datetime','obsolete', 'food_types',   'comment', 'recipes_links', 'valoration', 'guests', 'soon', 'elaborations')
 
         
 class RecipesSerializer(serializers.HyperlinkedModelSerializer):
     recipes_links=RecipesLinksSerializer(many=True, read_only=True)
     class Meta:
         model = models.Recipes
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon', 'recipes_categories', 'recipes_links')
+        fields = ('url', 'id', 'name', 'last', 'datetime', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon', 'recipes_categories', 'recipes_links')
         
 
     def create(self, validated_data):
