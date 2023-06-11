@@ -112,6 +112,9 @@ class CtTestCase(APITestCase):
         print("test_elaborated_products")
         tests_helpers.common_tests_Private(self,  '/api/elaborated_products/', models.ElaboratedProducts.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
 
+
+        
+
     @tag("current")
     def test_elaborated_products_productsinthrough(self):
         """
@@ -131,7 +134,7 @@ class CtTestCase(APITestCase):
             patch=status.HTTP_200_OK, 
             delete=status.HTTP_204_NO_CONTENT
         )
-        
+
         #Creating a new one
         dict_epp=tests_helpers.client_post(self, self.client_authorized_1, '/api/elaboratedproductsproductsinthrough/', models.ElaboratedProductsProductsInThrough.post_payload(products=dict_products["url"], elaborated_products=dict_elaborated_products["url"]), status.HTTP_201_CREATED) 
         #Check authorized_2 can't seeit and anonymous
@@ -154,6 +157,21 @@ class CtTestCase(APITestCase):
         dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/meals/', models.Meals.post_payload(products=dict_products["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
                                 
+    def test_measures_types(self):
+        print()
+        print("test_measures_types")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/measures_types/', models.MeasuresTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+                
+    def test_pots(self):
+        print()
+        print("test_pots")        
+        tests_helpers.common_tests_Private(self,  '/api/pots/', models.Pots.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+                                      
+    def test_products(self):
+        print()
+        print("test_products")        
+        tests_helpers.common_tests_Private(self,  '/api/products/', models.Products.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+                      
 #
 #    @tag("current")
 #    def test_product(self):

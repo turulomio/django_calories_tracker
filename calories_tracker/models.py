@@ -810,6 +810,14 @@ class Pots(models.Model):
     def __str__(self):
         self.fullname()
         
+    @staticmethod
+    def post_payload():
+        return {
+            "name": 'Pot for testing', 
+            "weight": 2000,
+           "diameter": 20,  
+            "height":  33, 
+        }
     def fullname(self):
         return f"{self.name} ({self.diameter}cm, {self.weight}g)"
         
@@ -919,6 +927,11 @@ class MeasuresTypes(models.Model):
 
     def localname(self):
         return _(self.name)
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Measure type for testing", 
+        }
 
 class ElaborationsProductsInThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
