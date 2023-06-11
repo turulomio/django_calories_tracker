@@ -360,6 +360,12 @@ class Formats(models.Model):
     def __str__(self):
         return self.name
 
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Format for testing", 
+        }
+
 class SystemProducts(models.Model):
     name = models.TextField(blank=False, null=False)
     
