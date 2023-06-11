@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-05-14, 20:52:55"
+    "saved": "2023-06-11, 11:40:41"
   },
   "project": {
     "AUTHOR": "",
@@ -133,6 +133,7 @@
       "calories_tracker/reusing/datetime_functions.py",
       "calories_tracker/reusing/decorators.py",
       "calories_tracker/reusing/factory_helpers.py",
+      "calories_tracker/reusing/file_functions.py",
       "calories_tracker/reusing/github.py",
       "calories_tracker/reusing/libmanagers.py",
       "calories_tracker/reusing/request_casting.py",
@@ -140,6 +141,7 @@
       "calories_tracker/reusing/views_login.py",
       "calories_tracker/serializers.py",
       "calories_tracker/tests.py",
+      "calories_tracker/tests_helpers.py",
       "calories_tracker/unogenerator_files.py",
       "calories_tracker/views.py",
       "django_calories_tracker/__init__.py",
