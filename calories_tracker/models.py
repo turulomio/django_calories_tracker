@@ -992,7 +992,18 @@ class ElaborationsProductsInThrough(models.Model):
 #    
 #    def __str__(self):
 #        self.fullname()        
-        
+    @staticmethod
+    def post_payload(elaborations, products):
+        return {
+            "elaborations": elaborations, 
+            "products": products, 
+            "measures_types":  'http://testserver/api/measures_types/2/', 
+            "amount": 1212, 
+            "comment": "Elaboration comment for testing", 
+            "ni": True, 
+            "automatic_percentage": 100, 
+        }
+
     def final_grams(self):
         if self.ni is False:
             return 0
