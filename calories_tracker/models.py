@@ -1152,6 +1152,12 @@ class ElaborationsSteps(models.Model):
         )
         
         
+    @staticmethod
+    def post_payload(elaborations):
+        return {
+            "order":  "Elaboration container for testing", 
+            "elaborations": elaborations
+        }
         
         
     def string_duration(self):
