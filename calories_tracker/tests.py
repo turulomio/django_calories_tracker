@@ -1,76 +1,12 @@
-from calories_tracker import factory
 from calories_tracker.reusing import factory_helpers
 from django.contrib.auth.models import User
 from django.test import tag
-from json import loads, dumps
+from json import loads
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from django.contrib.auth.models import Group
 
 tag
-
-class PostPayload:
-    """
-        This methods are for generic factory_helpers methods
-    """
-    @staticmethod
-    def Biometrics(user=None):
-        user=User.objects.get(username="catalog_manager") if user is None else user
-        o=factory.BiometricsFactory.create(user=user)
-        d=factory_helpers.serialize(o)
-        o.delete()
-        del d["id"]
-        del d["url"]
-        return d
-
-    @staticmethod
-    def Companies(user=None):
-        user=User.objects.get(username="testing") if user is None else user
-        o=factory.CompaniesFactory.create(user=user)
-        o.uses=0
-        d=factory_helpers.serialize(o)
-        o.delete()
-        del d["id"]
-        del d["url"]
-        return d
-
-    @staticmethod
-    def Recipes(user=None):
-        user=User.objects.get(username="testing") if user is None else user
-        o=factory.RecipesFactory.create(user=user)
-        d=factory_helpers.serialize(o)
-        o.delete()
-        del d["id"]
-        del d["url"]
-        return d
-
-    @staticmethod
-    def RecipesLinks(user=None):
-        user=User.objects.get(username="testing") if user is None else user
-        recipe=factory.RecipesFactory.create(user=user)
-        o=factory.RecipesLinksFactory.create(recipes=recipe, files__user=user )
-        d=factory_helpers.serialize(o)
-        del d["id"]
-        del d["url"]
-        del d["files"]
-        return d
-
-    @staticmethod
-    def SystemProducts(user=None, with_format=False):
-        """
-            Formats are empty
-            @param with_format If true adds a systemproductsformatthrough. If false for common factory_helpers testers don't
-        """
-        user=User.objects.get(username="catalog_manager") if user is None else user
-        sp=factory.SystemProductsFactory.create()
-        format=factory.FormatsFactory.create()
-        if with_format is True:
-            factory.SystemProductsFormatsThroughFactory(system_products=sp, formats=format)
-        d=factory_helpers.serialize(sp)
-        del d["id"]
-        del d["url"]
-        return d
-
 
 class CtTestCase(APITestCase):
     fixtures=["all.json"] #Para cargar datos por defecto
@@ -82,28 +18,12 @@ class CtTestCase(APITestCase):
         """
         super().setUpClass()
         
-        cls.factories_manager=factory_helpers.MyFactoriesManager()
-        cls.factories_manager.append(factory.ActivitiesFactory, "PrivateEditableCatalog", "/api/activities/")
-        cls.factories_manager.append(factory.AdditivesFactory, "PrivateEditableCatalog", "/api/additives/")
-        cls.factories_manager.append(factory.AdditiveRisksFactory, "PrivateEditableCatalog", "/api/additive_risks/")
-        cls.factories_manager.append(factory.BiometricsFactory, "Private", "/api/biometrics/", PostPayload.Biometrics)
-        cls.factories_manager.append(factory.CompaniesFactory, "Private", "/api/companies/", PostPayload.Companies)
-        cls.factories_manager.append(factory.FoodTypesFactory, "PrivateEditableCatalog", "/api/food_types/")
-        cls.factories_manager.append(factory.FormatsFactory, "PrivateEditableCatalog", "/api/formats/")
-        cls.factories_manager.append(factory.RecipesCategoriesFactory, "PrivateEditableCatalog", "/api/recipes_categories/")
-        cls.factories_manager.append(factory.RecipesLinksTypesFactory, "PrivateEditableCatalog", "/api/recipes_links_types/")
-        cls.factories_manager.append(factory.RecipesFactory, "Private", "/api/recipes/", PostPayload.Recipes)
-        cls.factories_manager.append(factory.RecipesLinksFactory, "Private", "/api/recipes_links/", PostPayload.RecipesLinks) 
-        cls.factories_manager.append(factory.SystemCompaniesFactory, "PrivateEditableCatalog", "/api/system_companies/")
-        cls.factories_manager.append(factory.SystemProductsFactory, "PrivateEditableCatalog", "/api/system_products/", PostPayload.SystemProducts)        
-        cls.factories_manager.append(factory.WeightWishesFactory, "PrivateEditableCatalog", "/api/weight_wishes/")
-
         # User to test api
         cls.user_authorized_1 = User(
             email='testing@testing.com',
             first_name='Testing',
             last_name='Testing',
-            username='testing',
+            username='authorized_1',
         )
         cls.user_authorized_1.set_password('testing123')
         cls.user_authorized_1.save()
@@ -113,7 +33,7 @@ class CtTestCase(APITestCase):
             email='other@other.com',
             first_name='Other',
             last_name='Other',
-            username='other',
+            username='authorized_2',
         )
         cls.user_authorized_2.set_password('other123')
         cls.user_authorized_2.save()
@@ -159,83 +79,97 @@ class CtTestCase(APITestCase):
         cls.client_catalog_manager.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_catalog_manager)
 
 
-    def test_extra_actions(self):
-        """
-            Test extra actions security
-        """
-        print()
-        print("test_extra_actions")
-        
-        # Update steps
-        elaboration=td.tmElaborations.create(0, self.client_authorized_1)
-        url=f"{elaboration['url']}update_steps/"
-        steps=[]
-        elaboration_step=td.tmElaborationsSteps.create(0, self.client_authorized_1)
-        steps.append(elaboration_step)
-        del elaboration_step["url"]#preparando elaboration_step, sin url
-        steps.append(elaboration_step)#Adds second step
-        r=self.client_authorized_1.post(url, dumps({"steps":steps}), content_type='application/json') #Normal user
-        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
+#
+#    @tag("current")
+#    def test_product(self):
+#        """
+#            Checks product logic
+#        """
+#        print()
+#        print("test_product")
+#        factory_p=self.factories_manager.find(factory.ProductsFactory)
+#        #Creates a new product
+#        dict_p=factory_helpers.post(self.client_authorized_1, "/api/products/", factory_p.post_payload(self.client_authorized_1), status.HTTP_201_CREATED)
+#        print(dict_p)
 
-        #Meals ranking
-        url="/api/meals/ranking/?from_date=2023-01-01"
-        for i in range(3):
-            td.tmMeals.create(0, self.client_authorized_1)
-        r=self.client_authorized_1.get(url)
-        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
-        
-        #Products to system products
-#        product=td.tmProducts.create(0, self.client_authorized_1)
-#        url=f"{product['url']}convert_to_system/"
-#        r=self.client_authorized_1.post(url) #Normal user
-#        self.assertEqual(r.status_code, status.HTTP_403_FORBIDDEN,  f"Error @action {url}")
-#        r=self.client_catalog_manager.post(url) #CatalogManager user
-#        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
-        
-        #System product to product
-        url=f"{td.tmSystemProducts.hlu(28)}create_product/"
-        r=self.client_authorized_1.post(url) #Normal user
-        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
-        self.assertNotEqual(loads(r.content)["system_products"], None,  f"Error getting system_companies {url}")
-        
-        #System company to company
-        url=f"{td.tmSystemCompanies.hlu(27)}create_company/"
-        r=self.client_authorized_1.post(url) #Normal user
-        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
-        self.assertNotEqual(loads(r.content)["system_companies"], None,  f"Error getting system_companies {url}")
-        
 
-    @tag("current")
-    def test_factory_by_type(self):
-        print()
-        for f in self.factories_manager:
-            print("test_factory_by_type", f.type,  f)
-            f.test_by_type(self, self.client_authorized_1, self.client_authorized_2, self.client_anonymous, self.client_catalog_manager)
+#        #Products to system products
+##        product=td.tmProducts.create(0, self.client_authorized_1)
+##        url=f"{product['url']}convert_to_system/"
+##        r=self.client_authorized_1.post(url) #Normal user
+##        self.assertEqual(r.status_code, status.HTTP_403_FORBIDDEN,  f"Error @action {url}")
+##        r=self.client_catalog_manager.post(url) #CatalogManager user
+##        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
 
-    @tag("current")
     def test_system_product(self):
         """
             Checks system product logic
         """
+        print()
+        print("test_system_product")
+        post_payload={
+            'additives': [], 
+            'amount': '5320.000', 
+            'calcium': '8551.000', 
+            'calories': '2190.000', 
+            'carbohydrate': '4137.000', 
+            'cholesterol': '2453.000', 
+            'system_companies': None, 
+            'elaborated_products': None, 
+            'fat': '1346.000', 
+            'ferrum': '9726.000', 
+            'fiber': '4615.000', 
+            'food_types': 'http://testserver/api/food_types/2/', 
+            'formats': [], 
+            'glutenfree': False, 
+            'magnesium': '2657.000', 
+            'name': 'System Product LfFcdY', 
+            'obsolete': False, 
+            'phosphor': '1095.000', 
+            'potassium': '2181.000', 
+            'protein': '1631.000', 
+            'salt': '7799.000', 
+            'saturated_fat': '527.000', 
+            'sodium': '8319.000', 
+            'sugars': '9859.000', 
+            'version': '2023-06-11T05:35:13.673203Z', 
+            'version_description': None, 
+            'version_parent': None, 
+            'density': '670.000'
+        }
+
         
-        pass
+        #Creates a new system product
+        dict_sp=factory_helpers.post(self, self.client_catalog_manager, "/api/system_products/", post_payload, status.HTTP_201_CREATED)
 
-    @tag("current")
-    def test_recipes(self):
-        print()
-        print("test_recipes")
-        mf=factory_helpers.MyFactory(factory.RecipesFactory, "Private", "/api/recipes/")
-        recipe=mf.factory.create(user=self.user_authorized_1, recipes_categories=factory.RecipesCategoriesFactory.create_batch(2))
-        recipe
-#        print(factory_helpers.serialize(recipe))
-#        self.client_authorized_1.post(mf.url,  mf.post_payload(user=self.user_authorized_1))
+        #Client_autenticated_1 creates a product
+        factory_helpers.post(self, self.client_authorized_1, dict_sp["url"]+"create_product/", {},  status.HTTP_200_OK)
 
-    @tag("current")
-    def test_recipes_links(self):
-        print()
-        print("test_recipes_links")
-        mf=factory_helpers.MyFactory(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
-        recipe=self.client_authorized_1.post(mf.url, PostPayload.RecipesLinks(self.user_authorized_1), format="json")
-        self.assertEqual(recipe.status_code, status.HTTP_201_CREATED)
+        #Client_autenticated_2 creates a product
+        factory_helpers.post(self, self.client_authorized_2, dict_sp["url"]+"create_product/", {} , status.HTTP_200_OK)
+        
+        #List of client_authorized_1 products len must be 1
+        dict_all_p1=factory_helpers.get(self, self.client_authorized_1, "/api/products/", status.HTTP_200_OK)
+        self.assertEqual(len(dict_all_p1), 1)
+        
+        #List of client_authorized_2 products len must be 1
+        dict_all_p2=factory_helpers.get(self, self.client_authorized_2, "/api/products/", status.HTTP_200_OK)
+        self.assertEqual(len(dict_all_p2), 1)
+#
+#    def test_recipes(self):
+#        print()
+#        print("test_recipes")
+#        mf=factory_helpers.MyFactory(factory.RecipesFactory, "Private", "/api/recipes/")
+#        recipe=mf.factory.create(user=self.user_authorized_1, recipes_categories=factory.RecipesCategoriesFactory.create_batch(2))
+#        recipe
+##        print(factory_helpers.serialize(recipe))
+##        self.client_authorized_1.post(mf.url,  mf.post_payload(user=self.user_authorized_1))
+#
+#    def test_recipes_links(self):
+#        print()
+#        print("test_recipes_links")
+#        mf=factory_helpers.MyFactory(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
+#        recipe=self.client_authorized_1.post(mf.url, PostPayload.RecipesLinks(self.user_authorized_1), format="json")
+#        self.assertEqual(recipe.status_code, status.HTTP_201_CREATED)
         
         

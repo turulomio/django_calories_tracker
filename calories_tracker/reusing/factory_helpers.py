@@ -57,6 +57,7 @@ class MyFactory:
     def model_count(self):
         return self.model().objects.count()
 
+
     #Hyperlinkurl
     def hlu(self, id):
         return f'http://testserver{self.url}{id}/'
@@ -328,3 +329,60 @@ def test_cross_user_data(apitestclass, client1,  client2,  url):
     apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{url}. WARNING: Client2 can access Client1 post")
 
 
+def client_response_to_dict(r):
+    """
+        Converts client.post response to a dict with content results
+    """
+    return loads(r.content)
+
+def post(apitestclass, client, url, params, response_code):
+    """
+        Makes a client post and returns dictionary with response.content
+        Asserts response_code
+    """
+    r=client.post(url, params, format="json")
+    apitestclass.assertEqual(r.status_code,response_code,  f"Error in post {url}, {params} with user {client.user}. {r} {r.content}")
+    return client_response_to_dict(r)
+
+def get(apitestclass, client, url, response_code):
+    """
+        Makes a client post and returns dictionary with response.content
+        Asserts response_code
+    """
+    r=client.get(url, format="json")
+    apitestclass.assertEqual( r.status_code, response_code,  f"Error in  get {url}  with user {client.user}")
+    return client_response_to_dict(r)
+
+
+#Hyperlinkurl
+def hlu(url, id):
+    return f'http://testserver{url}{id}/'
+
+
+def common_actions_tests(apitestclass,  client, post_url, post_payload, failback_id, post=status.HTTP_200_OK, get=status.HTTP_200_OK, list=status.HTTP_200_OK,  put=status.HTTP_200_OK, patch=status.HTTP_200_OK, delete=status.HTTP_200_OK):
+    """
+        Function to test all request types after one post
+        
+        failback_id. If first post fails, I need and id to keep testing
+    """
+    created_json=post(apitestclass, client, post_url, post_payload, post)
+    try:
+        id=created_json["id"]
+    except:#User couldn't post any, I look for a id in database  to check the rest of actions, son in automatic test make a first post
+        id=failback_id
+
+    hlu_id=hlu(post_url,id)
+
+    r=client.get(post_url)
+    apitestclass.assertEqual(r.status_code, list, f"list method of {post_url}")
+    r=client.get(hlu_id)
+    apitestclass.assertEqual(r.status_code, get, f"retrieve method of {hlu_id}")
+    r=client.put(hlu_id, created_json,format="json")
+    apitestclass.assertEqual(r.status_code, put, f"update method of {hlu_id}")
+    r=client.patch(hlu_id, created_json,format="json")
+    apitestclass.assertEqual(r.status_code, patch, f"partial_update method of {hlu_id}")
+    r=client.delete.hlu(hlu_id)
+    apitestclass.assertEqual(r.status_code, delete, f"destroy method of {hlu_id}")
+
+
+# DEBEN SER FUNCIONES UNICAS Y SENCILLAS
