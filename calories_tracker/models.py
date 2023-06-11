@@ -146,6 +146,15 @@ class Additives(models.Model):
         
     def fullname(self):
         return f"{self.name}: {self.description}"
+        
+        
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Additive for testing", 
+            "description":  "Description of an additive for testing", 
+            'additive_risks': 'http://testserver/api/additive_risks/2/', 
+        }
     
 def get_profile(user):
     try:
@@ -173,6 +182,17 @@ class Biometrics(models.Model):
 
     def __str__(self):
         return str(self.datetime)
+        
+                
+    @staticmethod
+    def post_payload():
+        return {
+            "datetime": '2023-06-11T05:35:13.673203Z', 
+            "weight": 71.12, 
+            "height":177, 
+            "activities":'http://testserver/api/activities/2/', 
+            "weight_wishes":  "http://testserver/api/weight_wishes/2/", 
+        }
     
     ##basal metabolic rate
     def bmr(self):

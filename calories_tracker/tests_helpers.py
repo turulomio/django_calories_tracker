@@ -167,7 +167,7 @@ def common_tests_PrivateEditableCatalog(apitestclass,  post_url, post_payload, c
     )
 
 
-def common_tests_Collaborative(self, apitestclass, post_url, post_payload, client_authenticated_1, client_authenticated_2, client_anonymous):
+def common_tests_Collaborative(apitestclass, post_url, post_payload, client_authenticated_1, client_authenticated_2, client_anonymous):
     """
     Function Makes all action operations to factory with client to all examples
 
@@ -205,9 +205,10 @@ def common_tests_Collaborative(self, apitestclass, post_url, post_payload, clien
         delete=status.HTTP_401_UNAUTHORIZED
     )     
     
-def common_tests_Private(self, apitestclass,  post_url, post_payload, client_authenticated_1, client_authenticated_2, client_anonymous):
+def common_tests_Private(apitestclass,  post_url, post_payload, client_authenticated_1, client_authenticated_2, client_anonymous):
     """
        Make Private model tests
+       Data that can only be viewed by own user
     """
     ### ALWAYS ONE REGISTER TO TEST FALBACK ID
     dict_post=client_post(apitestclass, client_authenticated_1, post_url, post_payload, status.HTTP_201_CREATED)
@@ -222,21 +223,26 @@ def common_tests_Private(self, apitestclass,  post_url, post_payload, client_aut
         delete=status.HTTP_204_NO_CONTENT
     )
 
+
+
     # 1 creates and 2 cant get
-    r1=client_authenticated_1.post(self.url, self.post_payload(client_authenticated_1), format="json")
-    apitestclass.assertEqual(r1.status_code, status.HTTP_201_CREATED, f"{self.url}, {r1.content}")
+    r1=client_authenticated_1.post(post_url, post_payload, format="json")
+    apitestclass.assertEqual(r1.status_code, status.HTTP_201_CREATED, f"{post_url}, {r1.content}")
     r1_id=loads(r1.content)["id"]
 
-    r=client_authenticated_2.get(self.hlu(r1_id))
-    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{self.url}, {r.content}. WARNING: Client2 can access Client1 post")
+    hlu_id_r1=hlu(post_url,r1_id)
+    
+    r=client_authenticated_2.get(hlu_id_r1)
+    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{post_url}, {r.content}. WARNING: Client2 can access Client1 post")
 
     # 2 creates and 1 cant get
-    r2=client_authenticated_2.post(self.url, self.post_payload(client_authenticated_2), format="json")
-    apitestclass.assertEqual(r2.status_code, status.HTTP_201_CREATED, f"{self.url}, {r2.content}")
+    r2=client_authenticated_2.post(post_url, post_payload, format="json")
+    apitestclass.assertEqual(r2.status_code, status.HTTP_201_CREATED, f"{post_url}, {r2.content}")
     r2_id=loads(r2.content)["id"]
+    hlu_id_r2=hlu(post_url,r2_id)
 
-    r=client_authenticated_1.get(self.hlu(r2_id))
-    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{self.url}, {r.content}. WARNING: Client1 can access Client2 post")
+    r=client_authenticated_1.get(hlu_id_r2)
+    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{post_url}, {r.content}. WARNING: Client1 can access Client2 post")
         
     ### TEST OF CLIENT_AUTHENTICATED_2
     common_actions_tests(apitestclass, client_authenticated_2, post_url, post_payload, dict_post["id"], 
