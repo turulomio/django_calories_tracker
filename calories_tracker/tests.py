@@ -1,4 +1,4 @@
-from calories_tracker.reusing import factory_helpers
+from calories_tracker import models, tests_helpers
 from django.contrib.auth.models import User
 from django.test import tag
 from json import loads
@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from django.contrib.auth.models import Group
 
-tag
+tag, models
 
 class CtTestCase(APITestCase):
     fixtures=["all.json"] #Para cargar datos por defecto
@@ -79,6 +79,13 @@ class CtTestCase(APITestCase):
         cls.client_catalog_manager.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_catalog_manager)
 
 
+    def test_activities(self):
+        print()
+        print("test_activities")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/activities/', models.Activities.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+        
+        
+
 #
 #    @tag("current")
 #    def test_product(self):
@@ -89,7 +96,7 @@ class CtTestCase(APITestCase):
 #        print("test_product")
 #        factory_p=self.factories_manager.find(factory.ProductsFactory)
 #        #Creates a new product
-#        dict_p=factory_helpers.post(self.client_authorized_1, "/api/products/", factory_p.post_payload(self.client_authorized_1), status.HTTP_201_CREATED)
+#        dict_p=tests_helpers.post(self.client_authorized_1, "/api/products/", factory_p.post_payload(self.client_authorized_1), status.HTTP_201_CREATED)
 #        print(dict_p)
 
 
@@ -107,68 +114,40 @@ class CtTestCase(APITestCase):
         """
         print()
         print("test_system_product")
-        post_payload={
-            'additives': [], 
-            'amount': '5320.000', 
-            'calcium': '8551.000', 
-            'calories': '2190.000', 
-            'carbohydrate': '4137.000', 
-            'cholesterol': '2453.000', 
-            'system_companies': None, 
-            'elaborated_products': None, 
-            'fat': '1346.000', 
-            'ferrum': '9726.000', 
-            'fiber': '4615.000', 
-            'food_types': 'http://testserver/api/food_types/2/', 
-            'formats': [], 
-            'glutenfree': False, 
-            'magnesium': '2657.000', 
-            'name': 'System Product LfFcdY', 
-            'obsolete': False, 
-            'phosphor': '1095.000', 
-            'potassium': '2181.000', 
-            'protein': '1631.000', 
-            'salt': '7799.000', 
-            'saturated_fat': '527.000', 
-            'sodium': '8319.000', 
-            'sugars': '9859.000', 
-            'version': '2023-06-11T05:35:13.673203Z', 
-            'version_description': None, 
-            'version_parent': None, 
-            'density': '670.000'
-        }
 
-        
+
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  "/api/system_products/", models.SystemProducts.post_payload(), self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+                
         #Creates a new system product
-        dict_sp=factory_helpers.post(self, self.client_catalog_manager, "/api/system_products/", post_payload, status.HTTP_201_CREATED)
+        dict_sp=tests_helpers.client_post(self, self.client_catalog_manager, "/api/system_products/", models.SystemProducts.post_payload(), status.HTTP_201_CREATED)
 
         #Client_autenticated_1 creates a product
-        factory_helpers.post(self, self.client_authorized_1, dict_sp["url"]+"create_product/", {},  status.HTTP_200_OK)
+        tests_helpers.client_post(self, self.client_authorized_1, dict_sp["url"]+"create_product/", {},  status.HTTP_200_OK)
 
         #Client_autenticated_2 creates a product
-        factory_helpers.post(self, self.client_authorized_2, dict_sp["url"]+"create_product/", {} , status.HTTP_200_OK)
+        tests_helpers.client_post(self, self.client_authorized_2, dict_sp["url"]+"create_product/", {} , status.HTTP_200_OK)
         
         #List of client_authorized_1 products len must be 1
-        dict_all_p1=factory_helpers.get(self, self.client_authorized_1, "/api/products/", status.HTTP_200_OK)
+        dict_all_p1=tests_helpers.client_get(self, self.client_authorized_1, "/api/products/", status.HTTP_200_OK)
         self.assertEqual(len(dict_all_p1), 1)
         
         #List of client_authorized_2 products len must be 1
-        dict_all_p2=factory_helpers.get(self, self.client_authorized_2, "/api/products/", status.HTTP_200_OK)
+        dict_all_p2=tests_helpers.client_get(self, self.client_authorized_2, "/api/products/", status.HTTP_200_OK)
         self.assertEqual(len(dict_all_p2), 1)
 #
 #    def test_recipes(self):
 #        print()
 #        print("test_recipes")
-#        mf=factory_helpers.MyFactory(factory.RecipesFactory, "Private", "/api/recipes/")
+#        mf=tests_helpers.MyFactory(factory.RecipesFactory, "Private", "/api/recipes/")
 #        recipe=mf.factory.create(user=self.user_authorized_1, recipes_categories=factory.RecipesCategoriesFactory.create_batch(2))
 #        recipe
-##        print(factory_helpers.serialize(recipe))
+##        print(tests_helpers.serialize(recipe))
 ##        self.client_authorized_1.post(mf.url,  mf.post_payload(user=self.user_authorized_1))
 #
 #    def test_recipes_links(self):
 #        print()
 #        print("test_recipes_links")
-#        mf=factory_helpers.MyFactory(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
+#        mf=tests_helpers.MyFactory(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
 #        recipe=self.client_authorized_1.post(mf.url, PostPayload.RecipesLinks(self.user_authorized_1), format="json")
 #        self.assertEqual(recipe.status_code, status.HTTP_201_CREATED)
         

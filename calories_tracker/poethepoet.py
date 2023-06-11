@@ -23,7 +23,5 @@ def reusing():
         download_from_github("turulomio", "reusingcode", "python/datetime_functions.py", "calories_tracker/reusing")
         download_from_github("turulomio", "reusingcode", "django/responses_json.py", "calories_tracker/reusing")
         download_from_github("turulomio", "django_moneymoney", "moneymoney/views_login.py", "calories_tracker/reusing")
-        download_from_github("turulomio", "django_moneymoney", "moneymoney/factory_helpers.py", "calories_tracker/reusing")
 
     replace_in_file("calories_tracker/reusing/views_login.py", "moneymoney.reusing", "")
-    replace_in_file("calories_tracker/reusing/factory_helpers.py", "from . import serializers", "from .. import serializers")

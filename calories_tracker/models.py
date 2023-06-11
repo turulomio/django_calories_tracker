@@ -95,6 +95,16 @@ class Activities(models.Model):
         
     def __str__(self):
         return self.name
+    
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Activity", 
+            "description": "Example activity for testing",
+            "multiplier": 2, 
+        }
+        
+    
 
 class AdditiveRisks(models.Model):
     name = models.TextField()
@@ -416,6 +426,39 @@ class SystemProducts(models.Model):
             
         p.save()
         return p
+        
+    @staticmethod
+    def post_payload():
+            return {
+            'additives': [], 
+            'amount': '5320.000', 
+            'calcium': '8551.000', 
+            'calories': '2190.000', 
+            'carbohydrate': '4137.000', 
+            'cholesterol': '2453.000', 
+            'system_companies': None, 
+            'elaborated_products': None, 
+            'fat': '1346.000', 
+            'ferrum': '9726.000', 
+            'fiber': '4615.000', 
+            'food_types': 'http://testserver/api/food_types/2/', 
+            'formats': [], 
+            'glutenfree': False, 
+            'magnesium': '2657.000', 
+            'name': 'System Product LfFcdY', 
+            'obsolete': False, 
+            'phosphor': '1095.000', 
+            'potassium': '2181.000', 
+            'protein': '1631.000', 
+            'salt': '7799.000', 
+            'saturated_fat': '527.000', 
+            'sodium': '8319.000', 
+            'sugars': '9859.000', 
+            'version': '2023-06-11T05:35:13.673203Z', 
+            'version_description': None, 
+            'version_parent': None, 
+            'density': '670.000'
+        }
         
     @staticmethod
     def update_all_linked_products( user):
