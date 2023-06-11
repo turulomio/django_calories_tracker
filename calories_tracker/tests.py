@@ -144,10 +144,16 @@ class CtTestCase(APITestCase):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/food_types/', models.FoodTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
         
     def test_formats(self):
-        print()
+        print() 
         print("test_formats")
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/formats/', models.Formats.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
         
+    def test_meals(self):
+        print()
+        print("test_meals")        
+        dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
+        tests_helpers.common_tests_Private(self,  '/api/meals/', models.Meals.post_payload(products=dict_products["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+                                
 #
 #    @tag("current")
 #    def test_product(self):

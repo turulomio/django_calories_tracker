@@ -779,6 +779,14 @@ class Meals(models.Model):
     def __str__(self):
         return f"{self.products} ({self.amount}g)"
         
+    @staticmethod
+    def post_payload(products):
+        return {
+            "datetime": '2023-06-11T05:35:13.673203Z', 
+            "products": products, 
+            "amount":  330, 
+        }
+        
     ## name can be, fat, saturated_fat, fiber, sodiumm...
     def getProductComponent(self, name, decimals=2):
         component=getattr(self.products, name)
