@@ -323,7 +323,17 @@ class Companies(models.Model):
         
     def __str__(self):
         return self.name
-        
+                        
+    @staticmethod
+    def post_payload(system_companies=False):
+        system_companies_value= None if system_companies is False else "http://testserver/api/system_companies/2/"
+        return {
+            "last": '2023-06-11T05:35:13.673203Z', 
+            "name": "Company for testing", 
+            "obsolete": False, 
+            "system_companies": system_companies_value, 
+        }
+
     def is_editable(self):
         if self.system_companies is None:
             return True
