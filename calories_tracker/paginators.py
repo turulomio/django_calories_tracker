@@ -30,6 +30,8 @@ def vtabledata_options2orderby(request, default):
     sortBy=RequestGetListOfStrings(request, "sortBy[]")
     sortDesc=RequestGetListOfBooleans(request, "sortDesc[]")
     multiSort=RequestGetBool(request, "multiSort")
+    if len(sortBy)==0: #Devuelve default, paginate siempre tiene que estar ordenado
+        return [default]
     if multiSort is False:
         r= [get_index(0)]
     else: #Multi sort true

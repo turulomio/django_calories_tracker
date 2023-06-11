@@ -111,10 +111,27 @@ class CtTestCase(APITestCase):
         print()
         print("test_elaborated_products")
         tests_helpers.common_tests_Private(self,  '/api/elaborated_products/', models.ElaboratedProducts.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-
-
-        
-
+                        
+    def test_elaborations(self):
+        print()
+        print("test_elaborations")        
+        dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
+        tests_helpers.common_tests_Private(self,  '/api/elaborations/', models.Elaborations.post_payload(dict_recipes["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+                                                        
+    def test_elaborations_containers(self):
+        print()
+        print("test_elaborations_containers")        
+        dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
+        dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
+        tests_helpers.common_tests_Private(self,  '/api/elaborations_containers/', models.ElaborationsContainers.post_payload(elaborations=dict_elaborations["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+                                                                                        
+    def test_elaborations_experiences(self):
+        print()
+        print("test_elaborations_experiences")        
+        dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
+        dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
+        tests_helpers.common_tests_Private(self,  '/api/elaborations_experiences/', models.ElaborationsExperiences.post_payload(elaborations=dict_elaborations["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+                                
     @tag("current")
     def test_elaborated_products_productsinthrough(self):
         """
@@ -171,28 +188,11 @@ class CtTestCase(APITestCase):
         print()
         print("test_products")        
         tests_helpers.common_tests_Private(self,  '/api/products/', models.Products.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-                      
-#
-#    @tag("current")
-#    def test_product(self):
-#        """
-#            Checks product logic
-#        """
-#        print()
-#        print("test_product")
-#        factory_p=self.factories_manager.find(factory.ProductsFactory)
-#        #Creates a new product
-#        dict_p=tests_helpers.post(self.client_authorized_1, "/api/products/", factory_p.post_payload(self.client_authorized_1), status.HTTP_201_CREATED)
-#        print(dict_p)
-
-
-#        #Products to system products
-##        product=td.tmProducts.create(0, self.client_authorized_1)
-##        url=f"{product['url']}convert_to_system/"
-##        r=self.client_authorized_1.post(url) #Normal user
-##        self.assertEqual(r.status_code, status.HTTP_403_FORBIDDEN,  f"Error @action {url}")
-##        r=self.client_catalog_manager.post(url) #CatalogManager user
-##        self.assertEqual(r.status_code, status.HTTP_200_OK,  f"Error @action {url}")
+        #Products to system products, SOLO DEBERIA PODER HACERLO UN USUARIO CON PERMISOS DE CATALOGO
+#        dict_p=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
+#        url=f"{dict_p['url']}convert_to_system/"        
+#        tests_helpers.client_post(self, self.client_authorized_1, url, {}, status.HTTP_403_FORBIDDEN)
+#        tests_helpers.client_post(self, self.client_catalog_manager, url, {}, status.HTTP_201_CREATED)
 
     def test_system_product(self):
         """
@@ -220,21 +220,46 @@ class CtTestCase(APITestCase):
         #List of client_authorized_2 products len must be 1
         dict_all_p2=tests_helpers.client_get(self, self.client_authorized_2, "/api/products/", status.HTTP_200_OK)
         self.assertEqual(len(dict_all_p2), 1)
-#
-#    def test_recipes(self):
-#        print()
-#        print("test_recipes")
-#        mf=tests_helpers.MyFactory(factory.RecipesFactory, "Private", "/api/recipes/")
-#        recipe=mf.factory.create(user=self.user_authorized_1, recipes_categories=factory.RecipesCategoriesFactory.create_batch(2))
-#        recipe
-##        print(tests_helpers.serialize(recipe))
-##        self.client_authorized_1.post(mf.url,  mf.post_payload(user=self.user_authorized_1))
-#
-#    def test_recipes_links(self):
-#        print()
-#        print("test_recipes_links")
-#        mf=tests_helpers.MyFactory(factory.RecipesLinksFactory, "Private", "/api/recipes_links/")
-#        recipe=self.client_authorized_1.post(mf.url, PostPayload.RecipesLinks(self.user_authorized_1), format="json")
-#        self.assertEqual(recipe.status_code, status.HTTP_201_CREATED)
-        
-        
+
+                                         
+    def test_recipes(self):
+        print()
+        print("test_recipes")        
+        tests_helpers.common_tests_Private(self,  '/api/recipes/', models.Recipes.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+                                         
+    def test_recipes_links(self):
+        print()
+        print("test_recipes_links")                
+        dict_recipe=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
+        tests_helpers.common_tests_Private(self,  '/api/recipes_links/', models.RecipesLinks.post_payload(recipes=dict_recipe["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+
+    def test_recipes_categories(self):
+        print()
+        print("test_recipes_categories")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/recipes_categories/', models.RecipesCategories.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+                
+    def test_recipes_links_types(self):
+        print()
+        print("test_recipes_links_types")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/recipes_links_types/', models.RecipesLinksTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+                
+    def test_steps(self):
+        print()
+        print("test_steps")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/steps/', models.Steps.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+                                
+    def test_stir_types(self):
+        print()
+        print("test_stir_types")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/stir_types/', models.StirTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+                                                
+    def test_temperatures_types(self):
+        print()
+        print("test_temperatures_types")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/temperatures_types/', models.TemperaturesTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+                                                                
+    def test_weight_wishes(self):
+        print()
+        print("test_weight_wishes")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/weight_wishes/', models.WeightWishes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+                

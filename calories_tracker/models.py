@@ -132,6 +132,12 @@ class WeightWishes(models.Model):
     def __str__(self):
         return self.name
 
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Weight wish for testing", 
+        }
+
 class Additives(models.Model):
     name = models.TextField()
     description = models.TextField()
@@ -847,6 +853,11 @@ class RecipesCategories(models.Model):
     
     def __str__(self):
         return self.name
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Recipe category type for testing", 
+        }
 
 class Recipes(models.Model):
     name = models.TextField()
@@ -863,6 +874,22 @@ class Recipes(models.Model):
     class Meta:
         managed = True
         db_table = 'recipes'
+        
+        
+    @staticmethod
+    def post_payload():
+        return {
+            "name": 'Recipe for testing', 
+            "datetime": '2023-06-11T05:35:13.673203Z', 
+            "last": '2023-06-11T05:35:13.673203Z', 
+            "food_types":'http://testserver/api/food_types/2/', 
+            "obsolete":False, 
+            "comment": "This is my recipe comment for testing", 
+            "valoration": 20,  
+            "guests":  True,
+            "soon": True,  
+            "recipes_categories": [], 
+        }
 
     ##Returns a files url, then you can use content/ or thumbnail/
     def main_image_files(self, request):
@@ -880,7 +907,11 @@ class RecipesLinksTypes(models.Model):
         
     def __str__(self):
         return self.name
-
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Recipe link type for testing", 
+        }
 class RecipesLinks(models.Model):
     description=models.TextField( blank=False, null=False)
     type=models.ForeignKey(RecipesLinksTypes, models.DO_NOTHING)
@@ -890,6 +921,14 @@ class RecipesLinks(models.Model):
     class Meta:
         managed = True
         db_table = 'recipes_links'
+    @staticmethod
+    def post_payload(recipes):
+        return {
+            "description":  "Recipe links for testing", 
+            "type": 'http://testserver/api/recipes_links_types/3/',
+           "link": "Link for testing", 
+           "recipes":recipes, 
+        }
     
     
 class Elaborations(models.Model):
@@ -906,6 +945,15 @@ class Elaborations(models.Model):
         
     def __str__(self):
         return self.fullname()
+    @staticmethod
+    def post_payload(recipes):
+        return {
+            "diners": 4, 
+            "recipes":  recipes, 
+            "final_amount": 1000, 
+            "automatic": False, 
+            "automatic_adaptation_step": ""
+        }
         
     def final_duration(self):
         qs= self.elaborations_steps.aggregate(final_duration=models.Sum('duration'))
@@ -976,6 +1024,12 @@ class TemperaturesTypes(models.Model):
 
     def __str__(self):
         return self.name
+        
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Temperature type for testing", 
+        }
 
 class StirTypes(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -984,6 +1038,12 @@ class StirTypes(models.Model):
     class Meta:
         managed = True
         db_table = 'stir_types'
+
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Stir type for testing", 
+        }
 
     def __str__(self):
         return self.name
@@ -1006,6 +1066,22 @@ class Steps(models.Model):
     
     def __str__(self):
         return f"Step: {self.name}"
+        
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Step for testing", 
+            "can_products_in_step": True, 
+            "man_products_in_step": True, 
+            "can_container": True, 
+            "man_container": True, 
+            "can_container_to": True, 
+            "man_container_to": True, 
+            "can_temperatures": True, 
+            "man_temperatures": True, 
+            "can_stir": True, 
+            "man_stir": True, 
+        }
     
     def localname(self):
         return _(self.name)
@@ -1020,6 +1096,13 @@ class ElaborationsContainers(models.Model):
 
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def post_payload(elaborations):
+        return {
+            "name":  "Elaboration container for testing", 
+            "elaborations": elaborations
+        }
         
 ##Una clase con muchas opciones que en el front se esconderán dependiendo del step
 class ElaborationsSteps(models.Model):
@@ -1224,6 +1307,13 @@ class ElaborationsExperiences(models.Model):
     def __str__(self):
         return self.name
 
+    @staticmethod
+    def post_payload(elaborations):
+        return {
+            "datetime": '2023-06-11T05:35:13.673203Z', 
+            "experience":  "Elaboration experience for testing", 
+            "elaborations": elaborations
+        }
 
 class eAdditiveRisk:
     NotEvaluated=100
