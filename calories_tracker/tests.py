@@ -85,6 +85,12 @@ class CtTestCase(APITestCase):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/activities/', models.Activities.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
         
         
+    def test_additive_risks(self):
+        print()
+        print("test_additive_risks")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/additive_risks/', models.AdditiveRisks.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+        
+        
 
 #
 #    @tag("current")

@@ -100,7 +100,7 @@ class Activities(models.Model):
     def post_payload():
         return {
             "name":  "Activity", 
-            "description": "Example activity for testing",
+            "description": "Example of activity for testing",
             "multiplier": 2, 
         }
         
@@ -115,6 +115,12 @@ class AdditiveRisks(models.Model):
         
     def __str__(self):
         return self.name
+        
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Additive risk for testing", 
+        }
 
 class WeightWishes(models.Model):
     name = models.TextField()
