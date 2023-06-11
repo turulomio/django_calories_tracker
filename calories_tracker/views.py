@@ -120,6 +120,23 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     
+class ElaboratedProductsProductsInThroughViewSet(viewsets.ModelViewSet):
+    queryset = models.ElaboratedProductsProductsInThrough.objects.all()
+    serializer_class = serializers.ElaboratedProductsProductsInThroughSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        elaborated_products=RequestGetUrl(self.request, "elaborated_products", models.ElaboratedProducts)
+        #products=RequestGetUrl(self.request, "products", models.Products)
+        if all_args_are_not_none(elaborated_products):        
+            return self.queryset.filter(elaborated_products=elaborated_products, elaborated_products__user=self.request.user)
+        return self.queryset.filter(elaborated_products__user=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.elaborated_products.last=timezone.now()
+        instance.elaborated_products.save()
+        return viewsets.ModelViewSet.destroy(self, request, args, kwargs)
 
 class ElaborationsViewSet(viewsets.ModelViewSet):
     queryset = models.Elaborations.objects.all().select_related("recipes")
@@ -318,7 +335,7 @@ class ElaborationsStepsViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user).order_by("order")
         return self.queryset.filter(elaborations__recipes__user=self.request.user).order_by("order")
 
-class ElaborationsProductsInThrough(viewsets.ModelViewSet):
+class ElaborationsProductsInThroughViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsProductsInThrough.objects.all()
     serializer_class = serializers.ElaborationsProductsInThroughSerializer
     permission_classes = [permissions.IsAuthenticated]

@@ -564,7 +564,39 @@ class Products(models.Model):
 
     def __str__(self):
         return self.fullname()
-        
+                
+    @staticmethod
+    def post_payload():
+            return {
+            'additives': [], 
+            'amount': '5320.000', 
+            'calcium': '8551.000', 
+            'calories': '2190.000', 
+            'carbohydrate': '4137.000', 
+            'cholesterol': '2453.000', 
+            'system_companies': None, 
+            'elaborated_products': None, 
+            'fat': '1346.000', 
+            'ferrum': '9726.000', 
+            'fiber': '4615.000', 
+            'food_types': 'http://testserver/api/food_types/2/', 
+            'formats': [], 
+            'glutenfree': False, 
+            'magnesium': '2657.000', 
+            'name': 'System Product LfFcdY', 
+            'obsolete': False, 
+            'phosphor': '1095.000', 
+            'potassium': '2181.000', 
+            'protein': '1631.000', 
+            'salt': '7799.000', 
+            'saturated_fat': '527.000', 
+            'sodium': '8319.000', 
+            'sugars': '9859.000', 
+            'version': '2023-06-11T05:35:13.673203Z', 
+            'version_description': None, 
+            'version_parent': None, 
+            'density': '670.000'
+        }
     def fullname(self):
         company=""
         if self.companies is not None:
@@ -624,7 +656,17 @@ class ElaboratedProducts(models.Model):
         
     def __str__(self):
         return self.name
-
+                        
+    @staticmethod
+    def post_payload(recipes=None):
+        return {
+            "name": "Elaborated product for testing", 
+            "final_amount": 1200, 
+            "last": '2023-06-11T05:35:13.673203Z', 
+            "food_types":'http://testserver/api/food_types/2/', 
+            "obsolete": False, 
+            "recipes":recipes, 
+        }
     def is_deletable(self):
         if self.uses() >0:
             return False
@@ -705,6 +747,13 @@ class ElaboratedProductsProductsInThrough(models.Model):
     elaborated_products = models.ForeignKey(ElaboratedProducts, on_delete=models.DO_NOTHING)
     amount = models.DecimalField(max_digits=10, decimal_places=3)
 
+    @staticmethod
+    def post_payload(products=None, elaborated_products=None):
+        return {
+            "products": products, 
+            "amount": 1200, 
+            "elaborated_products": elaborated_products
+        }
 
 class Meals(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 

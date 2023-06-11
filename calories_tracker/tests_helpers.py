@@ -233,7 +233,7 @@ def common_tests_Private(apitestclass,  post_url, post_payload, client_authentic
     hlu_id_r1=hlu(post_url,r1_id)
     
     r=client_authenticated_2.get(hlu_id_r1)
-    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{post_url}, {r.content}. WARNING: Client2 can access Client1 post")
+    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{post_url}, {r.content}. Client2 can access Client1 post")
 
     # 2 creates and 1 cant get
     r2=client_authenticated_2.post(post_url, post_payload, format="json")
@@ -242,7 +242,7 @@ def common_tests_Private(apitestclass,  post_url, post_payload, client_authentic
     hlu_id_r2=hlu(post_url,r2_id)
 
     r=client_authenticated_1.get(hlu_id_r2)
-    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{post_url}, {r.content}. WARNING: Client1 can access Client2 post")
+    apitestclass.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND, f"{post_url}, {r.content}. Client1 can access Client2 post")
         
     ### TEST OF CLIENT_AUTHENTICATED_2
     common_actions_tests(apitestclass, client_authenticated_2, post_url, post_payload, dict_post["id"], 

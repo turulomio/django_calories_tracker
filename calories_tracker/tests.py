@@ -105,8 +105,39 @@ class CtTestCase(APITestCase):
         print()
         print("test_companies")
         tests_helpers.common_tests_Private(self,  '/api/companies/', models.Companies.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+        tests_helpers.common_tests_Private(self,  '/api/companies/', models.Companies.post_payload(system_companies=True),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+                                        
+    def test_elaborated_products(self):
+        print()
+        print("test_elaborated_products")
+        tests_helpers.common_tests_Private(self,  '/api/elaborated_products/', models.ElaboratedProducts.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+                                                
+    @tag("current")
+    def test_elaborated_products_productsinthrough(self):
+        """
+            Al ser un through no funcionan el common_tests_Private
+        """
+        print()
+        print("test_elaborated_products_productsinthrough")
+        dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
+        dict_elaborated_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborated_products/", models.ElaboratedProducts.post_payload(), status.HTTP_201_CREATED)
+
+        #Testing all actions
+        tests_helpers.common_actions_tests(self, self.client_authorized_1, '/api/elaboratedproductsproductsinthrough/', models.ElaboratedProductsProductsInThrough.post_payload(products=dict_products["url"], elaborated_products=dict_elaborated_products["url"]), None, 
+            post=status.HTTP_201_CREATED, 
+            get=status.HTTP_200_OK, 
+            list=status.HTTP_200_OK, 
+            put=status.HTTP_200_OK, 
+            patch=status.HTTP_200_OK, 
+            delete=status.HTTP_204_NO_CONTENT
+        )
         
-        
+        #Creating a new one
+        dict_epp=tests_helpers.client_post(self, self.client_authorized_1, '/api/elaboratedproductsproductsinthrough/', models.ElaboratedProductsProductsInThrough.post_payload(products=dict_products["url"], elaborated_products=dict_elaborated_products["url"]), status.HTTP_201_CREATED) 
+        #Check authorized_2 can't seeit and anonymous
+        tests_helpers.client_get(self, self.client_authorized_2, dict_epp["url"], status.HTTP_404_NOT_FOUND)
+        tests_helpers.client_get(self, self.client_anonymous, dict_epp["url"], status.HTTP_401_UNAUTHORIZED)
+
 
 #
 #    @tag("current")

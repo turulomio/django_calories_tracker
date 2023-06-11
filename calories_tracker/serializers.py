@@ -119,7 +119,7 @@ class ElaboratedProductsProductsInThroughSerializer(serializers.HyperlinkedModel
     class Meta:
         model = models.ElaboratedProductsProductsInThrough
 
-        fields = ('products',  'amount', 'elaborated_products' )
+        fields = ('id','url','products',  'amount', 'elaborated_products' )
         
 class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
     products_in = ElaboratedProductsProductsInThroughSerializer(many=True, read_only=True, source="elaboratedproductsproductsinthrough_set")

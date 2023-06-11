@@ -34,7 +34,8 @@ router.register(r'system_companies', calories_tracker_views.SystemCompaniesViewS
 router.register(r'system_products', calories_tracker_views.SystemProductsViewSet)
 router.register(r'weight_wishes', calories_tracker_views.WeightWishesViewSet)
 router.register(r'temperatures_types', calories_tracker_views.TemperaturesTypesViewSet)
-router.register(r'elaborationsproductsinthrough', calories_tracker_views.ElaborationsProductsInThrough)
+router.register(r'elaborationsproductsinthrough', calories_tracker_views.ElaborationsProductsInThroughViewSet)
+router.register(r'elaboratedproductsproductsinthrough', calories_tracker_views.ElaboratedProductsProductsInThroughViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
