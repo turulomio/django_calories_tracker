@@ -111,7 +111,7 @@ class CtTestCase(APITestCase):
         print()
         print("test_elaborated_products")
         tests_helpers.common_tests_Private(self,  '/api/elaborated_products/', models.ElaboratedProducts.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-                                                
+
     @tag("current")
     def test_elaborated_products_productsinthrough(self):
         """
@@ -138,7 +138,11 @@ class CtTestCase(APITestCase):
         tests_helpers.client_get(self, self.client_authorized_2, dict_epp["url"], status.HTTP_404_NOT_FOUND)
         tests_helpers.client_get(self, self.client_anonymous, dict_epp["url"], status.HTTP_401_UNAUTHORIZED)
 
-
+    def test_food_types(self):
+        print()
+        print("test_food_types")
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/food_types/', models.FoodTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+        
 #
 #    @tag("current")
 #    def test_product(self):

@@ -280,6 +280,11 @@ class FoodTypes(models.Model):
         
     def __str__(self):
         return self.name
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "Food type for testing", 
+        }
 
 class SystemCompanies(models.Model):
     name = models.TextField()
