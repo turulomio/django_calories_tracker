@@ -1153,12 +1153,39 @@ class ElaborationsSteps(models.Model):
         
         
     @staticmethod
-    def post_payload(elaborations):
-        return {
-            "order":  "Elaboration container for testing", 
-            "elaborations": elaborations
-        }
-        
+    def post_payload(elaborations, arr_products_in_step, arr_container):
+        r={}
+        r["steps"]= [
+            {
+                "order":  1, 
+                "elaborations": elaborations, 
+                "steps":  'http://testserver/api/steps/2/', 
+                "duration": "00:01:00", 
+                "comment": "Elaboration step comment for testing", 
+                "products_in_step": arr_products_in_step[0], 
+                "container": arr_container[0], 
+                "container_to": None, 
+                "temperatures_types":None, 
+                "temperatures_values":None, 
+                "stir_types": None, 
+                "stir_values": None, 
+            }, 
+            {
+                "order":  2, 
+                "elaborations": elaborations, 
+                "steps":  'http://testserver/api/steps/2/', 
+                "duration": "00:01:00", 
+                "comment": "Elaboration step comment for testing", 
+                "products_in_step": arr_products_in_step[1], 
+                "container": arr_container[1], 
+                "container_to": None, 
+                "temperatures_types":None, 
+                "temperatures_values":None, 
+                "stir_types": None, 
+                "stir_values": None, 
+            }
+        ]
+        return r
         
     def string_duration(self):
         return timedelta_to_string(time_to_timedelta(self.duration))

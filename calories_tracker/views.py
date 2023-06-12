@@ -180,7 +180,7 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             es.temperatures_values=d["temperatures_values"]
             es.stir_types=None if d["stir_types"] is None else object_from_url(d["stir_types"], models.StirTypes)
             es.stir_values=d["stir_values"]
-            es.container=None if d["container"] is None else object_from_url(d["container"], models.ElaborationsContainers)
+            es.container=None if d["container"] is None else object_from_url(d["container"], models.ElaborationsContainers, model_url="elaborationscontainers")
             es.container_to=None if d["container_to"] is None else object_from_url(d["container_to"], models.ElaborationsContainers)
             es.comment=d["comment"]
             es.save()
@@ -196,7 +196,7 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         r=[]
         for es in models.ElaborationsSteps.objects.filter(elaborations=elaboration).order_by("order"):
             r.append(serializers.ElaborationsStepsSerializer(es, context={'request': request}).data)
-        return json_data_response(True, r,  "Steps actualizados")
+        return Response({"detail":"Steps actualizados"}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['POST'], name='It creates and elaborated product from a recipe elaboration', url_path="create_elaborated_product", url_name='create_elaborated_product', permission_classes=[permissions.IsAuthenticated])
     def create_elaborated_product(self, request, pk=None):

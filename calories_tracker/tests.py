@@ -131,7 +131,7 @@ class CtTestCase(APITestCase):
         dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
         dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/elaborations_experiences/', models.ElaborationsExperiences.post_payload(elaborations=dict_elaborations["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-    @tag("current")
+    
     def test_elaborations_productsinthrough(self):
         """
             Al ser un through no funcionan el common_tests_Private
@@ -142,13 +142,39 @@ class CtTestCase(APITestCase):
         dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
         dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/elaborationsproductsinthrough/', models.ElaborationsProductsInThrough.post_payload(elaborations=dict_elaborations["url"], products=dict_products["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-#
-#        #Creating a new one
-#        dict_epp=tests_helpers.client_post(self, self.client_authorized_1, '/api/elaborationsproductsinthrough/', models.ElaboratedProductsProductsInThrough.post_payload(products=dict_products["url"], elaborated_products=dict_elaborated_products["url"]), status.HTTP_201_CREATED) 
-#        #Check authorized_2 can't seeit and anonymous
-#        tests_helpers.client_get(self, self.client_authorized_2, dict_epp["url"], status.HTTP_404_NOT_FOUND)
-#        tests_helpers.client_get(self, self.client_anonymous, dict_epp["url"], status.HTTP_401_UNAUTHORIZED)
     @tag("current")
+    def test_elaborations_steps(self):
+        """
+            Al ser un through no funcionan el common_tests_Private
+        """
+        print()
+        print("test_elaborations_steps")
+        dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
+        dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
+        dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
+        lod_elaborations_productsin=[]
+        lod_elaborations_productsin.append(tests_helpers.client_post(self, self.client_authorized_1,  '/api/elaborationsproductsinthrough/', models.ElaborationsProductsInThrough.post_payload(elaborations=dict_elaborations["url"], products=dict_products["url"]),  status.HTTP_201_CREATED))
+        lod_elaborations_containers=[]
+        lod_elaborations_containers.append(tests_helpers.client_post(self, self.client_authorized_1,  '/api/elaborations_containers/', models.ElaborationsContainers.post_payload(elaborations=dict_elaborations["url"]),  status.HTTP_201_CREATED))
+
+        tests_helpers.client_post(
+            self,  
+            self.client_authorized_1, 
+            dict_elaborations["url"]+ "update_steps/", 
+            models.ElaborationsSteps.post_payload(
+                elaborations=dict_elaborations["url"], 
+                arr_products_in_step=[
+                    [lod_elaborations_productsin[0]["url"],],  
+                    [lod_elaborations_productsin[0]["url"],],  
+                ], 
+                arr_container=[
+                    lod_elaborations_containers[0]["url"],
+                    lod_elaborations_containers[0]["url"],
+                ]
+            ),  
+            status.HTTP_200_OK
+        )
+
     def test_elaborated_products_productsinthrough(self):
         """
             Al ser un through no funcionan el common_tests_Private
