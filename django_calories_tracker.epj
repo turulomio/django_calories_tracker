@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-06-11, 11:40:41"
+    "saved": "2023-06-12, 07:43:19"
   },
   "project": {
     "AUTHOR": "",
@@ -72,7 +72,6 @@
       "calories_tracker/__init__.py",
       "calories_tracker/admin.py",
       "calories_tracker/apps.py",
-      "calories_tracker/factory.py",
       "calories_tracker/hardcoded_strings.py",
       "calories_tracker/management/commands/coverage.py",
       "calories_tracker/management/commands/doxygen.py",
