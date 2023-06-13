@@ -930,10 +930,11 @@ def Curiosities(request):
         if tmp_cal>sel_cal:
             sel_p=p
             sel_cal=tmp_cal
-    r.append({
-        "question":_("Which is the product with highest calories in 100 g?"), 
-        "answer":_("The product with highest calories is '{0}' with {1} calories.").format(sel_p.fullname(), round(sel_cal, 0))
-    })
+    if len(qs_products)>0:
+        r.append({
+            "question":_("Which is the product with highest calories in 100 g?"), 
+            "answer":_("The product with highest calories is '{0}' with {1} calories.").format(sel_p.fullname(), round(sel_cal, 0))
+        })
 
 
     if len(qs_meals)>0:

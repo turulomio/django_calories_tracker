@@ -106,7 +106,20 @@ class CtTestCase(APITestCase):
         print("test_companies")
         tests_helpers.common_tests_Private(self,  '/api/companies/', models.Companies.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
         tests_helpers.common_tests_Private(self,  '/api/companies/', models.Companies.post_payload(system_companies=True),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-                                        
+
+    def test_curiosities(self):
+        print()
+        print("test_curiosities")        
+        #Test empty database
+        tests_helpers.client_get(self, self.client_authorized_1, "/curiosities/", status.HTTP_200_OK)
+        #Adding some data to test curiosities again
+        dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
+        tests_helpers.client_post(self, self.client_authorized_1,'/api/meals/', models.Meals.post_payload(products=dict_products["url"]), status.HTTP_201_CREATED)
+        tests_helpers.client_post(self,  self.client_authorized_1, '/api/biometrics/', models.Biometrics.post_payload(),  status.HTTP_201_CREATED)
+        tests_helpers.client_get(self, self.client_authorized_1, "/curiosities/", status.HTTP_200_OK)
+
+        
+        
     def test_elaborated_products(self):
         print()
         print("test_elaborated_products")
@@ -203,7 +216,7 @@ class CtTestCase(APITestCase):
         print("test_meals")        
         dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/meals/', models.Meals.post_payload(products=dict_products["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-                                
+
     def test_measures_types(self):
         print()
         print("test_measures_types")
