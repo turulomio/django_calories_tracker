@@ -226,7 +226,7 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             epi.elaborated_products=ep
             epi.save()
         #Returns created elaborated product serialized
-        return JsonResponse(serializers.ElaboratedProductsSerializer(ep, context={'request': request}).data, status=200)
+        return JsonResponse(serializers.ElaboratedProductsSerializer(ep, context={'request': request}).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['POST'], name='It creates a PDF for this elaboration', url_path="generate_pdf", url_name='generate_pdf', permission_classes=[permissions.IsAuthenticated])
     def generate_pdf(self, request, pk=None):
@@ -298,10 +298,9 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
                 new_step.products_in_step.set(productsin)
                 new_step.save()
                 
-            return json_data_response(True, [],  "Steps updated")
-        return json_data_response(False, [],  "Diners error")
-        
-        
+            return JsonResponse(serializers.ElaborationsSerializer(new, context={'request': request}).data, status=status.HTTP_200_OK)
+        return Response({"detail": "Error creating automatic elaboration"}, status=status.HTTP_400_BAD_REQUEST)
+
 class ElaborationsContainersViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsContainers.objects.all()
     serializer_class = serializers.ElaborationsContainersSerializer
