@@ -285,7 +285,42 @@ class CtTestCase(APITestCase):
         print()
         print("test_recipes_links_types")
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/recipes_links_types/', models.RecipesLinksTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-                
+
+    def test_settings(self):
+        print()
+        print("test_settings")
+        #Get
+        tests_helpers.client_get(self, self.client_authorized_1, "/settings/", status.HTTP_200_OK)
+        #Bad post
+        tests_helpers.client_post(self, self.client_authorized_1, "/settings/",  {}, status.HTTP_400_BAD_REQUEST)
+        #Good post
+        tests_helpers.client_post(self, self.client_authorized_1, "/settings/",  {'first_name': 'Testing', 'last_name': 'Testing', 'last_login': '2023-06-13T07:05:01.293Z', 'email': 'testing@testing.com', 'birthday': '2000-01-01', 'male': True}, status.HTTP_200_OK)
+        #Get again
+        tests_helpers.client_get(self, self.client_authorized_1, "/settings/", status.HTTP_200_OK)
+        
+        
+        
+    def test_shopping_list(self):
+        print()
+        print("test_shopping_list")
+        dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
+        dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
+        dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
+        
+        # Elaboration without products_in
+        tests_helpers.client_post(self, self.client_authorized_1, "/shopping_list/", {"elaborations": [dict_elaborations["url"], ]}, status.HTTP_200_OK)
+        tests_helpers.client_post(self, self.client_authorized_1,  '/api/elaborationsproductsinthrough/', models.ElaborationsProductsInThrough.post_payload(elaborations=dict_elaborations["url"], products=dict_products["url"]),  status.HTTP_201_CREATED)
+
+        # Trying to get from client_authorized_2
+        tests_helpers.client_post(self, self.client_authorized_2, "/shopping_list/", {"elaborations": [dict_elaborations["url"], ]}, status.HTTP_200_OK)
+
+
+
+    def test_statistics(self):
+        print()
+        print("test_statistics")
+        tests_helpers.client_get(self, self.client_authorized_1, "/statistics/", status.HTTP_200_OK)
+
     def test_steps(self):
         print()
         print("test_steps")

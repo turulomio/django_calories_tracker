@@ -46,6 +46,8 @@ def client_response_to_dict(r):
     """
         Converts client.post response to a dict with content results
     """
+    if len(r.content)==0:
+        return {}
     return loads(r.content)
 
 def client_post(apitestclass, client, url, params, response_code):

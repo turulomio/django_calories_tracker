@@ -866,14 +866,15 @@ def Settings(request):
             request.user.last_name=last_name
             request.user.email=email
             request.user.save()
-            return JsonResponse(True, safe=False)
-        return JsonResponse(False, safe=False)
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST', ])
 @permission_classes([permissions.IsAuthenticated, ])
 def ShoppingList(request):
     elaborations=RequestListUrl(request, "elaborations", models.Elaborations, [])
+    print("elaborations doesn't check if are from request.user")
     from calories_tracker.unogenerator_files import response_report_shopping_list
     return response_report_shopping_list(request, elaborations)
 
