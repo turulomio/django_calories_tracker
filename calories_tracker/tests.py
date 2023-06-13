@@ -237,6 +237,37 @@ class CtTestCase(APITestCase):
 #        tests_helpers.client_post(self, self.client_authorized_1, url, {}, status.HTTP_403_FORBIDDEN)
 #        tests_helpers.client_post(self, self.client_catalog_manager, url, {}, status.HTTP_201_CREATED)
 
+    def test_system_companies(self):
+        """
+            Checks system product logic
+        """
+        print()
+        print("test_system_companies")
+
+
+        tests_helpers.common_tests_PrivateEditableCatalog(self,  "/api/system_companies/", models.SystemCompanies.post_payload(), self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
+                
+        #Creates a new system product
+        dict_sp=tests_helpers.client_post(self, self.client_catalog_manager, "/api/system_companies/", models.SystemCompanies.post_payload(), status.HTTP_201_CREATED)
+
+        #Client_autenticated_1 creates a company
+        tests_helpers.client_post(self, self.client_authorized_1, dict_sp["url"]+"create_company/", {},  status.HTTP_200_OK)
+
+        #Client_autenticated_2 creates a company
+        tests_helpers.client_post(self, self.client_authorized_2, dict_sp["url"]+"create_company/", {} , status.HTTP_200_OK)
+        
+        #List of client_authorized_1 products len must be 1
+        dict_all_p1=tests_helpers.client_get(self, self.client_authorized_1, "/api/companies/", status.HTTP_200_OK)
+        self.assertEqual(len(dict_all_p1), 1)
+        
+        #List of client_authorized_2 products len must be 1
+        dict_all_p2=tests_helpers.client_get(self, self.client_authorized_2, "/api/companies/", status.HTTP_200_OK)
+        self.assertEqual(len(dict_all_p2), 1)
+        
+        #Search system companies
+        dict_found=tests_helpers.client_get(self, self.client_authorized_1, "/api/system_companies/?search=Hacendado", status.HTTP_200_OK)
+        self.assertEqual(len(dict_found),1 )
+        
     def test_system_product(self):
         """
             Checks system product logic
@@ -263,6 +294,10 @@ class CtTestCase(APITestCase):
         #List of client_authorized_2 products len must be 1
         dict_all_p2=tests_helpers.client_get(self, self.client_authorized_2, "/api/products/", status.HTTP_200_OK)
         self.assertEqual(len(dict_all_p2), 1)
+        
+        #Search system product
+        dict_found=tests_helpers.client_get(self, self.client_authorized_1, "/api/system_products/?search=Zucchini", status.HTTP_200_OK)
+        self.assertEqual(len(dict_found),1 )
 
                                          
     def test_recipes(self):
@@ -275,6 +310,16 @@ class CtTestCase(APITestCase):
         print("test_recipes_links")                
         dict_recipe=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/recipes_links/', models.RecipesLinks.post_payload(recipes=dict_recipe["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+        
+        
+        tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes_links/?recipes={dict_recipe['url']}", status.HTTP_200_OK)
+        tests_helpers.client_get(self, self.client_authorized_1, "/api/recipes_links/?recipes=rrrr", status.HTTP_200_OK)
+        
+        dict_recipe=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
+
+
+
+
 
     def test_recipes_categories(self):
         print()

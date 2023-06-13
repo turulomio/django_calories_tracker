@@ -303,6 +303,15 @@ class SystemCompanies(models.Model):
         
     def __str__(self):
         return self.name
+        
+        
+    @staticmethod
+    def post_payload():
+        return {
+            "name":  "System company for testing", 
+            "last": '2023-06-11T05:35:13.673203Z', 
+            "obsolete": False, 
+        }
                 
     ## @param sp SystemProducts to link to Product
     ## Solo debe usarse cuando se linke o se sepa que es un systemproduct

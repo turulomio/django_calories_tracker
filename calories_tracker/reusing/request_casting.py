@@ -230,9 +230,13 @@ def parse_from_url(url):
         For example https://localhost/api/products/1/ ==> ('products', 1)
     """
     if url is None:
-        return None
-    parts=url.split("/")
-    return parts[len(parts)-3], int(parts[len(parts)-2])
+        return None,None
+    try:
+        parts=url.split("/")
+        return parts[len(parts)-3], int(parts[len(parts)-2])
+    except:
+        print("Error parsing url", url)
+        return None,None
 
 
 def object_from_url(url, class_, select_related=[], prefetch_related=[], model_url=None):
