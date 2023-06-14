@@ -257,6 +257,10 @@ class CtTestCase(APITestCase):
         print("test_meals")        
         dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/meals/', models.Meals.post_payload(products=dict_products["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+        #Ranking
+        tests_helpers.client_get(self, self.client_authorized_1,  '/api/meals/ranking/',  status.HTTP_200_OK)
+        tests_helpers.client_get(self, self.client_authorized_1,  '/api/meals/ranking/?from_date=2022-01-01',  status.HTTP_200_OK)
+        tests_helpers.client_get(self, self.client_authorized_1,  '/api/meals/ranking/?from_date=202',  status.HTTP_200_OK)
 
     def test_measures_types(self):
         print()
