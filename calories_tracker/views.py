@@ -445,10 +445,8 @@ class MealsViewSet(viewsets.ModelViewSet):
         if all_args_are_not_none(meals):
             for meal in meals:
                 meal.delete()
-            return Response('Meals.delete_several success')
-        return Response('Meals.delete_several failure')
-        
-        
+            return Response({"detail":'Meals.delete_several success'}, status=status.HTTP_200_OK)
+        return Response({"detail": 'Meals.delete_several failure'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["get"], name='Shows user meals ranking', url_path="ranking", url_name='ranking', permission_classes=[permissions.IsAuthenticated])
     def ranking(self, request):

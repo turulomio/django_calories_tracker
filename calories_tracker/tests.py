@@ -3,6 +3,7 @@ from datetime import date
 from django.contrib.auth.models import User
 from django.test import tag
 from json import loads
+from pydicts import lod
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from django.contrib.auth.models import Group
@@ -196,7 +197,7 @@ class CtTestCase(APITestCase):
         dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
         dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/elaborationsproductsinthrough/', models.ElaborationsProductsInThrough.post_payload(elaborations=dict_elaborations["url"], products=dict_products["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-    @tag("current")
+
     def test_elaborations_steps(self):
         """
             Al ser un through no funcionan el common_tests_Private
@@ -261,7 +262,18 @@ class CtTestCase(APITestCase):
         tests_helpers.client_get(self, self.client_authorized_1,  '/api/meals/ranking/',  status.HTTP_200_OK)
         tests_helpers.client_get(self, self.client_authorized_1,  '/api/meals/ranking/?from_date=2022-01-01',  status.HTTP_200_OK)
         tests_helpers.client_get(self, self.client_authorized_1,  '/api/meals/ranking/?from_date=202',  status.HTTP_200_OK)
+        #Delete several
+        
+        lod_meals=tests_helpers.client_get(self, self.client_authorized_1,  '/api/meals/',  status.HTTP_200_OK)
+        meals_to_delete=lod.lod2list(lod_meals, "url")
+        self.assertEqual(len(meals_to_delete),2 )
+        tests_helpers.client_post(self, self.client_authorized_1,  '/api/meals/delete_several/',  meals_to_delete,  status.HTTP_400_BAD_REQUEST)
+        tests_helpers.client_post(self, self.client_authorized_1,  '/api/meals/delete_several/',  {"meals":meals_to_delete },  status.HTTP_200_OK)
 
+        lod_meals=tests_helpers.client_get(self, self.client_authorized_1,  '/api/meals/',  status.HTTP_200_OK)
+        meals_to_delete=lod.lod2list(lod_meals, "url")
+        self.assertEqual(len(meals_to_delete), 0 )
+        
     def test_measures_types(self):
         print()
         print("test_measures_types")
