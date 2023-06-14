@@ -1,5 +1,4 @@
 from base64 import b64encode
-from calories_tracker.reusing.connection_dj import show_queries
 from calories_tracker.reusing.responses_json import json_data_response
 from calories_tracker import __version__
 from datetime import datetime
