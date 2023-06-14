@@ -1,10 +1,12 @@
 from calories_tracker import models, tests_helpers
+from datetime import date
 from django.contrib.auth.models import User
 from django.test import tag
 from json import loads
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from django.contrib.auth.models import Group
+
 
 tag, models
 
@@ -100,7 +102,11 @@ class CtTestCase(APITestCase):
         print()
         print("test_biometrics")
         tests_helpers.common_tests_Private(self,  '/api/biometrics/', models.Biometrics.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-                                
+        #Today
+        tests_helpers.client_get(self, self.client_authorized_1, f'/api/biometrics/?day={date.today()}', status.HTTP_200_OK)
+        #Empty day
+        tests_helpers.client_get(self, self.client_authorized_1, '/api/biometrics/?day=2022-01-01', status.HTTP_200_OK)
+
     def test_companies(self):
         print()
         print("test_companies")
@@ -221,7 +227,7 @@ class CtTestCase(APITestCase):
                 ]
             ),  
             status.HTTP_200_OK
-        )
+        )        
 
     def test_elaborated_products_productsinthrough(self):
         """
@@ -392,7 +398,7 @@ class CtTestCase(APITestCase):
         tests_helpers.client_post(self, self.client_authorized_1,  '/api/elaborationsproductsinthrough/', models.ElaborationsProductsInThrough.post_payload(elaborations=dict_elaborations["url"], products=dict_products["url"]),  status.HTTP_201_CREATED)
 
         # Trying to get from client_authorized_2
-        tests_helpers.client_post(self, self.client_authorized_2, "/shopping_list/", {"elaborations": [dict_elaborations["url"], ]}, status.HTTP_200_OK)
+        tests_helpers.client_post(self, self.client_authorized_2, "/shopping_list/", {"elaborations": [dict_elaborations["url"], ]}, status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -405,7 +411,8 @@ class CtTestCase(APITestCase):
         print()
         print("test_steps")
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/steps/', models.Steps.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-                                
+
+
     def test_stir_types(self):
         print()
         print("test_stir_types")

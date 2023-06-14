@@ -9,7 +9,6 @@ from mimetypes import guess_type
 from os import path
 from unogenerator import ODT
 
-@show_queries
 def response_report_elaboration(request, elaboration):
     template=f"{path.dirname(__file__)}/templates/ReportElaboration.odt"
     diners=_("{0} diners").format(elaboration.diners)
@@ -82,8 +81,11 @@ def response_report_shopping_list(request, elaborations):
         doc.export_pdf(filename)
     return json_response_file(filename)
     
-def json_response_file(filename):
+def dict_response_file(filename):
     with open(filename, "rb") as pdf:
         encoded_string = b64encode(pdf.read())
         r={"filename":path.basename(filename),  "mime": guess_type(filename)[0],  "data":encoded_string.decode("UTF-8")}
-        return json_data_response( True, r,  _("OK"))
+    return r
+
+def json_response_file(filename):
+        return json_data_response( True, dict_response_file(filename),  _("OK"))

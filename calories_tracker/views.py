@@ -6,7 +6,7 @@ from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.paginators import PagePaginationWithTotalPages, vtabledata_options2orderby
 from calories_tracker.permissions import GroupCatalogManager
 from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url, RequestInteger
-from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response, json_data_response
+from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response
 from decimal import Decimal
 from django.db import transaction
 from django.db.models import Count, Min, Prefetch
@@ -357,6 +357,9 @@ class StepsViewSet(CatalogModelViewSet):
         
     @action(detail=True, methods=["get"],url_path='wordings', url_name='wordings')
     def wordings(self, request, pk=None):
+        """
+        Public method IS WRONG
+        """
         step=self.get_object()
 ##   id  | duration | comment | elaborations_id | steps_id | order | container_id | container_to_id | stir_types_id | stir_values | temperatures_types_id | temperatures_values 
 ##-----+----------+---------+-----------------+----------+-------+--------------+-----------------+---------------+-------------+-----------------------+---------------------
@@ -404,7 +407,7 @@ class StepsViewSet(CatalogModelViewSet):
         list_=[]
         for k, v in r.items():
             list_.append(v)
-        return json_data_response(True, list_,  "Steps actualizados")
+        return JsonResponse(list_, safe=False, status=status.HTTP_200_OK)
 
 class FoodTypesViewSet(CatalogModelViewSet):
     queryset = models.FoodTypes.objects.all()
@@ -867,7 +870,10 @@ def Settings(request):
 @permission_classes([permissions.IsAuthenticated, ])
 def ShoppingList(request):
     elaborations=RequestListUrl(request, "elaborations", models.Elaborations, [])
-    print("elaborations doesn't check if are from request.user")
+    #Elaborations must check if elaborations are of request.user due to requestlisturl make a fast queryset
+    for e in elaborations:
+        if e.recipes.user!=request.user:
+            return Response({"detail":"Some elaborations are not of current user"},  status=status.HTTP_400_BAD_REQUEST)
     from calories_tracker.unogenerator_files import response_report_shopping_list
     return response_report_shopping_list(request, elaborations)
 

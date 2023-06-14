@@ -65,7 +65,7 @@ def client_get(apitestclass, client, url, response_code):
         Asserts response_code
     """
     r=client.get(url, format="json")
-    apitestclass.assertEqual( r.status_code, response_code,  f"Error in  get {url}  with user {client.user}")
+    apitestclass.assertEqual( r.status_code, response_code,  f"Error in  get {url}  with user {client.user}. {r} {r.content}")
     return client_response_to_dict(r)
 
 
