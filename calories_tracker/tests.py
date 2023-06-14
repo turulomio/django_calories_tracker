@@ -108,6 +108,14 @@ class CtTestCase(APITestCase):
         #Empty day
         tests_helpers.client_get(self, self.client_authorized_1, '/api/biometrics/?day=2022-01-01', status.HTTP_200_OK)
 
+    def test_catalog_manager(self):
+        print()
+        print("test_catalog_manager")
+        r=tests_helpers.client_get(self, self.client_authorized_1, '/catalog_manager/', status.HTTP_200_OK)
+        self.assertEqual(r, False)
+        r=tests_helpers.client_get(self, self.client_catalog_manager, '/catalog_manager/', status.HTTP_200_OK)
+        self.assertEqual(r, True)
+
     def test_companies(self):
         print()
         print("test_companies")
