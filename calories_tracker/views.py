@@ -943,10 +943,11 @@ def Curiosities(request):
             if tmp_cal>sel_cal:
                 sel_m=m
                 sel_cal=tmp_cal
-        r.append({
-            "question":_("Which is the meal with highest calories I had eaten?"), 
-            "answer": _("The meal with the highest calories I ate was '{}' with '{}' calories. I ate {}g at {}.").format(sel_m.products.fullname(), round(sel_cal, 0), round(sel_m.amount, 0), sel_m.datetime), 
-        })
+        if sel_m is not None:
+            r.append({
+                "question":_("Which is the meal with highest calories I had eaten?"), 
+                "answer": _("The meal with the highest calories I ate was '{}' with '{}' calories. I ate {}g at {}.").format(sel_m.products.fullname(), round(sel_cal, 0), round(sel_m.amount, 0), sel_m.datetime), 
+            })
         
         
         
