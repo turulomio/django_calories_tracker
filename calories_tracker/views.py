@@ -687,23 +687,23 @@ class RecipesViewSet(viewsets.ModelViewSet):
         models.Elaborations.objects.filter(recipes=instance).delete()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-class RecipesFullViewSet(#mixins.CreateModelMixin, 
-                   mixins.RetrieveModelMixin,
-                   viewsets.GenericViewSet):## I leave only retrieve, not list
-
-    queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories", "elaborations", 
-        Prefetch("recipes_links__files",  models.Files.objects.all().only("id", "mime", "size"))
-    )
-    serializer_class = serializers.RecipesFullSerializer
-    permission_classes = [permissions.IsAuthenticated]      
-    http_method_names=['get']
-
-    def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
-        
-    def retrieve(self, request, *args, **kwargs):
-        return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
+#
+#class RecipesFullViewSet(#mixins.CreateModelMixin, 
+#                   mixins.RetrieveModelMixin,
+#                   viewsets.GenericViewSet):## I leave only retrieve, not list
+#
+#    queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories", "elaborations", 
+#        Prefetch("recipes_links__files",  models.Files.objects.all().only("id", "mime", "size"))
+#    )
+#    serializer_class = serializers.RecipesFullSerializer
+#    permission_classes = [permissions.IsAuthenticated]      
+#    http_method_names=['get']
+#
+#    def get_queryset(self):
+#        return self.queryset.filter(user=self.request.user)
+#        
+#    def retrieve(self, request, *args, **kwargs):
+#        return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
 
 class RecipesCategoriesViewSet(CatalogModelViewSet):

@@ -745,21 +745,22 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         
     def fullname(self, o):
         return o.fullname()
-
-class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='recipes_full-detail') #To get recipes_full url and do not override recipes url
-    recipes_links= RecipesLinksSerializer( many=True, read_only=True)
+#
+#class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
+#    url = serializers.HyperlinkedIdentityField(view_name='recipes_full-detail') #To get recipes_full url and do not override recipes url
+#    recipes_links= RecipesLinksSerializer( many=True, read_only=True)
+#    elaborations= ElaborationsSerializer( many=True, read_only=True)
+#    class Meta:
+#        model = models.Recipes
+#        fields = ('url', 'id', 'name', 'last', 'datetime','obsolete', 'food_types',   'comment', 'recipes_links', 'valoration', 'guests', 'soon', 'elaborations')
+#
+#        
+class RecipesSerializer(serializers.HyperlinkedModelSerializer):
+    recipes_links=RecipesLinksSerializer(many=True, read_only=True)
     elaborations= ElaborationsSerializer( many=True, read_only=True)
     class Meta:
         model = models.Recipes
-        fields = ('url', 'id', 'name', 'last', 'datetime','obsolete', 'food_types',   'comment', 'recipes_links', 'valoration', 'guests', 'soon', 'elaborations')
-
-        
-class RecipesSerializer(serializers.HyperlinkedModelSerializer):
-    recipes_links=RecipesLinksSerializer(many=True, read_only=True)
-    class Meta:
-        model = models.Recipes
-        fields = ('url', 'id', 'name', 'last', 'datetime', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon', 'recipes_categories', 'recipes_links')
+        fields = ('url', 'id', 'name', 'last', 'datetime', 'obsolete', 'food_types',   'comment', 'valoration', 'guests', 'soon', 'recipes_categories', 'recipes_links', 'elaborations')
         
 
     def create(self, validated_data):
