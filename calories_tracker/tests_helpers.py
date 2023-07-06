@@ -1,4 +1,4 @@
-## THIS IS FILE IS FROM https://github.com/turulomio/django_moneymoney/moneymoney/factory_helpers.py
+## THIS IS FILE IS FROM https://github.com/turulomio/django_calories_tracker/calories_tracker/tests_helpers.py
 ## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
 ## DO NOT UPDATE IT IN YOUR CODE
 
