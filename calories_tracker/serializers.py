@@ -716,6 +716,7 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_steps=ElaborationsStepsSerializer(many=True, read_only=True)
     elaborations_containers=ElaborationsContainersSerializer(many=True, read_only=True)
     elaborations_experiences=ElaborationsExperiencesSerializer(many=True, read_only=True)
+    elaborations_texts=ElaborationsTextsSerializer(many=False, read_only=True)
     final_duration = serializers.SerializerMethodField()
     fullname = serializers.SerializerMethodField()
 
