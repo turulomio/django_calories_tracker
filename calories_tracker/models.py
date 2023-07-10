@@ -972,6 +972,14 @@ class Elaborations(models.Model):
     def fullname(self):
         return _("{0} ({1} diners)").format(self.recipes.name, self.diners)
         
+        
+class ElaborationsTexts(models.Model):
+    elaborations = models.OneToOneField("Elaborations", on_delete=models.CASCADE, primary_key=True , related_name="elaborations_texts")
+    text=models.TextField( blank=True, null=False, db_comment="Recipe text for this elaboration in markdown format", default="")
+    class Meta:
+        managed = True
+        db_table = 'elaborations_texts'
+        
     
 class MeasuresTypes(models.Model):
     name=models.TextField( blank=False, null=False)

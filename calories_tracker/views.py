@@ -322,6 +322,17 @@ class ElaborationsExperiencesViewSet(viewsets.ModelViewSet):
         if all_args_are_not_none(elaboration):        
             return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
         return self.queryset.filter(elaborations__recipes__user=self.request.user)
+        
+class ElaborationsTextsViewSet(viewsets.ModelViewSet):
+    queryset = models.ElaborationsTexts.objects.all()
+    serializer_class = serializers.ElaborationsTextsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
+        if all_args_are_not_none(elaboration):        
+            return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
+        return self.queryset.filter(elaborations__recipes__user=self.request.user)
 
 class ElaborationsStepsViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsSteps.objects.all().order_by("order")

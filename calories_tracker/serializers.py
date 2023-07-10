@@ -706,6 +706,11 @@ class ElaborationsExperiencesSerializer(serializers.HyperlinkedModelSerializer):
         model = models.ElaborationsExperiences
         fields = ('url', 'id',  'datetime', 'experience', 'elaborations')
 
+class ElaborationsTextsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ElaborationsTexts
+        fields = ( 'url',   'text', )
+
 class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")
     elaborations_steps=ElaborationsStepsSerializer(many=True, read_only=True)
@@ -717,7 +722,7 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Elaborations
         fields = ('url', 'id', 'diners', 'final_amount', 'fullname', 'recipes', 'elaborations_products_in', 'elaborations_steps', 
-        'elaborations_containers', 'elaborations_experiences', 'final_duration', 'automatic', 'automatic_adaptation_step')
+        'elaborations_containers', 'elaborations_experiences', 'final_duration', 'automatic', 'automatic_adaptation_step', 'elaborations_texts')
         
     def create(self, validated_data):
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
