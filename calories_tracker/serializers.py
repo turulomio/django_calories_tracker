@@ -1,11 +1,12 @@
 from base64 import b64decode
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import object_from_url
+from calories_tracker.reusing.request_casting import object_from_url, id_from_url
 
 
 class ActivitiesSerializer(serializers.HyperlinkedModelSerializer):
@@ -710,6 +711,35 @@ class ElaborationsTextsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsTexts
         fields = ( 'url',   'text', )
+        
+            
+    def create(self, validated_data):
+        """
+            This method require elaborations_id as parameter in post method
+        """
+        request = self.context.get("request")
+        print(request.data)
+#        try:
+        elaborations=models.Elaborations.objects.get(pk=id_from_url(request.data["elaborations"]), recipes__user=request.user)
+#        except:
+#               raise ValidationError("Elaboration doesn't exist")
+        created=models.ElaborationsTexts()
+        print(dir(created))
+        created.elaborations=elaborations
+        created.text=validated_data["text"]
+        created.save()
+        created.elaborations.recipes.last=timezone.now()
+        created.elaborations.recipes.save()
+        return created
+        
+         
+    def update(self, instance, validated_data):
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        updated.save()
+        
+        updated.elaborations.recipes.last=timezone.now()
+        updated.elaborations.recipes.save()
+        return updated
 
 class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")
