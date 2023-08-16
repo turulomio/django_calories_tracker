@@ -871,7 +871,17 @@ def Settings(request):
             request.user.last_name=last_name
             request.user.email=email
             request.user.save()
-            return Response(status=status.HTTP_200_OK)
+            
+            # Prepare Response
+            r={}
+            r['first_name']=request.user.first_name
+            r['last_name']=request.user.last_name
+            r['last_login']=request.user.last_login     
+            r['email']=request.user.email     
+            r['birthday']=p.birthday
+            r['male']=p.male
+            
+            return JsonResponse( r, encoder=MyDjangoJSONEncoder,     safe=False)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
