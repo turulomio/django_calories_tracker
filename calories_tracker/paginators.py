@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from .reusing.request_casting import RequestGetBool, RequestGetListOfBooleans, RequestGetListOfStrings
+from .reusing.request_casting import RequestGetBool
 
 class PagePaginationWithTotalPages(PageNumberPagination):
     page_size = 10
@@ -19,25 +19,43 @@ class PagePaginationWithTotalPages(PageNumberPagination):
         
 
 def vtabledata_options2orderby(request, default):
-    def get_index(index):
-        if index<=len(sortBy)-1 and index<=len(sortDesc)-1:
-            if sortDesc[index] is True:
-                return f"-{sortBy[index]}"
-            else:
-                return sortBy[index]
-        return default
-    ## CHECK PARAMS in 
-    sortBy=RequestGetListOfStrings(request, "sortBy[]")
-    sortDesc=RequestGetListOfBooleans(request, "sortDesc[]")
-    multiSort=RequestGetBool(request, "multiSort")
-    if len(sortBy)==0: #Devuelve default, paginate siempre tiene que estar ordenado
-        return [default]
-    if multiSort is False:
-        r= [get_index(0)]
-    else: #Multi sort true
+    def vuetify_sortby2lod(request):
+        """
+            Creates a dictionary from vuetify v-data-table-server request
+        """
+        i=0
         r=[]
-        for i in range(len(sortDesc)):
-            r.append(get_index(i))
-            
+        while True:
+            if f"sortBy[{i}][key]" in request.GET:
+                r.append({"key": request.GET[f"sortBy[{i}][key]"], "order": request.GET[f"sortBy[{i}][order]"]})                
+            else:
+                break
+            i+=1
+        print(r)
+        return r
+    def lod2django(lod):
+        """
+            Retuurns a list with all order django strings from vuetify_sortby2lod
+        """
+        r=[]
+        for d in lod:
+            if d["order"]=="asc":
+                r.append(d["key"])
+            else:
+                r.append(f"-{d['key']}")
+        return r
+    ## CHECK PARAMS in 
+    lod=vuetify_sortby2lod(request)
+    multiSort=RequestGetBool(request, "multiSort")
+    if len(lod)==0: #Devuelve default, paginate siempre tiene que estar ordenado
+        return [default]
+        
+    django_sorts=lod2django(lod)
+    if multiSort is False:
+        r= [django_sorts[0]]
+    else: #Multi sort true
+        r=django_sorts
+    
+    print(r)
     #print("vtabledata_options2orderby",  sortBy, sortDesc, multiSort, "==>",  r)
     return r
