@@ -751,22 +751,22 @@ files = [
 
 [[package]]
 name = "unogenerator"
-version = "0.32.0"
+version = "0.33.0"
 description = "Libreoffice files generator programmatically with python and Libreoffice server instances"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "unogenerator-0.32.0-py3-none-any.whl", hash = "sha256:771e2a1f64351118aad1003f06bb85bd2d9b208171c5c8a0002a4a5c83522721"},
-    {file = "unogenerator-0.32.0.tar.gz", hash = "sha256:b52e100e98b98860667c459115c3f86eb532a2aec35b7ad81b8c54e9660e6846"},
+    {file = "unogenerator-0.33.0-py3-none-any.whl", hash = "sha256:0e5d1e52ae16b82943f8299fbd8b9d646d9b16ee9bc464f3285341eb8835bd12"},
+    {file = "unogenerator-0.33.0.tar.gz", hash = "sha256:211ec95f70db45e09b1765eb2946ce2c224d4312223267fef9410ae5410c8530"},
 ]
 
 [package.dependencies]
 colorama = ">=0.4.6,<0.5.0"
-humanize = ">=4.7.0,<5.0.0"
+humanize = ">=4.8.0,<5.0.0"
 polib = ">=1.2.0,<2.0.0"
 psutil = ">=5.9.5,<6.0.0"
 pytz = ">=2023.3,<2024.0"
-tqdm = ">=4.65.0,<5.0.0"
+tqdm = ">=4.66.1,<5.0.0"
 
 [[package]]
 name = "uritemplate"
@@ -797,4 +797,4 @@ test = ["pytest (>=7.2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "9fdd77fff35c284b64b99e89f4c90fbc40e1c27fd99b5bb8d5ec64f14e64c19e"
+content-hash = "5e2124506da966fdd3442be25ea6624b62cb8381b6c2e4589d2c8bc568f14e09"

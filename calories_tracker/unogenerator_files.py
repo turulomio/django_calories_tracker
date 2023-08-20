@@ -35,7 +35,7 @@ def response_report_elaboration(request, elaboration):
             
             
         doc.addParagraph(_("Recipe") + f" ({elaboration.final_duration()})", "Heading 1")
-        doc.addParagraph(elaboration.elaborations_texts.text, "Standard")
+        doc.addHTMLBlock(elaboration.elaborations_texts.text)
             
         doc.addParagraph(_("Recipe steps") + f" ({elaboration.final_duration()})", "Heading 1")
         for es in elaboration.elaborations_steps.all().order_by("order").select_related("steps",    "temperatures_types", "container", "container_to", "stir_types").prefetch_related("products_in_step", "products_in_step__measures_types", "products_in_step__products"):
