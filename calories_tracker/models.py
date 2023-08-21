@@ -428,6 +428,14 @@ class SystemProducts(models.Model):
         if self.version_parent is not None:
             version_parent=f" v{self.version.date()}"
         return f"{_(self.name)}{company}{version_parent}"
+    def fullname_english(self):
+        company=""
+        if self.system_companies is not None:
+            company=f" ({self.system_companies.name})"
+        version_parent=""
+        if self.version_parent is not None:
+            version_parent=f" v{self.version.date()}"
+        return f"{self.name}{company}{version_parent}"
 
     ## @param sp SystemProducts to link to Product
     ## Solo debe usarse cuando se linke o se sepa que es un systemproduct

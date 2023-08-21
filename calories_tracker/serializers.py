@@ -1,6 +1,6 @@
 from base64 import b64decode
 from rest_framework import serializers
-from django.core.exceptions import ValidationError
+#from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
@@ -539,11 +539,12 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
     system_company_name = serializers.SerializerMethodField()
     formats= SystemProductsFormatsThroughSerializer(many=True, read_only=True, source="systemproductsformatsthrough_set")
     fullname = serializers.SerializerMethodField()
+    fullname_english= serializers.SerializerMethodField()
     additives_risk = serializers.SerializerMethodField()
 
     class Meta:
         model = models.SystemProducts
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname', 'additives_risk','density')
+        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname', 'additives_risk','density', 'fullname_english')
     
     def create(self, validated_data):
         request=self.context.get("request")
@@ -595,6 +596,10 @@ class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_fullname(self, o):
         return o.fullname()
+        
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_fullname_english(self, o):
+        return o.fullname_english()
 
     @extend_schema_field(OpenApiTypes.INT)
     def get_additives_risk(self, o):
