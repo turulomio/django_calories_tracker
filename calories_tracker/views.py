@@ -1,3 +1,4 @@
+from calories_tracker import commons
 from calories_tracker import serializers
 from calories_tracker import models
 from calories_tracker.reusing.connection_dj import show_queries, show_queries_function
@@ -664,6 +665,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return self.queryset.filter(user=self.request.user, valoration__isnull=False)
             elif search==":WITH_ELABORATIONS":
                 recipes_ids=list(models.Elaborations.objects.filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
+                return self.queryset.filter(pk__in=recipes_ids, user=self.request.user)
+            elif search==":WITH_STEPS":
+                elaborations_steps=models.ElaborationsSteps.objects.all()
+                recipes_ids=commons.qs_distinct(elaborations_steps,  lambda o: o.elaborations.recipes.id)
                 return self.queryset.filter(pk__in=recipes_ids, user=self.request.user)
             elif search.startswith(":WITHOUT_MAINPHOTO"):
                 recipes_with_photo_ids=list(models.RecipesLinks.objects.filter(type_id=models.eRecipeLink.MainPhoto).filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
