@@ -34,7 +34,7 @@ def response_report_elaboration(request, elaboration):
             doc.addParagraph(c.name, "ElaborationsContainers")
             
         if hasattr(elaboration,  "elaborations_texts"):
-            doc.addParagraph(_("Recipe") + f" ({elaboration.final_duration()})", "Heading 1")
+            doc.addParagraph(_("Recipe"), "Heading 1")
             doc.addHTMLBlock(elaboration.elaborations_texts.text)
 
             

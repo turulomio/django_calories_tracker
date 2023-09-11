@@ -566,7 +566,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         models.RecipesLinks.objects.filter(recipes=instance).delete()
         models.ElaborationsProductsInThrough.objects.filter(elaborations__recipes=instance).delete()
-        models.ElaborationsSteps.objects.filter(elaborations__recipes=instance).delete()
         models.Elaborations.objects.filter(recipes=instance).delete()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)

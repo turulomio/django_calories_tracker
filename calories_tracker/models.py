@@ -972,11 +972,6 @@ class Elaborations(models.Model):
             "automatic_adaptation_step": ""
         }
         
-    def final_duration(self):
-        qs= self.elaborations_steps.aggregate(final_duration=models.Sum('duration'))
-        return timedelta_to_string(qs["final_duration"]) if qs["final_duration"] else _("Elaboration time wasn't defined")
-        
-        
     def fullname(self):
         return _("{0} ({1} diners)").format(self.recipes.name, self.diners)
         
