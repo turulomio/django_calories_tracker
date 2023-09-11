@@ -9,7 +9,7 @@ packages = [{include = "django_calories_tracker"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-Django = "^4.2.4"
+Django = "^4.2.5"
 django-cors-headers = "^4.2.0"
 djangorestframework = "^3.14.0"
 django-simple-history = "^3.3.0"
@@ -22,8 +22,9 @@ pydicts = "^0.6.0"
 tabulate = "^0.9.0"
 
 [tool.poetry.group.dev.dependencies]
-coverage = "^7.3.0"
-poethepoet = "^0.22.0"
+coverage = "^7.3.1"
+poethepoet = "^0.22.1"
+poetry = "^1.6.1"
 
 [build-system]
 requires = ["poetry-core"]
