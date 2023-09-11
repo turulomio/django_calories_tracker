@@ -34,12 +34,9 @@ def response_report_elaboration(request, elaboration):
             doc.addParagraph(c.name, "ElaborationsContainers")
             
         if hasattr(elaboration,  "elaborations_texts"):
-            doc.addParagraph(_("Recipe") + f" ({elaboration.final_duration()})", "Heading 1")
+            doc.addParagraph(_("Recipe"), "Heading 1")
             doc.addHTMLBlock(elaboration.elaborations_texts.text)
-            
-        doc.addParagraph(_("Recipe steps") + f" ({elaboration.final_duration()})", "Heading 1")
-        for es in elaboration.elaborations_steps.all().order_by("order").select_related("steps",    "temperatures_types", "container", "container_to", "stir_types").prefetch_related("products_in_step", "products_in_step__measures_types", "products_in_step__products"):
-            doc.addParagraph(es.wording(), "ElaborationsSteps")
+
             
         doc.addParagraph("", "Standard")
         doc.find_and_delete_until_the_end_of_document('Styles to remove')    

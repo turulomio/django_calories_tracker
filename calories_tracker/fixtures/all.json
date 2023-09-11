@@ -6186,7 +6186,7 @@
     "model": "calories_tracker.formats",
     "pk": 40,
     "fields": {
-        "name": "REUSEME"
+        "name": "Thread"
     }
 },
 {
@@ -6540,6 +6540,13 @@
     }
 },
 {
+    "model": "calories_tracker.recipescategories",
+    "pk": 31,
+    "fields": {
+        "name": "Rabbit"
+    }
+},
+{
     "model": "calories_tracker.recipeslinkstypes",
     "pk": 1,
     "fields": {
@@ -6586,272 +6593,6 @@
     "pk": 7,
     "fields": {
         "name": "Main photo"
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 1,
-    "fields": {
-        "name": "Robot. Set program",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": true,
-        "man_temperatures": true,
-        "can_stir": true,
-        "man_stir": true
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 2,
-    "fields": {
-        "name": "Robot. Add ingredients",
-        "can_products_in_step": true,
-        "man_products_in_step": true,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": false,
-        "man_temperatures": false,
-        "can_stir": false,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 6,
-    "fields": {
-        "name": "Add ingredients to a container",
-        "can_products_in_step": true,
-        "man_products_in_step": true,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": false,
-        "man_temperatures": false,
-        "can_stir": false,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 7,
-    "fields": {
-        "name": "Pour contents to another container",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": true,
-        "man_container_to": true,
-        "can_temperatures": false,
-        "man_temperatures": false,
-        "can_stir": false,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 8,
-    "fields": {
-        "name": "Free text",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": false,
-        "man_container": false,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": false,
-        "man_temperatures": false,
-        "can_stir": false,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 10,
-    "fields": {
-        "name": "Mix",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": false,
-        "man_temperatures": false,
-        "can_stir": false,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 11,
-    "fields": {
-        "name": "Rest",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": true,
-        "man_temperatures": false,
-        "can_stir": false,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 12,
-    "fields": {
-        "name": "Fry",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": true,
-        "man_temperatures": true,
-        "can_stir": true,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 13,
-    "fields": {
-        "name": "Robot. Add ingredients and set program",
-        "can_products_in_step": true,
-        "man_products_in_step": true,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": true,
-        "man_temperatures": true,
-        "can_stir": true,
-        "man_stir": true
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 14,
-    "fields": {
-        "name": "Bring to a boil",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": true,
-        "man_temperatures": true,
-        "can_stir": true,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 15,
-    "fields": {
-        "name": "Cook",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": true,
-        "man_temperatures": true,
-        "can_stir": true,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 16,
-    "fields": {
-        "name": "Soak",
-        "can_products_in_step": true,
-        "man_products_in_step": true,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": true,
-        "man_temperatures": false,
-        "can_stir": true,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 17,
-    "fields": {
-        "name": "Put in the oven",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": true,
-        "man_temperatures": true,
-        "can_stir": true,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.steps",
-    "pk": 18,
-    "fields": {
-        "name": "Drain and discard the liquid",
-        "can_products_in_step": false,
-        "man_products_in_step": false,
-        "can_container": true,
-        "man_container": true,
-        "can_container_to": false,
-        "man_container_to": false,
-        "can_temperatures": false,
-        "man_temperatures": false,
-        "can_stir": false,
-        "man_stir": false
-    }
-},
-{
-    "model": "calories_tracker.stirtypes",
-    "pk": 1,
-    "fields": {
-        "name": "Robot velocity"
-    }
-},
-{
-    "model": "calories_tracker.stirtypes",
-    "pk": 2,
-    "fields": {
-        "name": "Constantly stir"
-    }
-},
-{
-    "model": "calories_tracker.stirtypes",
-    "pk": 3,
-    "fields": {
-        "name": "Stir every x minutes"
-    }
-},
-{
-    "model": "calories_tracker.stirtypes",
-    "pk": 4,
-    "fields": {
-        "name": "Do not remove"
     }
 },
 {
@@ -18179,7 +17920,7 @@
         "sodium": "33.000",
         "potassium": "316.000",
         "fiber": "2.600",
-        "sugars": "2.600",
+        "sugars": "1.700",
         "saturated_fat": "0.039",
         "ferrum": null,
         "magnesium": null,
@@ -18191,7 +17932,7 @@
         "density": null,
         "obsolete": false,
         "version_parent": null,
-        "version": "2022-12-08T08:54:39Z",
+        "version": "2023-07-04T18:20:03.585Z",
         "version_description": null,
         "additives": []
     }
@@ -18514,16 +18255,19 @@
         "ferrum": null,
         "magnesium": null,
         "phosphor": null,
-        "glutenfree": false,
+        "glutenfree": true,
         "calcium": null,
-        "system_companies": null,
-        "food_types": 8,
-        "density": null,
+        "system_companies": 1,
+        "food_types": 1,
+        "density": "11.000",
         "obsolete": false,
         "version_parent": null,
-        "version": "2023-01-01T10:07:06.314Z",
+        "version": "2023-08-20T15:23:13.222Z",
         "version_description": null,
-        "additives": []
+        "additives": [
+            8,
+            3
+        ]
     }
 },
 {
@@ -18719,38 +18463,207 @@
     }
 },
 {
-    "model": "calories_tracker.temperaturestypes",
-    "pk": 1,
+    "model": "calories_tracker.systemproducts",
+    "pk": 349,
     "fields": {
-        "name": "In Celsius degrees"
+        "name": "Aubergine",
+        "amount": "100.000",
+        "fat": "0.190",
+        "protein": "1.010",
+        "carbohydrate": "5.700",
+        "calories": "24.000",
+        "salt": "0.000",
+        "cholesterol": "0.000",
+        "sodium": null,
+        "potassium": "230.000",
+        "fiber": "3.400",
+        "sugars": "2.350",
+        "saturated_fat": "0.034",
+        "ferrum": null,
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": true,
+        "calcium": null,
+        "system_companies": null,
+        "food_types": 2,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-03-04T08:53:01.953Z",
+        "version_description": null,
+        "additives": []
     }
 },
 {
-    "model": "calories_tracker.temperaturestypes",
-    "pk": 2,
+    "model": "calories_tracker.systemproducts",
+    "pk": 350,
     "fields": {
-        "name": "Low / Medium / High heat"
+        "name": "Saffron",
+        "amount": "100.000",
+        "fat": "5.850",
+        "protein": "11.430",
+        "carbohydrate": "65.370",
+        "calories": "310.000",
+        "salt": null,
+        "cholesterol": "0.000",
+        "sodium": "148.000",
+        "potassium": "1724.000",
+        "fiber": "3.900",
+        "sugars": "0.000",
+        "saturated_fat": "1.586",
+        "ferrum": null,
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": true,
+        "calcium": null,
+        "system_companies": null,
+        "food_types": 18,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-06-10T09:00:41.209Z",
+        "version_description": null,
+        "additives": []
     }
 },
 {
-    "model": "calories_tracker.temperaturestypes",
-    "pk": 3,
+    "model": "calories_tracker.systemproducts",
+    "pk": 351,
     "fields": {
-        "name": "REUSEME"
+        "name": "Actimel natural",
+        "amount": "100.000",
+        "fat": "1.600",
+        "protein": "3.000",
+        "carbohydrate": "10.800",
+        "calories": "73.000",
+        "salt": "0.100",
+        "cholesterol": null,
+        "sodium": null,
+        "potassium": null,
+        "fiber": null,
+        "sugars": "10.800",
+        "saturated_fat": "1.000",
+        "ferrum": "2.100",
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": true,
+        "calcium": "120.000",
+        "system_companies": 3,
+        "food_types": 7,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-06-24T08:46:22.469Z",
+        "version_description": null,
+        "additives": []
     }
 },
 {
-    "model": "calories_tracker.temperaturestypes",
-    "pk": 4,
+    "model": "calories_tracker.systemproducts",
+    "pk": 352,
     "fields": {
-        "name": "REUSEME"
+        "name": "Helado de cucurucho de fresa y nata",
+        "amount": "100.000",
+        "fat": "12.000",
+        "protein": "3.600",
+        "carbohydrate": "37.000",
+        "calories": "175.000",
+        "salt": "0.150",
+        "cholesterol": null,
+        "sodium": null,
+        "potassium": null,
+        "fiber": "1.000",
+        "sugars": "28.000",
+        "saturated_fat": "9.300",
+        "ferrum": null,
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": false,
+        "calcium": null,
+        "system_companies": 1,
+        "food_types": 16,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-08-17T16:43:47.817Z",
+        "version_description": null,
+        "additives": [
+            289,
+            642,
+            68,
+            367,
+            144,
+            50,
+            284,
+            280,
+            185,
+            316,
+            286
+        ]
     }
 },
 {
-    "model": "calories_tracker.temperaturestypes",
-    "pk": 5,
+    "model": "calories_tracker.systemproducts",
+    "pk": 353,
     "fields": {
-        "name": "REUSEME"
+        "name": "Thyme",
+        "amount": "100.000",
+        "fat": "7.400",
+        "protein": "9.100",
+        "carbohydrate": "26.900",
+        "calories": "211.000",
+        "salt": null,
+        "cholesterol": null,
+        "sodium": "55.000",
+        "potassium": null,
+        "fiber": null,
+        "sugars": "1.700",
+        "saturated_fat": "0.000",
+        "ferrum": null,
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": true,
+        "calcium": null,
+        "system_companies": null,
+        "food_types": 18,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-09-03T09:15:37.371Z",
+        "version_description": null,
+        "additives": []
+    }
+},
+{
+    "model": "calories_tracker.systemproducts",
+    "pk": 354,
+    "fields": {
+        "name": "Garrofón",
+        "amount": "100.000",
+        "fat": "0.700",
+        "protein": "9.100",
+        "carbohydrate": "16.400",
+        "calories": "128.000",
+        "salt": "0.030",
+        "cholesterol": null,
+        "sodium": null,
+        "potassium": null,
+        "fiber": "9.500",
+        "sugars": "1.800",
+        "saturated_fat": "0.200",
+        "ferrum": null,
+        "magnesium": null,
+        "phosphor": null,
+        "glutenfree": true,
+        "calcium": null,
+        "system_companies": 1,
+        "food_types": 2,
+        "density": null,
+        "obsolete": false,
+        "version_parent": null,
+        "version": "2023-09-03T09:27:45.724Z",
+        "version_description": null,
+        "additives": []
     }
 },
 {
