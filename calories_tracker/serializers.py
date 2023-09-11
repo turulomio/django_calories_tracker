@@ -685,22 +685,8 @@ class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerial
         return  obj.final_grams()
         
     @extend_schema_field(OpenApiTypes.STR)
-    def fullname(self, obj):
+    def get_fullname(self, obj):
         return obj.fullname()
-
-class StepsSerializer(serializers.HyperlinkedModelSerializer):
-    localname = serializers.SerializerMethodField()
-    class Meta:
-        model = models.Steps
-        fields = ('url', 'id', 'name', 'localname', 'can_products_in_step', 'can_container', 'can_container_to', 'can_temperatures', 'can_stir', 'man_products_in_step', 'man_container', 'man_container_to', 'man_temperatures', 'man_stir')
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_localname(self, obj):
-        return  _(obj.name)
-
-class ElaborationsStepsSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = models.ElaborationsSteps
-        fields = ('url', 'id',  'order','elaborations', 'steps', 'duration', 'temperatures_types', 'temperatures_values',  'stir_types', 'stir_values',  'comment', 'products_in_step', 'container', 'container_to')
 
 class ElaborationsContainersSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -748,17 +734,15 @@ class ElaborationsTextsSerializer(serializers.HyperlinkedModelSerializer):
 
 class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")
-    elaborations_steps=ElaborationsStepsSerializer(many=True, read_only=True)
     elaborations_containers=ElaborationsContainersSerializer(many=True, read_only=True)
     elaborations_experiences=ElaborationsExperiencesSerializer(many=True, read_only=True)
     elaborations_texts=ElaborationsTextsSerializer(many=False, read_only=True)
-    final_duration = serializers.SerializerMethodField()
     fullname = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Elaborations
-        fields = ('url', 'id', 'diners', 'final_amount', 'fullname', 'recipes', 'elaborations_products_in', 'elaborations_steps', 
-        'elaborations_containers', 'elaborations_experiences', 'final_duration', 'automatic', 'automatic_adaptation_step', 'elaborations_texts')
+        fields = ('url', 'id', 'diners', 'final_amount', 'fullname', 'recipes', 'elaborations_products_in', 
+        'elaborations_containers', 'elaborations_experiences',  'automatic', 'automatic_adaptation_step', 'elaborations_texts')
         
     def create(self, validated_data):
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
@@ -766,8 +750,7 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         created.recipes.last=timezone.now()
         created.recipes.save()
         return created
-        
-         
+
     def update(self, instance, validated_data):
         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
         updated.save()
@@ -775,27 +758,10 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         updated.recipes.last=timezone.now()
         updated.recipes.save()
         return updated
-
-    def final_duration(self, o):
-        return o.final_duration()        
-        
-    def to_representation(self, instance): #El serializer no ordenaba en el fulserializer y me volvia loco con los steps elaborations
-        response = super().to_representation(instance)
-        response["elaborations_steps"] = sorted(response["elaborations_steps"], key=lambda x: x["order"])
-        return response
-        
-    def fullname(self, o):
+   
+    def get_fullname(self, o):
         return o.fullname()
-#
-#class RecipesFullSerializer(serializers.HyperlinkedModelSerializer):
-#    url = serializers.HyperlinkedIdentityField(view_name='recipes_full-detail') #To get recipes_full url and do not override recipes url
-#    recipes_links= RecipesLinksSerializer( many=True, read_only=True)
-#    elaborations= ElaborationsSerializer( many=True, read_only=True)
-#    class Meta:
-#        model = models.Recipes
-#        fields = ('url', 'id', 'name', 'last', 'datetime','obsolete', 'food_types',   'comment', 'recipes_links', 'valoration', 'guests', 'soon', 'elaborations')
-#
-#        
+
 class RecipesSerializer(serializers.HyperlinkedModelSerializer):
     recipes_links=RecipesLinksSerializer(many=True, read_only=True)
     elaborations= ElaborationsSerializer( many=True, read_only=True)
@@ -829,28 +795,6 @@ class RecipesLinksTypesSerializer(serializers.HyperlinkedModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)        
-        
-
-class StirTypesSerializer(serializers.HyperlinkedModelSerializer):
-    localname = serializers.SerializerMethodField()
-    class Meta:
-        model = models.StirTypes
-        fields = ('url', 'id', 'name', 'localname')
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_localname(self, obj):
-        return  _(obj.name)        
-
-class TemperaturesTypesSerializer(serializers.HyperlinkedModelSerializer):
-    localname = serializers.SerializerMethodField()
-    class Meta:
-        model = models.TemperaturesTypes
-        fields = ('url', 'id', 'name', 'localname')
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_localname(self, obj):
-        return  _(obj.name)
-
 
 class MeasuresTypesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()

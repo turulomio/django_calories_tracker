@@ -5,7 +5,7 @@ from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
 from calories_tracker.paginators import PagePaginationWithTotalPages, vtabledata_options2orderby
 from calories_tracker.permissions import GroupCatalogManager
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, id_from_url, object_from_url, RequestInteger
+from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, RequestInteger
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response
 from decimal import Decimal
 from django.db import transaction
@@ -16,7 +16,6 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
-from itertools import product
 from pydicts import lod
 from rest_framework import viewsets, permissions,  status, mixins
 from rest_framework.decorators import api_view, permission_classes, action
@@ -153,50 +152,11 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         models.ElaborationsProductsInThrough.objects.filter(elaborations=instance).delete()
-        models.ElaborationsSteps.objects.filter(elaborations=instance).delete()
         instance.recipes.last=timezone.now()
         instance.recipes.save()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-        
-        
-    @action(detail=True, methods=['POST'], name='Hace un update masivo de todos los steps', url_path="update_steps", url_name='update_steps', permission_classes=[permissions.IsAuthenticated])
-    def update_steps(self, request, pk=None):
-        elaboration=self.get_object()
-        ##Lista con todos que se va quitando para borrar al final
-        to_delete=list(models.ElaborationsSteps.objects.filter(elaborations=elaboration).values_list("id", flat=True))
-        for d in request.data["steps"]:
-            es=models.ElaborationsSteps()
-            if "url" in d:
-                if  d["url"] is not None:
-                    id=id_from_url(d["url"])
-                    to_delete.remove(id)# Va borrando de la lista a borrar los que están en el post
-                    es=models.ElaborationsSteps.objects.get(pk=id)
-            es.elaborations=object_from_url(d["elaborations"], models.Elaborations)
-            es.order=d["order"]
-            es.steps=object_from_url(d["steps"], models.Steps)
-            es.duration=d["duration"]
-            es.temperatures_types=None if d["temperatures_types"] is None else object_from_url(d["temperatures_types"], models.TemperaturesTypes)
-            es.temperatures_values=d["temperatures_values"]
-            es.stir_types=None if d["stir_types"] is None else object_from_url(d["stir_types"], models.StirTypes)
-            es.stir_values=d["stir_values"]
-            es.container=None if d["container"] is None else object_from_url(d["container"], models.ElaborationsContainers)
-            es.container_to=None if d["container_to"] is None else object_from_url(d["container_to"], models.ElaborationsContainers)
-            es.comment=d["comment"]
-            es.save()
-            
-            products_in_step=[]
-            for pis in d["products_in_step"]:
-                item=object_from_url(pis, models.ElaborationsProductsInThrough)
-                products_in_step.append(item)
-            es.products_in_step.set(products_in_step)#Añade en bloque
-            es.save()
-            
-        models.ElaborationsSteps.objects.filter(id__in=to_delete).delete()       
-        r=[]
-        for es in models.ElaborationsSteps.objects.filter(elaborations=elaboration).order_by("order"):
-            r.append(serializers.ElaborationsStepsSerializer(es, context={'request': request}).data)
-        return Response({"detail":"Steps actualizados"}, status=status.HTTP_200_OK)
+
 
     @action(detail=True, methods=['POST'], name='It creates and elaborated product from a recipe elaboration', url_path="create_elaborated_product", url_name='create_elaborated_product', permission_classes=[permissions.IsAuthenticated])
     def create_elaborated_product(self, request, pk=None):
@@ -278,26 +238,7 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
                 new_container.elaborations=new
                 new_container.save()
         
-            for old_step in old.elaborations_steps.all():
-                new_step=models.ElaborationsSteps()
-                new_step.order=old_step.order
-                new_step.elaborations=new
-                new_step.steps=old_step.steps
-                new_step.duration=old_step.duration
-                new_step.comment=old_step.comment
-                new_step.container=old_step.container
-                new_step.container_to=old_step.container_to
-                new_step.temperatures_types=old_step.temperatures_types
-                new_step.temperatures_values=old_step.temperatures_values
-                new_step.stir_types=old_step.stir_types
-                new_step.stir_values=old_step.stir_values
-                new_step.save()
-                productsin=[]
-                for pis in old_step.products_in_step.all():
-                    productsin.append(dict_old_new[pis])
-                new_step.products_in_step.set(productsin)
-                new_step.save()
-                
+              
             return JsonResponse(serializers.ElaborationsSerializer(new, context={'request': request}).data, status=status.HTTP_200_OK)
         return Response({"detail": "Error creating automatic elaboration"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -334,17 +275,6 @@ class ElaborationsTextsViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
         return self.queryset.filter(elaborations__recipes__user=self.request.user)
 
-class ElaborationsStepsViewSet(viewsets.ModelViewSet):
-    queryset = models.ElaborationsSteps.objects.all().order_by("order")
-    serializer_class = serializers.ElaborationsStepsSerializer
-    permission_classes = [permissions.IsAuthenticated]
-        
-    def get_queryset(self):
-        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
-        if all_args_are_not_none(elaboration):        
-            return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user).order_by("order")
-        return self.queryset.filter(elaborations__recipes__user=self.request.user).order_by("order")
-
 class ElaborationsProductsInThroughViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsProductsInThrough.objects.all()
     serializer_class = serializers.ElaborationsProductsInThroughSerializer
@@ -361,64 +291,6 @@ class ElaborationsProductsInThroughViewSet(viewsets.ModelViewSet):
         instance.elaborations.recipes.last=timezone.now()
         instance.elaborations.recipes.save()
         return viewsets.ModelViewSet.destroy(self, request, args, kwargs)
-
-class StepsViewSet(CatalogModelViewSet):
-    queryset = models.Steps.objects.all()
-    serializer_class = serializers.StepsSerializer
-        
-    @action(detail=True, methods=["get"],url_path='wordings', url_name='wordings')
-    def wordings(self, request, pk=None):
-        """
-        Public method IS WRONG
-        """
-        step=self.get_object()
-##   id  | duration | comment | elaborations_id | steps_id | order | container_id | container_to_id | stir_types_id | stir_values | temperatures_types_id | temperatures_values 
-##-----+----------+---------+-----------------+----------+-------+--------------+-----------------+---------------+-------------+-----------------------+---------------------
-## 848 | 00:09:00 |         |              20 |        1 |     2 |            9 |                 |             1 |           1 |                     1 |                 120
-
-        r={}
-        # Variaciones con repetiión para poder ver todos los resultados posibles
-        for can_products_in_step,  can_container,  can_container_to, can_temperatures, can_stir,  has_comment in product([True, False], repeat=6):
-            if (    (step.can_products_in_step==False and can_products_in_step==True) or
-                    (step.can_container==False and can_container==True) or
-                    (step.can_container_to==False and can_container_to==True) or
-                    (step.can_temperatures==False and can_temperatures==True) or
-                    (step.can_stir==False and can_stir==True) or 
-                    #Mandatory
-                    (step.man_products_in_step==True and can_products_in_step==False) or
-                    (step.man_container==True and can_container==False) or
-                    (step.man_container_to==True and can_container_to==False) or
-                    (step.man_temperatures==True and can_temperatures==False) or
-                    (step.man_stir==True and can_stir==False)
-                            
-                ):
-                        pass
-            else:
-                        es=models.ElaborationsSteps.objects.get(pk=838)
-                        es.steps=step
-                        es.container_to=es.container
-                        es.temperatures_types=models.TemperaturesTypes.objects.get(pk=2)
-                        es.temperatures_values=-2
-                                                        
-                        if has_comment:
-                            es.comment="Esto es un comentario"
-                        if can_stir is False:
-                            es.stir_types=None
-                        if can_temperatures is False:
-                            es.temperatures_types=None
-                        r[str((can_products_in_step, can_container, can_container_to, can_temperatures, can_stir, has_comment))]={#Dictionary for get unique elements
-                            "can_products_in_step":can_products_in_step, 
-                            "can_container":can_container, 
-                            "can_container_to":can_container_to, 
-                            "can_temperatures":can_temperatures, 
-                            "can_stir":can_stir, 
-                            "has_comment": has_comment, 
-                            "wording": es.wording(), 
-                        }
-        list_=[]
-        for k, v in r.items():
-            list_.append(v)
-        return JsonResponse(list_, safe=False, status=status.HTTP_200_OK)
 
 class FoodTypesViewSet(CatalogModelViewSet):
     queryset = models.FoodTypes.objects.all()
@@ -694,28 +566,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         models.RecipesLinks.objects.filter(recipes=instance).delete()
         models.ElaborationsProductsInThrough.objects.filter(elaborations__recipes=instance).delete()
-        models.ElaborationsSteps.objects.filter(elaborations__recipes=instance).delete()
         models.Elaborations.objects.filter(recipes=instance).delete()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-#
-#class RecipesFullViewSet(#mixins.CreateModelMixin, 
-#                   mixins.RetrieveModelMixin,
-#                   viewsets.GenericViewSet):## I leave only retrieve, not list
-#
-#    queryset = models.Recipes.objects.all().prefetch_related("recipes_links", "recipes_links__type", "recipes_categories", "elaborations", 
-#        Prefetch("recipes_links__files",  models.Files.objects.all().only("id", "mime", "size"))
-#    )
-#    serializer_class = serializers.RecipesFullSerializer
-#    permission_classes = [permissions.IsAuthenticated]      
-#    http_method_names=['get']
-#
-#    def get_queryset(self):
-#        return self.queryset.filter(user=self.request.user)
-#        
-#    def retrieve(self, request, *args, **kwargs):
-#        return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
-
 
 class RecipesCategoriesViewSet(CatalogModelViewSet):
     queryset = models.RecipesCategories.objects.all()
@@ -741,18 +594,9 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
         instance.recipes.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
 class RecipesLinksTypesViewSet(CatalogModelViewSet):
     queryset = models.RecipesLinksTypes.objects.all()
     serializer_class = serializers.RecipesLinksTypesSerializer
-    
-class StirTypesViewSet(CatalogModelViewSet):
-    queryset = models.StirTypes.objects.all()    
-    serializer_class = serializers.StirTypesSerializer
-    
-class TemperaturesTypesViewSet(CatalogModelViewSet):
-    queryset = models.TemperaturesTypes.objects.all()    
-    serializer_class = serializers.TemperaturesTypesSerializer
 
 class SystemCompaniesViewSet(CatalogModelViewSet):
     queryset = models.SystemCompanies.objects.all().order_by("name")

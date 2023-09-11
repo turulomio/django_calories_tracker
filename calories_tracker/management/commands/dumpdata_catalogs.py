@@ -37,11 +37,8 @@ class Command(BaseCommand):
             "calories_tracker.measurestypes", 
             "calories_tracker.recipescategories", 
             "calories_tracker.recipeslinkstypes", 
-            "calories_tracker.steps", 
-            "calories_tracker.stirtypes", 
             "calories_tracker.systemcompanies", 
             "calories_tracker.systemproducts", 
-            "calories_tracker.temperaturestypes", 
             "calories_tracker.weightwishes", 
             "--indent",  "4", 
             "-o", "calories_tracker/fixtures/all.json"
