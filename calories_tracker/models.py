@@ -992,7 +992,6 @@ class ElaborationsTexts(models.Model):
             Returns a list of string with ingredients spans 
         """
         r= findall(r'<span data-type="mention" class="mention_ingredients"(.*?)<\/span>', htmlcode)
-        print(r)
         return r
 
     @staticmethod
@@ -1001,7 +1000,6 @@ class ElaborationsTexts(models.Model):
             Returns a list of string with containers spans 
         """
         r= findall(r'/<span data-type="MentionContainers" class="mention_containers"(.*?)<\/span>/g', htmlcode)
-        print(r)
         return r
     
     @staticmethod
@@ -1040,9 +1038,8 @@ class ElaborationsTexts(models.Model):
             oldspan=ElaborationsTexts.span_ingredient(id_label["id"], id_label["label"])
             newpi=d_newpi_parents_id[id_label["id"]]
             newspan=ElaborationsTexts.span_ingredient(newpi.id, newpi.fullname())
-            print(oldspan)
-            print(newspan)
             oldtext=oldtext.replace(oldspan,newspan )
+
         return oldtext
         
         

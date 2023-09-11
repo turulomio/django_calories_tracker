@@ -176,8 +176,6 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         ep.user=request.user
         ep.recipes=elaboration.recipes
         ep.save()
-        #Creates asociated product
-        ep.update_associated_product()
         #Adds all products_in
         for rpi in elaboration.elaborationsproductsinthrough_set.all():
             epi=models.ElaboratedProductsProductsInThrough()
@@ -185,6 +183,8 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             epi.products=rpi.products
             epi.elaborated_products=ep
             epi.save()
+        #Creates asociated product
+        ep.update_associated_product()
         #Returns created elaborated product serialized
         return JsonResponse(serializers.ElaboratedProductsSerializer(ep, context={'request': request}).data, status=status.HTTP_200_OK)
 
@@ -240,7 +240,6 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             #elaborations_text
             new.elaborations_texts=models.ElaborationsTexts()
             new.elaborations_texts.elaborations=new
-            print(old.elaborations_texts.text)
             new.elaborations_texts.text=models.ElaborationsTexts.generate_automatic_text(new, old.elaborations_texts.text)
             new.elaborations_texts.save()
         
