@@ -195,6 +195,7 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         return response_report_elaboration(request, elaboration)
         
     @action(detail=True, methods=['POST'], name='Create a new automatic elaboration', url_path="create_automatic_elaboration", url_name='create_automatic_elaboration', permission_classes=[permissions.IsAuthenticated])
+    @transaction.atomic
     def create_automatic_elaboration(self, request, pk=None):
         def new_amount(old_pi,  diners):
             if diners<= old_pi.elaborations.diners:#Disminuyo la receta divido nada más, ignorando automatic_percentage
@@ -209,7 +210,6 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         diners=RequestInteger(request, "diners", None)
         
         if all_args_are_not_none(diners):
-            
             new=models.Elaborations()
             new.diners=diners
             new.recipes=old.recipes
@@ -217,7 +217,6 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             new.automatic=True
             new.save()
             
-            dict_old_new={}#Hay que mapear los antiguos con los nuevos para luego añadirlos a los steps
             #ingredients
             for old_pi in old.elaborationsproductsinthrough_set.all():
                 new_pi=models.ElaborationsProductsInThrough()
@@ -228,8 +227,8 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
                 new_pi.comment=old_pi.comment
                 new_pi.ni=old_pi.ni
                 new_pi.automatic_percentage=old_pi.automatic_percentage
+                new_pi.automatic_parent=old_pi
                 new_pi.save()
-                dict_old_new[old_pi]=new_pi
             new.save()
             
             for old_container in old.elaborations_containers.all():
@@ -237,6 +236,13 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
                 new_container.name=old_container.name
                 new_container.elaborations=new
                 new_container.save()
+                
+            #elaborations_text
+            new.elaborations_texts=models.ElaborationsTexts()
+            new.elaborations_texts.elaborations=new
+            print(old.elaborations_texts.text)
+            new.elaborations_texts.text=models.ElaborationsTexts.generate_automatic_text(new, old.elaborations_texts.text)
+            new.elaborations_texts.save()
         
               
             return JsonResponse(serializers.ElaborationsSerializer(new, context={'request': request}).data, status=status.HTTP_200_OK)

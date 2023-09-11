@@ -12,6 +12,7 @@
 #CAda vez que se crea un producto, se copia y se linka de system_products si existiera 
 
 from base64 import b64encode
+from calories_tracker import commons
 from calories_tracker.reusing.decorators import ptimeit
 from datetime import date, timedelta,  datetime
 from decimal import Decimal
@@ -26,6 +27,7 @@ from humanize import naturalsize
 from math import pi, fmod
 from mimetypes import guess_extension
 from preview_generator.manager import PreviewManager
+from re import findall
 from simple_history.models import HistoricalRecords
 
 ptimeit
@@ -983,7 +985,67 @@ class ElaborationsTexts(models.Model):
         managed = True
         db_table = 'elaborations_texts'
         
+                    
+    @staticmethod
+    def get_ingredients_spans(htmlcode ):
+        """
+            Returns a list of string with ingredients spans 
+        """
+        r= findall(r'<span data-type="mention" class="mention_ingredients"(.*?)<\/span>', htmlcode)
+        print(r)
+        return r
+
+    @staticmethod
+    def get_containers_spans(htmlcode ):
+        """
+            Returns a list of string with containers spans 
+        """
+        r= findall(r'/<span data-type="MentionContainers" class="mention_containers"(.*?)<\/span>/g', htmlcode)
+        print(r)
+        return r
     
+    @staticmethod
+    def get_id_label_from_span(span):
+        return {
+            "id": span.split('data-id="')[1].split('" data-label')[0],
+            "label": span.split('data-label="')[1].split('">')[0],
+        }
+
+    @staticmethod
+    def span_ingredient(id,label):
+        """
+           Returns a string with the span container
+        """
+        return f"""<span data-type="mention" class="mention_ingredients" data-id="{id}" data-label="{label}">@{label}</span>"""
+
+    @staticmethod
+    def span_container(id,label):
+        """
+           Returns a string with the span container
+        """
+        return f"""<span data-type="MentionContainers" class="mention_containers" data-id="{id}" data-label="{label}">#{label}</span>"""
+
+    @staticmethod
+    def generate_automatic_text(new_automatic_elaboration, oldtext):
+        """
+            Returns a string with the newtext after updating spans in oldtext
+        """
+        qs_newpi=ElaborationsProductsInThrough.objects.filter(elaborations=new_automatic_elaboration)
+        d_newpi_parents_id=commons.qs_dict(qs_newpi, lambda o: str(o.automatic_parent.id))
+        
+        #Ingredients
+        ingredient_spans=ElaborationsTexts.get_ingredients_spans(oldtext)
+        for span in ingredient_spans:
+            id_label=ElaborationsTexts.get_id_label_from_span(span)
+            oldspan=ElaborationsTexts.span_ingredient(id_label["id"], id_label["label"])
+            newpi=d_newpi_parents_id[id_label["id"]]
+            newspan=ElaborationsTexts.span_ingredient(newpi.id, newpi.fullname())
+            print(oldspan)
+            print(newspan)
+            oldtext=oldtext.replace(oldspan,newspan )
+        return oldtext
+        
+        
 class MeasuresTypes(models.Model):
     name=models.TextField( blank=False, null=False)
     class Meta:
@@ -1009,9 +1071,8 @@ class ElaborationsProductsInThrough(models.Model):
     comment = models.CharField(max_length=100, blank=True, null=True) #Add product aclarations, cut, temperature...
     ni=models.BooleanField(blank=False, null=False, default=True) #Must be used for nutritional information calcs
     automatic_percentage=models.IntegerField(null=False, blank=False, default=100 )#Percentage 0-100 to scale in automatic elaborations
-#    
-#    def __str__(self):
-#        self.fullname()        
+    automatic_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True, db_comment="Parent ElaborationProductsIn for this register", default=None)
+ 
     @staticmethod
     def post_payload(elaborations, products):
         return {
@@ -1046,6 +1107,7 @@ class ElaborationsProductsInThrough(models.Model):
             return _("{0} ml of {1}{2}").format(round(self.amount, 1), _(self.products.name), comment_string)
         else:
             return _("{0} {1} of {2}{3}").format(Fraction(self.amount), _(self.measures_types.localname()).lower(), _(self.products.name), comment_string)
+
 
 class ElaborationsContainers(models.Model):
     name=models.TextField( blank=False, null=False)
