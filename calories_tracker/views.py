@@ -108,6 +108,7 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        deleted_elaborated_product=models.ElaboratedProducts.hurl(request, instance.id)
         qs_products_in=models.ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=instance)
         qs_products_in.delete()
         #Destroy asoociated product
@@ -118,7 +119,7 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
             qs[0].delete()
         self.perform_destroy(instance)
         #Returns url deleted elaborated_product and asociated_product
-        r={"deleted_elaborated_product": models.ElaboratedProducts.hurl(request, instance.id),  "deleted_product":deleted_product}
+        r={"deleted_elaborated_product": deleted_elaborated_product,  "deleted_product":deleted_product}
         return JsonResponse(r, status=status.HTTP_200_OK)
     
     
