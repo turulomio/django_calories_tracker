@@ -108,15 +108,18 @@ class ElaboratedProductsViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        
         qs_products_in=models.ElaboratedProductsProductsInThrough.objects.filter(elaborated_products=instance)
         qs_products_in.delete()
         #Destroy asoociated product
         qs=models.Products.objects.filter(elaborated_products=instance  )
+        deleted_product=None
         if len(qs)>0:
+            deleted_product=models.Products.hurl(request, qs[0].id)
             qs[0].delete()
         self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        #Returns url deleted elaborated_product and asociated_product
+        r={"deleted_elaborated_product": models.ElaboratedProducts.hurl(request, instance.id),  "deleted_product":deleted_product}
+        return JsonResponse(r, status=status.HTTP_200_OK)
     
     
 class ElaboratedProductsProductsInThroughViewSet(viewsets.ModelViewSet):
@@ -184,9 +187,13 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             epi.elaborated_products=ep
             epi.save()
         #Creates asociated product
-        ep.update_associated_product()
+        product_associated=ep.update_associated_product()
+        r={
+            "elaborated_product":serializers.ElaboratedProductsSerializer(ep, context={'request': request}).data, 
+            "product": serializers.ProductsSerializer(product_associated, context={'request': request}).data
+        }
         #Returns created elaborated product serialized
-        return JsonResponse(serializers.ElaboratedProductsSerializer(ep, context={'request': request}).data, status=status.HTTP_200_OK)
+        return JsonResponse(r, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['POST'], name='It creates a PDF for this elaboration', url_path="generate_pdf", url_name='generate_pdf', permission_classes=[permissions.IsAuthenticated])
     def generate_pdf(self, request, pk=None):

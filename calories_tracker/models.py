@@ -600,6 +600,10 @@ class Products(models.Model):
 
     def __str__(self):
         return self.fullname()
+
+    @staticmethod
+    def hurl(request, id):
+        return request.build_absolute_uri(reverse('products-detail', args=(id, )))
                 
     @staticmethod
     def post_payload():
@@ -659,6 +663,12 @@ class Products(models.Model):
         if component is None or self.amount==0:
             return None
         return component*100/self.amount
+        
+    def getUses(self):
+        """
+            Uses is an annotation in view set, so if I want to serialize an item I need to calculate them object by object
+        """
+        return Meals.objects.filter(products=self).count()+ ElaboratedProductsProductsInThrough.objects.filter(products=self).count()
 
 class ProductsFormatsThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
@@ -692,7 +702,11 @@ class ElaboratedProducts(models.Model):
         
     def __str__(self):
         return self.name
-                        
+        
+    @staticmethod
+    def hurl(request, id):
+        return request.build_absolute_uri(reverse('elaboratedproducts-detail', args=(id, )))
+
     @staticmethod
     def post_payload(recipes=None):
         return {

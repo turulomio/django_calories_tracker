@@ -494,7 +494,14 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_deletable(self, o):
-        if o.uses>0:
+        """
+            Uses is an annotation in view set, so if I want to serialize an item I need to calculate them object by object
+        """
+        if hasattr(o, "uses"):
+            uses=o.uses
+        else:
+            uses=o.getUses()
+        if uses>0:
             return False
         return True
 
