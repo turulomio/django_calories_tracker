@@ -398,11 +398,15 @@ class ProductsViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
-        if self.request.user.groups.filter(name="CatalogManager").exists():#User can convert a product to a system_product that it's not of its own
-            return self.queryset.filter(user=self.request.user).select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).order_by("name")
-        else:
-            return self.queryset.filter(user=self.request.user).select_related("companies","system_products", "elaborated_products", ).prefetch_related("additives", "additives__additive_risks").prefetch_related("productsformatsthrough_set").annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True)).order_by("name")
-
+        return self.queryset.filter(user=self.request.user)\
+            .select_related("companies","system_products", "elaborated_products", )\
+            .prefetch_related("additives", "additives__additive_risks","productsformatsthrough_set")\
+            .annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True) + Count("elaborationsproductsinthrough", distinct=True)).order_by("name")
+    def list(self, request):
+        r=viewsets.ModelViewSet.list(self, request)
+        show_queries_function()
+        return r
+        
 
     @action(detail=True, methods=['POST'], name='Converts a product into a system product, linking it to a new system product', url_path="convert_to_system", url_name='convert_to_system', permission_classes=[permissions.IsAuthenticated, GroupCatalogManager])
     def convert_to_system(self, request, pk=None):

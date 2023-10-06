@@ -668,7 +668,7 @@ class Products(models.Model):
         """
             Uses is an annotation in view set, so if I want to serialize an item I need to calculate them object by object
         """
-        return Meals.objects.filter(products=self).count()+ ElaboratedProductsProductsInThrough.objects.filter(products=self).count()
+        return Meals.objects.filter(products=self).count()+ ElaboratedProductsProductsInThrough.objects.filter(products=self).count() + ElaborationsProductsInThrough.objects.filter(products=self).count()
 
 class ProductsFormatsThrough(models.Model):
     products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
