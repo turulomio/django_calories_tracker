@@ -165,20 +165,21 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['POST'], name='It creates and elaborated product from a recipe elaboration', url_path="create_elaborated_product", url_name='create_elaborated_product', permission_classes=[permissions.IsAuthenticated])
     def create_elaborated_product(self, request, pk=None):
         elaboration = self.get_object()
-        #Sets all elaborated products and products from this recipe obsolete
-        for ep in models.ElaboratedProducts.objects.filter(recipes=elaboration.recipes):
-            ep.obsolete=True
-            ep.save()
-            models.Products.objects.filter(elaborated_products=ep).update(obsolete=True)
+#        #Sets all elaborated products and products from this recipe obsolete
+#        for ep in models.ElaboratedProducts.objects.filter(name=elaboration.recipes.name):
+#            ep.obsolete=True
+#            ep.save()
+#            models.Products.objects.filter(elaborated_products=ep).update(obsolete=True)
         #Creates a new elaborated product
         ep=models.ElaboratedProducts()
         ep.last=timezone.now()
-        ep.name=_("{0} for {1} diners ({2})").format(elaboration.recipes.name, elaboration.diners, dtaware2string(ep.last, "%Y-%m-%d %H:%M:%S"))
+        dt_string=dtaware2string(ep.last, "%Y-%m-%d %H:%M:%S")
+        ep.name=_("{0} for {1} diners ({2})").format(elaboration.recipes.name, elaboration.diners, dt_string )
         ep.final_amount=elaboration.final_amount
         ep.food_types=elaboration.recipes.food_types
         ep.obsolete=False
         ep.user=request.user
-        ep.recipes=elaboration.recipes
+        ep.comment=_("This elaborated product was created from '{0}' recipe for {1} diners ({2}).").format(elaboration.recipes.name, elaboration.diners, dt_string)
         ep.save()
         #Adds all products_in
         for rpi in elaboration.elaborationsproductsinthrough_set.all():
