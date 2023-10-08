@@ -694,7 +694,7 @@ class ElaboratedProducts(models.Model):
     obsolete = models.BooleanField(null=False,  default=False)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING,  null=False) 
     products_in = models.ManyToManyField(Products, through='ElaboratedProductsProductsInThrough', blank=True)
-    comment = models.TextField(default="")
+    comment = models.TextField(null=False, blank=True,  default="")
 
     class Meta:
         managed = True

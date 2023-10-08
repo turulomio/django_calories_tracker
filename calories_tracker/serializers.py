@@ -147,7 +147,7 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
         model = models.ElaboratedProducts
         fields = ('url', 'id', 'name', 'last', 'obsolete', 'food_types', 'final_amount', 'products_in', 'calories', 
         'fat', 'protein', 'carbohydrate', 'salt', 'cholesterol', 'sodium', 'potassium', 'fiber', 'sugars', 
-        'saturated_fat', 'ferrum', 'magnesium', 'phosphor', 'calcium', 'glutenfree', 'additives_risk', "fullname")
+        'saturated_fat', 'ferrum', 'magnesium', 'phosphor', 'calcium', 'glutenfree', 'additives_risk', "fullname",  "comment")
 
     def create(self, validated_data):
         data=self.context.get("request").data
