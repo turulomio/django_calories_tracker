@@ -249,7 +249,8 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             #elaborations_text
             new.elaborations_texts=models.ElaborationsTexts()
             new.elaborations_texts.elaborations=new
-            new.elaborations_texts.text=models.ElaborationsTexts.generate_automatic_text(new, old.elaborations_texts.text)
+            if hasattr(old, "elaborations_texts"):
+                new.elaborations_texts.text=models.ElaborationsTexts.generate_automatic_text(new, old.elaborations_texts.text)
             new.elaborations_texts.save()
         
               
