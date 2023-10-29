@@ -31,7 +31,6 @@ def vtabledata_options2orderby(request, default):
             else:
                 break
             i+=1
-        print(r)
         return r
     def lod2django(lod):
         """
@@ -56,6 +55,5 @@ def vtabledata_options2orderby(request, default):
     else: #Multi sort true
         r=django_sorts
     
-    print(r)
     #print("vtabledata_options2orderby",  sortBy, sortDesc, multiSort, "==>",  r)
     return r

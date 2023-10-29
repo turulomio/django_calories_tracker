@@ -716,13 +716,11 @@ class ElaborationsTextsSerializer(serializers.HyperlinkedModelSerializer):
             This method require elaborations_id as parameter in post method
         """
         request = self.context.get("request")
-        print(request.data)
 #        try:
         elaborations=models.Elaborations.objects.get(pk=id_from_url(request.data["elaborations"]), recipes__user=request.user)
 #        except:
 #               raise ValidationError("Elaboration doesn't exist")
         created=models.ElaborationsTexts()
-        print(dir(created))
         created.elaborations=elaborations
         created.text=validated_data["text"]
         created.save()

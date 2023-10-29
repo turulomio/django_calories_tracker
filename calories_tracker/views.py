@@ -224,6 +224,7 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             new.recipes=old.recipes
             new.final_amount=Decimal(diners)*old.final_amount/Decimal(old.diners)
             new.automatic=True
+            new.automatic_adaptation_step=old.automatic_adaptation_step
             new.save()
             
             #ingredients
