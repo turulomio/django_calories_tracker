@@ -1,5 +1,6 @@
 from calories_tracker import serializers
 from calories_tracker import models
+from calories_tracker.reusing.casts import string2list_of_integers
 from calories_tracker.reusing.connection_dj import show_queries, show_queries_function
 from calories_tracker.reusing.decorators import ptimeit
 from calories_tracker.reusing.datetime_functions import dtaware2string
@@ -562,6 +563,16 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return self.queryset.exclude(pk__in=recipes_with_photo_ids).filter(user=self.request.user)
             elif search.startswith(":LAST"):
                 return self.queryset.filter(user=self.request.user)
+            elif search.startswith(":INGREDIENTS "): #:INGREDIENTS 1, 2, 3, 4
+                try:
+                    products_ids=string2list_of_integers(search.replace(":INGREDIENTS ", ""), ",")
+                    qs=self.queryset
+                    for product_id in products_ids:
+                        qs=qs.filter(elaborations__elaborationsproductsinthrough__products__id=product_id)
+                    return qs.distinct()
+                except:
+                    print("Error parsing ingredients")
+                    return self.queryset.none()
             else:
                 self.queryset.filter(user=self.request.user)
                 arr=search.split(" ")
