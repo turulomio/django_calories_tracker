@@ -212,6 +212,7 @@ class CtTestCase(APITestCase):
         print("test_formats")
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/formats/', models.Formats.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
         
+    @tag("current")
     def test_meals(self):
         print()
         print("test_meals")        

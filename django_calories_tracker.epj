@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-09-11, 13:13:10"
+    "saved": "2023-12-07, 18:27:55"
   },
   "project": {
     "AUTHOR": "",
@@ -125,6 +125,8 @@
       "calories_tracker/migrations/0041_elaborationstexts.py",
       "calories_tracker/migrations/0042_delete_elaborationssteps_delete_steps_and_more.py",
       "calories_tracker/migrations/0043_elaborationsproductsinthrough_automatic_parent.py",
+      "calories_tracker/migrations/0044_remove_elaboratedproducts_recipes_and_more.py",
+      "calories_tracker/migrations/0045_alter_elaboratedproducts_comment.py",
       "calories_tracker/migrations/__init__.py",
       "calories_tracker/models.py",
       "calories_tracker/paginators.py",
