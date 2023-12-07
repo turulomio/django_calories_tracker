@@ -10,7 +10,7 @@ from calories_tracker.reusing.request_casting import RequestGetString, RequestGe
 from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response
 from decimal import Decimal
 from django.db import transaction
-from django.db.models import Count, Min, Prefetch
+from django.db.models import Count, Min, Prefetch, Sum
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -357,16 +357,12 @@ class MealsViewSet(viewsets.ModelViewSet):
         dict_meals_by_day_amount={}
         for m in qs_meals:
             dict_meals_by_day_amount[m.products.id]=dict_meals_by_day_amount.get(m.products.id, 0)+m.amount
-
-        r=[]
-        for key, value in dict_meals_by_day_amount.items():
-            r.append({
-                "product": request.build_absolute_uri(reverse('products-detail', args=(key, ))), 
-                "amount": value, 
-            })
-
-        r=lod.lod_order_by(r, "amount", reverse=True)
-        return JsonResponse(r, safe=False)
+        
+        lod_=list(qs_meals.values("products__id").annotate(amount=Sum("amount")).order_by("-amount"))
+        lod.lod_calculate(lod_, "products",  lambda d, index: models.Products.hurl(request, d["products__id"]))
+        lod.lod_calculate(lod_, "ranking",  lambda d, index: index+1)
+        lod.lod_remove_key(lod_, "products__id")
+        return JsonResponse(lod_, safe=False)
         
 @extend_schema_view(
     list=extend_schema(
