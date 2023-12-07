@@ -21,6 +21,7 @@ from django.conf import settings
 from django.contrib.auth.models import User # new
 
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from fractions import Fraction
 from humanize import naturalsize
@@ -606,7 +607,7 @@ class Products(models.Model):
         return request.build_absolute_uri(reverse('products-detail', args=(id, )))
                 
     @staticmethod
-    def post_payload():
+    def post_payload(name="Product 1"):
             return {
             'additives': [], 
             'amount': '5320.000', 
@@ -623,7 +624,7 @@ class Products(models.Model):
             'formats': [], 
             'glutenfree': False, 
             'magnesium': '2657.000', 
-            'name': 'System Product LfFcdY', 
+            'name': name, 
             'obsolete': False, 
             'phosphor': '1095.000', 
             'potassium': '2181.000', 
@@ -819,11 +820,11 @@ class Meals(models.Model):
         return f"{self.products} ({self.amount}g)"
         
     @staticmethod
-    def post_payload(products):
+    def post_payload(datetime_=timezone.now(), products=products, amount=330):
         return {
-            "datetime": '2023-06-11T05:35:13.673203Z', 
+            "datetime": datetime_, 
             "products": products, 
-            "amount":  330, 
+            "amount":  amount, 
         }
         
     ## name can be, fat, saturated_fat, fiber, sodiumm...
