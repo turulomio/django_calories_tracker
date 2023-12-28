@@ -339,7 +339,7 @@ class MealsViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['post'])
     def delete_several(self, request):
-        meals=RequestListUrl(request, "meals", models.Meals)
+        meals=RequestListOfUrls(request, "meals", models.Meals)
         if all_args_are_not_none(meals):
             for meal in meals:
                 meal.delete()
