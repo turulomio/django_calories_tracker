@@ -682,7 +682,7 @@ class SystemProductsViewSet(CatalogModelViewSet):
         system_product = self.get_object()
         product=system_product.update_linked_product(request.user)
         product.uses=-1#Needed
-        return JsonResponse(serializers.ProductsSerializer(product, context={'request': request}).data, status=200)
+        return Response(serializers.ProductsSerializer(product, many=False, context={'request': request}).data, status=200)
 
     
     @extend_schema(
