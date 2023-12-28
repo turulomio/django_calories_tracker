@@ -407,6 +407,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
         return r
         
 
+    @transaction.atomic
     @action(detail=True, methods=['POST'], name='Converts a product into a system product, linking it to a new system product', url_path="convert_to_system", url_name='convert_to_system', permission_classes=[permissions.IsAuthenticated, GroupCatalogManager])
     def convert_to_system(self, request, pk=None):
         product=self.get_object()
@@ -508,6 +509,12 @@ class ProductsViewSet(viewsets.ModelViewSet):
             return JsonResponse( True, encoder=MyJSONEncoderDecimalsAsFloat, safe=False)
 
 
+    @transaction.atomic
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        models.ProductsFormatsThrough.objects.filter(products=instance).delete()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class FilesViewSet(mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):
@@ -668,16 +675,7 @@ class SystemProductsViewSet(CatalogModelViewSet):
     queryset = models.SystemProducts.objects.select_related("system_companies").prefetch_related("additives",  "additives__additive_risks","systemproductsformatsthrough_set").all()
     serializer_class = serializers.SystemProductsSerializer  
     
-    ## api/system_products/search=hol. Search all system products that contains search string in name
-    def get_queryset(self):
-        search=RequestString(self.request, 'search')
-        if all_args_are_not_none(search):
-            ids=[]
-            for p in self.queryset:
-                if search.lower() in _(p.name).lower():
-                    ids.append(p.id)
-            return self.queryset.filter(id__in=ids).order_by("name")
-        return self.queryset
+
 
     @action(detail=True, methods=['POST'], name='Create a product from a system product', url_path="create_product", url_name='create_product', permission_classes=[permissions.IsAuthenticated])
     def create_product(self, request, pk=None):
@@ -687,6 +685,18 @@ class SystemProductsViewSet(CatalogModelViewSet):
         return JsonResponse(serializers.ProductsSerializer(product, context={'request': request}).data, status=200)
 
     
+    @extend_schema(
+        description="api/system_products/search=hol. Search all system products that contains search string in name", 
+        parameters=[
+            OpenApiParameter(name='search', description='Filter by string', required=False, type=OpenApiTypes.URI), 
+        ],
+    )
+    def list(self, request):
+        search=RequestString(self.request, 'search')
+        if all_args_are_not_none(search):
+            self.queryset=self.queryset.filter(name__icontains=search).order_by("name")
+        serializer = serializers.SystemProductsSerializer(self.queryset, many=True, context={'request': request})
+        return Response(serializer.data)
 
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.IsAuthenticated, ])
