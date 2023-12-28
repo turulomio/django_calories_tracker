@@ -305,9 +305,14 @@ class CtTestCase(APITestCase):
         #Creates a new system product
         dict_sp=tests_helpers.client_post(self, self.client_catalog_manager, "/api/system_products/", models.SystemProducts.post_payload(), status.HTTP_201_CREATED)
 
+
+        #List of client_authorized_1 products len must be 0
+        dict_all_p1=tests_helpers.client_get(self, self.client_authorized_1, "/api/products/", status.HTTP_200_OK)
+        self.assertEqual(len(dict_all_p1), 0)
+
         #Client_autenticated_1 creates a product
         tests_helpers.client_post(self, self.client_authorized_1, dict_sp["url"]+"create_product/", {},  status.HTTP_200_OK)
-
+        
         #Client_autenticated_2 creates a product
         tests_helpers.client_post(self, self.client_authorized_2, dict_sp["url"]+"create_product/", {} , status.HTTP_200_OK)
         
