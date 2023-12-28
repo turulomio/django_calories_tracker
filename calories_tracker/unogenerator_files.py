@@ -1,12 +1,14 @@
 from base64 import b64encode
-from calories_tracker.reusing.responses_json import json_data_response
 from calories_tracker import __version__
+from pydicts.myjsonencoder import MyJSONEncoderDecimalsAsFloat
 from datetime import datetime
 from django.conf import settings
+from django.http import JsonResponse
 from django.utils.translation import gettext as _
 from mimetypes import guess_type
 from os import path
 from unogenerator import ODT
+
 
 def response_report_elaboration(request, elaboration):
     template=f"{path.dirname(__file__)}/templates/ReportElaboration.odt"
@@ -88,4 +90,6 @@ def dict_response_file(filename):
     return r
 
 def json_response_file(filename):
-        return json_data_response( True, dict_response_file(filename),  _("OK"))
+    
+        return JsonResponse( dict_response_file(filename), encoder=MyJSONEncoderDecimalsAsFloat, safe=False)
+        #return json_data_response( True, dict_response_file(filename),  _("OK"))

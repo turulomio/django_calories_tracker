@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from .reusing.request_casting import RequestGetBool
+from request_casting import request_casting
 
 class PagePaginationWithTotalPages(PageNumberPagination):
     page_size = 10
@@ -45,7 +45,7 @@ def vtabledata_options2orderby(request, default):
         return r
     ## CHECK PARAMS in 
     lod=vuetify_sortby2lod(request)
-    multiSort=RequestGetBool(request, "multiSort")
+    multiSort=request_casting.RequestBool(request, "multiSort")
     if len(lod)==0: #Devuelve default, paginate siempre tiene que estar ordenado
         return [default]
         

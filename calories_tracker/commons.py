@@ -16,3 +16,12 @@ def qs_dict(qs, lambda_function):
     for o in qs:
         d[lambda_function(o)]=o
     return d
+
+def string2list_of_integers(s, separator=", "):
+    """Convers a string of integer separated by comma, into a list of integer"""
+    arr=[]
+    if s!="":
+        arrs=s.split(separator)
+        for a in arrs:
+            arr.append(int(a))
+    return arr
