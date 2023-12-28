@@ -1,5 +1,5 @@
 from calories_tracker import views as calories_tracker_views
-from calories_tracker.reusing import views_login as calories_tracker_views_login
+from calories_tracker import views_login as calories_tracker_views_login
 from django.urls import path,  include
 from django.contrib import admin# Need to import this since auth models get registered on import.
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView

@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_calories_tracker",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-12-07, 18:27:55"
+    "saved": "2023-12-28, 07:01:38"
   },
   "project": {
     "AUTHOR": "",
@@ -149,6 +149,7 @@
       "calories_tracker/tests_helpers.py",
       "calories_tracker/unogenerator_files.py",
       "calories_tracker/views.py",
+      "calories_tracker/views_login.py",
       "django_calories_tracker/__init__.py",
       "django_calories_tracker/asgi.py",
       "django_calories_tracker/presettings.py",

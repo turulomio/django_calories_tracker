@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from calories_tracker import models
-from calories_tracker.reusing.request_casting import object_from_url, id_from_url
+from request_casting.request_casting import object_from_url, id_from_url
 
 
 class ActivitiesSerializer(serializers.HyperlinkedModelSerializer):

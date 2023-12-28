@@ -1,13 +1,11 @@
-from calories_tracker import serializers
-from calories_tracker import models
-from calories_tracker.reusing.casts import string2list_of_integers
+from calories_tracker import serializers, models,  commons
 from calories_tracker.reusing.connection_dj import show_queries, show_queries_function
 from calories_tracker.reusing.decorators import ptimeit
-from calories_tracker.reusing.datetime_functions import dtaware2string
+from pydicts.casts import dtaware2str
 from calories_tracker.paginators import PagePaginationWithTotalPages, vtabledata_options2orderby
 from calories_tracker.permissions import GroupCatalogManager
-from calories_tracker.reusing.request_casting import RequestGetString, RequestGetUrl, RequestGetDate, all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListUrl, RequestInteger
-from calories_tracker.reusing.responses_json import MyDjangoJSONEncoder, json_success_response
+from request_casting.request_casting import all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListOfUrls, RequestInteger
+from pydicts.myjsonencoder import MyJSONEncoderDecimalsAsFloat
 from decimal import Decimal
 from django.db import transaction
 from django.db.models import Count, Min, Prefetch, Sum
@@ -31,7 +29,7 @@ show_queries_function
 @permission_classes([permissions.IsAuthenticated, ])
 @api_view(['GET', ])
 def CatalogManager(request):
-    return JsonResponse( request.user.groups.filter(name="CatalogManager").exists(), encoder=MyDjangoJSONEncoder, safe=False)
+    return JsonResponse( request.user.groups.filter(name="CatalogManager").exists(), encoder=MyJSONEncoderDecimalsAsFloat, safe=False)
 
 
 class CatalogModelViewSet(viewsets.ModelViewSet):
@@ -49,7 +47,7 @@ class CatalogModelViewSet(viewsets.ModelViewSet):
 @api_view(['GET', ])
 @permission_classes([permissions.IsAuthenticated, ])
 def Time(request):
-    return JsonResponse( timezone.now(), encoder=MyDjangoJSONEncoder, safe=False)
+    return JsonResponse( timezone.now(), encoder=MyJSONEncoderDecimalsAsFloat, safe=False)
     
     
 class WeightWishesViewSet(CatalogModelViewSet):
@@ -86,7 +84,7 @@ class BiometricsViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]      
 
     def get_queryset(self):
-        day=RequestGetDate(self.request, "day")
+        day=RequestDate(self.request, "day")
         if all_args_are_not_none(day):        
             return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user, datetime__date__lte=day).order_by("-datetime")[:1]
         return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user).order_by("datetime")
@@ -130,8 +128,8 @@ class ElaboratedProductsProductsInThroughViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        elaborated_products=RequestGetUrl(self.request, "elaborated_products", models.ElaboratedProducts)
-        #products=RequestGetUrl(self.request, "products", models.Products)
+        elaborated_products=RequestUrl(self.request, "elaborated_products", models.ElaboratedProducts)
+        #products=RequestUrl(self.request, "products", models.Products)
         if all_args_are_not_none(elaborated_products):        
             return self.queryset.filter(elaborated_products=elaborated_products, elaborated_products__user=self.request.user)
         return self.queryset.filter(elaborated_products__user=self.request.user)
@@ -149,7 +147,7 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
     
     
     def get_queryset(self):
-        recipes=RequestGetUrl(self.request, "recipes", models.Recipes)
+        recipes=RequestUrl(self.request, "recipes", models.Recipes)
         if all_args_are_not_none(recipes):
             return self.queryset.filter(recipes=recipes, recipes__user=self.request.user)
         return self.queryset.filter(recipes__user=self.request.user)
@@ -174,7 +172,7 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         #Creates a new elaborated product
         ep=models.ElaboratedProducts()
         ep.last=timezone.now()
-        dt_string=dtaware2string(ep.last, "%Y-%m-%d %H:%M:%S")
+        dt_string=dtaware2str(ep.last, "%Y-%m-%d %H:%M:%S")
         ep.name=_("{0} for {1} diners ({2})").format(elaboration.recipes.name, elaboration.diners, dt_string )
         ep.final_amount=elaboration.final_amount
         ep.food_types=elaboration.recipes.food_types
@@ -265,7 +263,7 @@ class ElaborationsContainersViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
+        elaboration=RequestUrl(self.request, "elaboration", models.Elaborations)
         if all_args_are_not_none(elaboration):        
             return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
         return self.queryset.filter(elaborations__recipes__user=self.request.user)
@@ -276,7 +274,7 @@ class ElaborationsExperiencesViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
+        elaboration=RequestUrl(self.request, "elaboration", models.Elaborations)
         if all_args_are_not_none(elaboration):        
             return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
         return self.queryset.filter(elaborations__recipes__user=self.request.user)
@@ -287,7 +285,7 @@ class ElaborationsTextsViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
+        elaboration=RequestUrl(self.request, "elaboration", models.Elaborations)
         if all_args_are_not_none(elaboration):        
             return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
         return self.queryset.filter(elaborations__recipes__user=self.request.user)
@@ -298,7 +296,7 @@ class ElaborationsProductsInThroughViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        elaboration=RequestGetUrl(self.request, "elaboration", models.Elaborations)
+        elaboration=RequestUrl(self.request, "elaboration", models.Elaborations)
         if all_args_are_not_none(elaboration):        
             return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
         return self.queryset.filter(elaborations__recipes__user=self.request.user)
@@ -328,7 +326,7 @@ class MealsViewSet(viewsets.ModelViewSet):
 
     ## api/formats/product=url. Search all formats of a product
     def get_queryset(self):
-        day=RequestGetDate(self.request, 'day') 
+        day=RequestDate(self.request, 'day') 
         if all_args_are_not_none(day):
             return models.Meals.objects.filter(user=self.request.user, datetime__date=day).order_by("datetime")
         return self.queryset.filter(user=self.request.user)
@@ -350,7 +348,7 @@ class MealsViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"], name='Shows user meals ranking', url_path="ranking", url_name='ranking', permission_classes=[permissions.IsAuthenticated])
     def ranking(self, request):
-        from_date=RequestGetDate(request, "from_date")
+        from_date=RequestDate(request, "from_date")
         qs_meals=models.Meals.objects.select_related("products").filter(user=request.user)
         if from_date is not None:
             qs_meals=qs_meals.filter(datetime__date__gte=from_date)
@@ -414,7 +412,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
         product=self.get_object()
         if all_args_are_not_none(product):
             if product.system_products is not None or product.elaborated_products is not None:
-                return json_success_response( False, "This product can't be converted to system product")
+                return Response( "This product can't be converted to system product", status=status.HTTP_400_BAD_REQUEST)
             sp=models.SystemProducts()
             sp.name=product.name
             sp.amount=product.amount
@@ -479,7 +477,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['GET'], name='Returns data from both products to valorate a data transfer', url_path="get_data_transfer", url_name='get_data_transfer', permission_classes=[permissions.IsAuthenticated])
     def get_data_transfer(self, request, pk=None):
         product_from=self.get_object()
-        product_to=RequestGetUrl(request, "product_to", models.Products)
+        product_to=RequestUrl(request, "product_to", models.Products)
     
         if all_args_are_not_none(product_from, product_to):
             r=[]
@@ -489,7 +487,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
                     "products_in": models.ElaboratedProductsProductsInThrough.objects.filter(products=p).count(), 
                     "meals": models.Meals.objects.filter(products=p).count(),
                 })
-            return JsonResponse( r, encoder=MyDjangoJSONEncoder, safe=False)
+            return JsonResponse( r, encoder=MyJSONEncoderDecimalsAsFloat, safe=False)
 
     @action(detail=True, methods=['POST'], name='Transfers data from a product to other', url_path="data_transfer", url_name='data_transfer', permission_classes=[permissions.IsAuthenticated, GroupCatalogManager])
     def data_transfer(self, request, pk=None):
@@ -503,7 +501,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
             for m in models.Meals.objects.filter(products=product_from):
                 m.products=product_to
                 m.save()            
-            return JsonResponse( True, encoder=MyDjangoJSONEncoder, safe=False)
+            return JsonResponse( True, encoder=MyJSONEncoderDecimalsAsFloat, safe=False)
 
 
 
@@ -542,7 +540,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ],
     )
     def get_queryset(self):
-        search=RequestGetString(self.request, 'search') 
+        search=RequestString(self.request, 'search') 
         if all_args_are_not_none(search):
             if search==":SOON":
                 return self.queryset.filter(user=self.request.user, soon=True)
@@ -561,7 +559,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return self.queryset.filter(user=self.request.user)
             elif search.startswith(":INGREDIENTS "): #:INGREDIENTS 1, 2, 3, 4
                 try:
-                    products_ids=string2list_of_integers(search.replace(":INGREDIENTS ", ""), ",")
+                    products_ids=commons.string2list_of_integers(search.replace(":INGREDIENTS ", ""), ",")
                     qs=self.queryset
                     for product_id in products_ids:
                         qs=qs.filter(elaborations__elaborationsproductsinthrough__products__id=product_id)
@@ -607,7 +605,7 @@ class RecipesLinksViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        recipes=RequestGetUrl(self.request, "recipes", models.Recipes)
+        recipes=RequestUrl(self.request, "recipes", models.Recipes)
         if all_args_are_not_none(recipes):
             return self.queryset.filter(recipes=recipes, recipes__user=self.request.user)
         return self.queryset.filter(recipes__user=self.request.user)
@@ -632,7 +630,7 @@ class SystemCompaniesViewSet(CatalogModelViewSet):
     ## api/system_products/search_not_in=hol. Search all system products that desn't hava a product yet with hol
     ## api/system_companies/search=hol. Search all system companies that desn't hava a company jet with hol
     def get_queryset(self):
-        search=RequestGetString(self.request, 'search') 
+        search=RequestString(self.request, 'search') 
         if all_args_are_not_none(search):
             return models.SystemCompanies.objects.filter(name__icontains=search).order_by("name")
         return self.queryset
@@ -668,7 +666,7 @@ class SystemProductsViewSet(CatalogModelViewSet):
     
     ## api/system_products/search=hol. Search all system products that contains search string in name
     def get_queryset(self):
-        search=RequestGetString(self.request, 'search')
+        search=RequestString(self.request, 'search')
         if all_args_are_not_none(search):
             ids=[]
             for p in self.queryset:
@@ -726,7 +724,7 @@ def Settings(request):
         r['email']=request.user.email     
         r['birthday']=p.birthday
         r['male']=p.male
-        return JsonResponse( r, encoder=MyDjangoJSONEncoder,     safe=False)
+        return JsonResponse( r, encoder=MyJSONEncoderDecimalsAsFloat,     safe=False)
     elif request.method == 'POST':
         #Personal settings
         birthday=RequestDate(request,"birthday")
@@ -752,14 +750,14 @@ def Settings(request):
             r['birthday']=p.birthday
             r['male']=p.male
             
-            return JsonResponse( r, encoder=MyDjangoJSONEncoder,     safe=False)
+            return JsonResponse( r, encoder=MyJSONEncoderDecimalsAsFloat,     safe=False)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST', ])
 @permission_classes([permissions.IsAuthenticated, ])
 def ShoppingList(request):
-    elaborations=RequestListUrl(request, "elaborations", models.Elaborations, [])
+    elaborations=RequestListOfUrls(request, "elaborations", models.Elaborations, [])
     #Elaborations must check if elaborations are of request.user due to requestlisturl make a fast queryset
     for e in elaborations:
         if e.recipes.user!=request.user:
