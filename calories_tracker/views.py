@@ -469,9 +469,13 @@ class ProductsViewSet(viewsets.ModelViewSet):
             product.save()
 
 
-            serializers.ProductsSerializer(product, context={'request': request}).data
-            return Response(status=status.HTTP_200_OK, detail="Product converted to system product")
-        return Response(status=status.HTTP_400_BAD_REQUEST, detail="Product couldn't be converted to system product")
+            r={
+                "product": serializers.ProductsSerializer(product, context={'request': request}).data, 
+                "system_product":serializers.SystemProductsSerializer(sp, context={'request': request}).data, 
+                "detail":"Product converted to system product"
+            }
+            return Response(r,  status=status.HTTP_200_OK)
+        return Response("Product couldn't be converted to system product",  status=status.HTTP_400_BAD_REQUEST)
 
 
     @action(detail=True, methods=['GET'], name='Returns data from both products to valorate a data transfer', url_path="get_data_transfer", url_name='get_data_transfer', permission_classes=[permissions.IsAuthenticated])
