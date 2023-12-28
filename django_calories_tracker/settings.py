@@ -86,7 +86,7 @@ TEMPLATES = [
     },
 ]
 
-CORS_ORIGIN_WHITELIST =  "https://localhost:8012",
+CORS_ORIGIN_WHITELIST =  "http://127.0.0.1:8012",
 WSGI_APPLICATION = 'django_calories_tracker.wsgi.application'
 
 
