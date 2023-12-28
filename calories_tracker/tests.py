@@ -226,7 +226,6 @@ class CtTestCase(APITestCase):
     def test_formats(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/formats/', models.Formats.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
         
-    @tag("current")
     def test_meals(self): 
         dict_products_1=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(name="Product 1"), status.HTTP_201_CREATED)
         dict_products_2=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(name="Product 2"), status.HTTP_201_CREATED)
@@ -254,14 +253,21 @@ class CtTestCase(APITestCase):
                 
     def test_pots(self):
         tests_helpers.common_tests_Private(self,  '/api/pots/', models.Pots.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-                                      
+    
+    @tag("current")
     def test_products(self):
         tests_helpers.common_tests_Private(self,  '/api/products/', models.Products.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-        #Products to system products, SOLO DEBERIA PODER HACERLO UN USUARIO CON PERMISOS DE CATALOGO
-#        dict_p=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
-#        url=f"{dict_p['url']}convert_to_system/"        
-#        tests_helpers.client_post(self, self.client_authorized_1, url, {}, status.HTTP_403_FORBIDDEN)
-#        tests_helpers.client_post(self, self.client_catalog_manager, url, {}, status.HTTP_201_CREATED)
+        
+        #Products to system products by self.client_authorized_1 is not allowed
+        dict_p=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
+        tests_helpers.client_post(self, self.client_authorized_1, f"{dict_p['url']}convert_to_system/", {}, status.HTTP_403_FORBIDDEN)
+        
+        #Only user with catalog_manager rol can convert a product to a system product
+        dict_p=tests_helpers.client_post(self, self.client_catalog_manager, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
+        self.assertEqual(dict_p["system_products"], None)
+        dict_conversion=tests_helpers.client_post(self, self.client_catalog_manager, f"{dict_p['url']}convert_to_system/", {}, status.HTTP_200_OK)
+        self.assertEqual(dict_p["url"], dict_conversion["product"]["url"])
+        self.assertEqual(dict_conversion["product"]["system_products"], dict_conversion["system_product"]["url"])
 
     def test_system_companies(self):
         """

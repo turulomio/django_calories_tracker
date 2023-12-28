@@ -33,6 +33,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
 reusing = { script = "calories_tracker.poethepoet:reusing" }
+cypress_test_server = { script = "calories_tracker.poethepoet:cypress_test_server" }
 
 [project.urls]
 homepage = "https://github.com/turulomio/django_calories_tracker/"

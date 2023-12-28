@@ -407,6 +407,7 @@ class ProductsViewSet(viewsets.ModelViewSet):
         return r
         
 
+    @transaction.atomic
     @action(detail=True, methods=['POST'], name='Converts a product into a system product, linking it to a new system product', url_path="convert_to_system", url_name='convert_to_system', permission_classes=[permissions.IsAuthenticated, GroupCatalogManager])
     def convert_to_system(self, request, pk=None):
         product=self.get_object()
@@ -469,9 +470,13 @@ class ProductsViewSet(viewsets.ModelViewSet):
             product.save()
 
 
-            serializers.ProductsSerializer(product, context={'request': request}).data
-            return Response(status=status.HTTP_200_OK, detail="Product converted to system product")
-        return Response(status=status.HTTP_400_BAD_REQUEST, detail="Product couldn't be converted to system product")
+            r={
+                "product": serializers.ProductsSerializer(product, context={'request': request}).data, 
+                "system_product":serializers.SystemProductsSerializer(sp, context={'request': request}).data, 
+                "detail":"Product converted to system product"
+            }
+            return Response(r,  status=status.HTTP_200_OK)
+        return Response("Product couldn't be converted to system product",  status=status.HTTP_400_BAD_REQUEST)
 
 
     @action(detail=True, methods=['GET'], name='Returns data from both products to valorate a data transfer', url_path="get_data_transfer", url_name='get_data_transfer', permission_classes=[permissions.IsAuthenticated])
@@ -504,6 +509,12 @@ class ProductsViewSet(viewsets.ModelViewSet):
             return JsonResponse( True, encoder=MyJSONEncoderDecimalsAsFloat, safe=False)
 
 
+    @transaction.atomic
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        models.ProductsFormatsThrough.objects.filter(products=instance).delete()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class FilesViewSet(mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):
@@ -664,25 +675,28 @@ class SystemProductsViewSet(CatalogModelViewSet):
     queryset = models.SystemProducts.objects.select_related("system_companies").prefetch_related("additives",  "additives__additive_risks","systemproductsformatsthrough_set").all()
     serializer_class = serializers.SystemProductsSerializer  
     
-    ## api/system_products/search=hol. Search all system products that contains search string in name
-    def get_queryset(self):
-        search=RequestString(self.request, 'search')
-        if all_args_are_not_none(search):
-            ids=[]
-            for p in self.queryset:
-                if search.lower() in _(p.name).lower():
-                    ids.append(p.id)
-            return self.queryset.filter(id__in=ids).order_by("name")
-        return self.queryset
+
 
     @action(detail=True, methods=['POST'], name='Create a product from a system product', url_path="create_product", url_name='create_product', permission_classes=[permissions.IsAuthenticated])
     def create_product(self, request, pk=None):
         system_product = self.get_object()
         product=system_product.update_linked_product(request.user)
         product.uses=-1#Needed
-        return JsonResponse(serializers.ProductsSerializer(product, context={'request': request}).data, status=200)
+        return Response(serializers.ProductsSerializer(product, many=False, context={'request': request}).data, status=200)
 
     
+    @extend_schema(
+        description="api/system_products/search=hol. Search all system products that contains search string in name", 
+        parameters=[
+            OpenApiParameter(name='search', description='Filter by string', required=False, type=OpenApiTypes.URI), 
+        ],
+    )
+    def list(self, request):
+        search=RequestString(self.request, 'search')
+        if all_args_are_not_none(search):
+            self.queryset=self.queryset.filter(name__icontains=search).order_by("name")
+        serializer = serializers.SystemProductsSerializer(self.queryset, many=True, context={'request': request})
+        return Response(serializer.data)
 
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.IsAuthenticated, ])
