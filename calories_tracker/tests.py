@@ -226,14 +226,18 @@ class CtTestCase(APITestCase):
 
         tests_helpers.common_tests_PrivateEditableCatalog(self,  "/api/system_companies/", models.SystemCompanies.post_payload(), self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
                 
-        #Creates a new system product
-        dict_sp=tests_helpers.client_post(self, self.client_catalog_manager, "/api/system_companies/", models.SystemCompanies.post_payload(), status.HTTP_201_CREATED)
+        #Creates a new system company
+        dict_sc=tests_helpers.client_post(self, self.client_catalog_manager, "/api/system_companies/", models.SystemCompanies.post_payload(), status.HTTP_201_CREATED)
 
-        #Client_autenticated_1 creates a company
-        tests_helpers.client_post(self, self.client_authorized_1, dict_sp["url"]+"create_company/", {},  status.HTTP_200_OK)
+        #List of client_authorized_1 companies len must be 0
+        dict_all_p1=tests_helpers.client_get(self, self.client_authorized_1, "/api/companies/", status.HTTP_200_OK)
+        self.assertEqual(len(dict_all_p1), 0)
 
-        #Client_autenticated_2 creates a company
-        tests_helpers.client_post(self, self.client_authorized_2, dict_sp["url"]+"create_company/", {} , status.HTTP_200_OK)
+        #Client_autenticated_1 creates a system company
+        tests_helpers.client_post(self, self.client_authorized_1, dict_sc["url"]+"create_company/", {},  status.HTTP_200_OK)
+
+        #Client_autenticated_2 creates a system company
+        tests_helpers.client_post(self, self.client_authorized_2, dict_sc["url"]+"create_company/", {} , status.HTTP_200_OK)
         
         #List of client_authorized_1 products len must be 1
         dict_all_p1=tests_helpers.client_get(self, self.client_authorized_1, "/api/companies/", status.HTTP_200_OK)
