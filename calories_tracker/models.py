@@ -905,6 +905,7 @@ class Recipes(models.Model):
     guests=models.BooleanField(blank=False, null=False)
     soon=models.BooleanField(blank=False, null=False)
     recipes_categories = models.ManyToManyField(RecipesCategories, blank=True)
+    
     class Meta:
         managed = True
         db_table = 'recipes'

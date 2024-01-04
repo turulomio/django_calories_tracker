@@ -605,6 +605,24 @@ class RecipesViewSet(viewsets.ModelViewSet):
         models.Elaborations.objects.filter(recipes=instance).delete()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+        
+    @extend_schema(
+        description="""
+            Merge several recipes (Post parameters) to the selected in main url
+        """
+    )
+    @action(detail=True, methods=['POST'], name='Merge several recipes into this recipe', url_path="merge", url_name='merge', permission_classes=[permissions.IsAuthenticated])
+    def merge(self, request, pk=None):
+        main_recipe=self.get_object()
+        recipes=RequestListOfUrls(request, "recipes", models.Recipes, validate_object=lambda o: o.user==request.user)
+        if all_args_are_not_none(recipes):
+            recipes_ids= [recipe.id for recipe in recipes]
+            models.RecipesLinks.objects.filter(recipes__in=recipes).update(recipes=main_recipe)
+            models.Elaborations.objects.filter(recipes__in=recipes).update(recipes=main_recipe)
+            models.Recipes.objects.filter(id__in=recipes_ids).delete()
+            recipes=models.Recipes.objects.get(pk=main_recipe.id)
+            return Response(serializers.RecipesSerializer(recipes, context={'request': request}).data, status=status.HTTP_200_OK)
+        return Response(_("Something was wrong with your merge urls"), status=status.HTTP_400_BAD_REQUEST)
 
 class RecipesCategoriesViewSet(CatalogModelViewSet):
     queryset = models.RecipesCategories.objects.all()
