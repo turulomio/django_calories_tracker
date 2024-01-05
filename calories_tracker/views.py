@@ -551,44 +551,48 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ],
     )
     def get_queryset(self):
+
+        return self.queryset.filter(user=self.request.user)
+    
+    def list(self, request):
         search=RequestString(self.request, 'search') 
         if all_args_are_not_none(search):
             if search==":SOON":
-                return self.queryset.filter(user=self.request.user, soon=True)
+                self.queryset= self.queryset.filter(user=self.request.user, soon=True)
             elif search==":GUESTS":
-                return self.queryset.filter(user=self.request.user, guests=True)
+                self.queryset= self.queryset.filter(user=self.request.user, guests=True)
             elif search==":VALORATION":
                 self.order_by="-valoration"
-                return self.queryset.filter(user=self.request.user, valoration__isnull=False)
+                self.queryset= self.queryset.filter(user=self.request.user, valoration__isnull=False)
             elif search==":WITH_ELABORATIONS":
                 recipes_ids=list(models.Elaborations.objects.filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
-                return self.queryset.filter(pk__in=recipes_ids, user=self.request.user)
+                self.queryset= self.queryset.filter(pk__in=recipes_ids, user=self.request.user)
             elif search.startswith(":WITHOUT_MAINPHOTO"):
                 recipes_with_photo_ids=list(models.RecipesLinks.objects.filter(type_id=models.eRecipeLink.MainPhoto).filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
-                return self.queryset.exclude(pk__in=recipes_with_photo_ids).filter(user=self.request.user)
+                self.queryset= self.queryset.exclude(pk__in=recipes_with_photo_ids).filter(user=self.request.user)
             elif search.startswith(":LAST"):
-                return self.queryset.filter(user=self.request.user)
+                self.queryset= self.queryset.filter(user=self.request.user)
             elif search.startswith(":INGREDIENTS "): #:INGREDIENTS 1, 2, 3, 4
                 try:
                     products_ids=commons.string2list_of_integers(search.replace(":INGREDIENTS ", ""), ",")
                     qs=self.queryset
                     for product_id in products_ids:
                         qs=qs.filter(elaborations__elaborationsproductsinthrough__products__id=product_id)
-                    return qs.distinct()
+                    self.queryset= qs.distinct()
                 except:
                     print("Error parsing ingredients")
-                    return self.queryset.none()
+                    self.queryset= self.queryset.none()
             else:
                 self.queryset.filter(user=self.request.user)
                 arr=search.split(" ")
                 for word in arr:
                     self.queryset=self.queryset.filter(name__icontains=word)
-                return self.queryset
-        return self.queryset.filter(user=self.request.user)
-    
-    def list(self, request):
+                self.queryset= self.queryset
+        
+        
+        
         order_by=vtabledata_options2orderby(self.request, "-last")
-        page = self.paginate_queryset(self.get_queryset().order_by(*order_by))
+        page = self.paginate_queryset(self.queryset.order_by(*order_by))
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
