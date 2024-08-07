@@ -195,12 +195,6 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
         }
         #Returns created elaborated product serialized
         return JsonResponse(r, status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=['POST'], name='It creates a PDF for this elaboration', url_path="generate_pdf", url_name='generate_pdf', permission_classes=[permissions.IsAuthenticated])
-    def generate_pdf(self, request, pk=None):
-        from calories_tracker.unogenerator_files import response_report_elaboration
-        elaboration = self.get_object()
-        return response_report_elaboration(request, elaboration)
         
     @action(detail=True, methods=['POST'], name='Create a new automatic elaboration', url_path="create_automatic_elaboration", url_name='create_automatic_elaboration', permission_classes=[permissions.IsAuthenticated])
     @transaction.atomic
@@ -798,8 +792,24 @@ def ShoppingList(request):
     for e in elaborations:
         if e.recipes.user!=request.user:
             return Response({"detail":"Some elaborations are not of current user"},  status=status.HTTP_400_BAD_REQUEST)
-    from calories_tracker.unogenerator_files import response_report_shopping_list
-    return response_report_shopping_list(request, elaborations)
+            
+        r={}
+        r["recipes"]=[]
+        for e in elaborations:
+            r["recipes"].append(e.fullname())
+            
+        ## Generate a dictionary with p as key
+        list={}
+        for e in elaborations:
+            for i in e.elaborationsproductsinthrough_set.all().select_related("products__companies", "measures_types"):
+                if not i.products in list:
+                    list[i.products]=0
+                list[i.products]=list[i.products]+i.final_grams()
+
+        r["shopping_list"]=[]
+        for k, v in list.items():            
+            r["shopping_list"].append({"grams": int(v), "product_fullname":k.fullname()})
+    return Response(r)
 
 
 @api_view(['GET', ])
