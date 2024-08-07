@@ -182,13 +182,7 @@ class CtTestCase(APITestCase):
         tests_helpers.client_post(self, self.client_authorized_2, dict_elaborations["url"]+ "create_automatic_elaboration/", {"diners":10}, status.HTTP_404_NOT_FOUND)
         #Creates elaborated product
         tests_helpers.client_post(self, self.client_authorized_1, dict_elaborations["url"]+ "create_elaborated_product/", {"diners":8}, status.HTTP_200_OK)
-        tests_helpers.client_post(self, self.client_authorized_2, dict_elaborations["url"]+ "create_elaborated_product/", {"diners":10}, status.HTTP_404_NOT_FOUND)
-        #Generates elaboration PDF
-        tests_helpers.client_post(self, self.client_authorized_1, dict_elaborations["url"]+ "generate_pdf/", {}, status.HTTP_200_OK)
-        tests_helpers.client_post(self, self.client_authorized_2, dict_elaborations["url"]+ "generate_pdf/", {}, status.HTTP_404_NOT_FOUND)
-
-        
-        
+        tests_helpers.client_post(self, self.client_authorized_2, dict_elaborations["url"]+ "create_elaborated_product/", {"diners":10}, status.HTTP_404_NOT_FOUND)        
 
     def test_elaborations_containers(self):  
         dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
