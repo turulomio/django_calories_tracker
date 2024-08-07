@@ -9,23 +9,22 @@ packages = [{include = "django_calories_tracker"}]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
-Django = ">=5.0.0"
-django-cors-headers = ">=4.3.0"
-djangorestframework = ">=3.14.0"
-django-simple-history = ">=3.4.0"
+Django = ">=5.0.8"
+django-cors-headers = ">=4.4.0"
+djangorestframework = ">=3.15.2"
+django-simple-history = ">=3.7.0"
 preview-generator = ">=0.29"
-pillow = ">=10.1.0"
-unogenerator = ">=0.40.0"
-drf-spectacular = ">=0.26.5"
-psycopg = ">=3.1.12"
-pydicts = ">=0.13.0"
+pillow = ">=10.4.0"
+drf-spectacular = ">=0.27.2"
+psycopg = ">=3.2.1"
+pydicts = ">=0.16.0"
 tabulate = ">=0.9.0"
-request-casting = ">=0.6.0"
+request-casting = ">=0.7.0"
 
 [tool.poetry.group.dev.dependencies]
-coverage = ">=7.3.2"
-poethepoet = ">=0.24.1"
-poetry = ">=1.6.1"
+coverage = ">=7.6.1"
+poethepoet = ">=0.27.0"
+poetry = ">=1.8.3"
 
 [build-system]
 requires = ["poetry-core"]
