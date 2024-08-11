@@ -6,3 +6,4 @@ dolt/
 django_calories_tracker/presettings.py
 doc/html/
 .coverage
+calories_tracker/static
