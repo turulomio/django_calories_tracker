@@ -159,6 +159,7 @@ makedirs(TMPDIR_REPORTS, exist_ok=True)
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+STATIC_ROOT = str(BASE_DIR) + "/calories_tracker/static/"
 STATIC_URL = '/static/'
 
 # Default primary key field type
