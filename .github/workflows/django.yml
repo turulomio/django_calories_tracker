@@ -1,0 +1,60 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "main", "128-valorate-to-remove-poe-for-github-and-settings-code" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install PL/Python in the PostgreSQL container (Old migrations)
+      run: |
+        # Version can change see in docker page wich is postgres:latest
+        docker exec ${{ job.services.postgres.id }} bash -c "apt-get update && apt-get install -y postgresql-plpython3-16"
+
+
+    - name: Create PL/Python Extension
+      run: |
+        docker exec ${{ job.services.postgres.id }} bash -c "PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE EXTENSION plpython3u;'"
+        docker exec ${{ job.services.postgres.id }} bash -c "PGPASSWORD=postgres createdb -h localhost -U postgres calories_tracker"
+
+
+    - name: Wait for PostgreSQL
+      run: |
+        until pg_isready -h localhost -p 5432; do
+          echo "Waiting for PostgreSQL to become ready..."
+          sleep 2
+        done
+
+    - name: Install python dependencies ${{ matrix.python-version }}
+      run: |
+        sudo apt-get install python3.11 python3.11-venv
+        sudo python3.11 -m venv .python3.11
+        sudo .python3.11/bin/pip install .
+
+    - name: Run Tests
+      run: |
+        sudo .python3.11/bin/python manage.py test
