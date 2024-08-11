@@ -51,4 +51,6 @@ jobs:
     - name: Run Tests
       run: |
         docker exec ${{ job.services.postgres.id }} bash -c "PGPASSWORD=postgres psql -l -h localhost -U postgres"
+        sudo .python3.11/bin/python manage.py migrate
         sudo .python3.11/bin/python manage.py test
+        
