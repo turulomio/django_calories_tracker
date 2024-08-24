@@ -363,11 +363,10 @@ class Products(models.Model):
     version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
     version= models.DateTimeField(auto_now_add=True)
     version_description=models.TextField(blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
-    
-    
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     elaborated_products= models.ForeignKey("ElaboratedProducts", models.DO_NOTHING, null=True, blank=True)
-    openfoodfacts_id=models.IntegerField(blank=True,  null=True)
+    openfoodfacts_id=models.CharField(max_length=20,  blank=True,  null=True)
+
 
     class Meta:
         managed = True
