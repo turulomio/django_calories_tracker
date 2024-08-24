@@ -1,15 +1,7 @@
-# There are system_companies, products_companies
-# Products have a reference to system_products. Can hava a reference to elaborated_products
+# There are companiess
+# Products have a reference to openfoodfacts_id. Can hava a reference to elaborated_products
 # Formats are for all products in a many to many relations
 # Meals and elaborated_products reference to products
-# If a product has a system_products reference, uses system_products data and sets all values to -1
-
-
-# La base de datos de system_Products se pone en dolthub y se sincroniza por github o por locals
-# Los nuevos system products se meten usango python manage dolt, desde catalogos. y luego se suben al github.
-# Si hubiera usuarios que aportan hay que valorar como poner las claves primarias
-
-#CAda vez que se crea un producto, se copia y se linka de system_products si existiera 
 
 from base64 import b64encode
 from calories_tracker import commons
@@ -295,50 +287,10 @@ class FoodTypes(models.Model):
             "name":  "Food type for testing", 
         }
 
-class SystemCompanies(models.Model):
-    name = models.TextField()
-    last = models.DateTimeField()
-    obsolete = models.BooleanField()
-
-    class Meta:
-        managed = True
-        db_table = 'system_companies'
-        
-    def __str__(self):
-        return self.name
-        
-        
-    @staticmethod
-    def post_payload():
-        return {
-            "name":  "System company for testing", 
-            "last": '2023-06-11T05:35:13.673203Z', 
-            "obsolete": False, 
-        }
-                
-    ## @param sp SystemProducts to link to Product
-    ## Solo debe usarse cuando se linke o se sepa que es un systemproduct
-    def update_linked_company(self, user):
-        #Search for system_productst in Products
-        qs=Companies.objects.filter(system_companies=self, user=user)
-        if len(qs)==0: # Product must be created
-            p=Companies()
-        else:
-            p=qs[0]
-            
-        p.name=self.name
-        p.last=self.last
-        p.obsolete=self.obsolete
-        p.system_companies=self
-        p.user=user
-        p.save()
-        return p
-
 class Companies(models.Model):
     name = models.TextField()
     last = models.DateTimeField(auto_now_add=True)
     obsolete = models.BooleanField()
-    system_companies = models.ForeignKey(SystemCompanies, on_delete=models.DO_NOTHING,  blank=True, null=True) # Can be none
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
     class Meta:
         managed = True
@@ -348,19 +300,12 @@ class Companies(models.Model):
         return self.name
                         
     @staticmethod
-    def post_payload(system_companies=False):
-        system_companies_value= None if system_companies is False else "http://testserver/api/system_companies/2/"
+    def post_payload():
         return {
             "last": '2023-06-11T05:35:13.673203Z', 
             "name": "Company for testing", 
             "obsolete": False, 
-            "system_companies": system_companies_value, 
         }
-
-    def is_editable(self):
-        if self.system_companies is None:
-            return True
-        return False
         
     def is_deletable(self):
         if self.uses()>0:
@@ -384,179 +329,6 @@ class Formats(models.Model):
             "name":  "Format for testing", 
         }
 
-class SystemProducts(models.Model):
-    name = models.TextField(blank=False, null=False)
-    
-    amount = models.DecimalField(max_digits=10, decimal_places=3, blank=False, null=False)
-    fat = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    protein = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    carbohydrate = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    calories = models.DecimalField(max_digits=10, decimal_places=3, blank=False, null=False)
-    salt = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    cholesterol = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    sodium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    potassium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    fiber = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    sugars = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    saturated_fat = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    ferrum = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    magnesium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    phosphor = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    glutenfree = models.BooleanField(blank=False, null=False)
-    calcium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    
-    system_companies = models.ForeignKey(SystemCompanies, models.DO_NOTHING, blank=True, null=True)
-    food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
-    additives = models.ManyToManyField(Additives, blank=True)
-    formats = models.ManyToManyField(Formats, through='SystemProductsFormatsThrough', blank=True)
-    density=models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
-    obsolete = models.BooleanField()
-    
-    version_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
-    version= models.DateTimeField()
-    version_description=models.TextField(blank=True, null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'system_products'
-
-    def __str__(self):
-        return self.fullname()
-        
-    def fullname(self):
-        company=""
-        if self.system_companies is not None:
-            company=f" ({self.system_companies.name})"
-        version_parent=""
-        if self.version_parent is not None:
-            version_parent=f" v{self.version.date()}"
-        return f"{_(self.name)}{company}{version_parent}"
-    def fullname_english(self):
-        company=""
-        if self.system_companies is not None:
-            company=f" ({self.system_companies.name})"
-        version_parent=""
-        if self.version_parent is not None:
-            version_parent=f" v{self.version.date()}"
-        return f"{self.name}{company}{version_parent}"
-
-    ## @param sp SystemProducts to link to Product
-    ## Solo debe usarse cuando se linke o se sepa que es un systemproduct
-    def update_linked_product(self, user):
-        #Search for system_productst in Products
-        qs=Products.objects.filter(system_products=self, user=user)
-        if len(qs)==0: # Product must be created
-            p=Products()
-        else:
-            p=qs[0]
-            
-        p.name=self.name
-        p.amount=self.amount
-        p.fat=self.fat
-        p.protein=self.protein
-        p.carbohydrate=self.carbohydrate
-        p.calories=self.calories
-        p.salt=self.salt
-        p.cholesterol=self.cholesterol
-        p.sodium=self.sodium
-        p.potassium=self.potassium
-        p.fiber=self.fiber
-        p.sugars=self.sugars
-        p.saturated_fat=self.saturated_fat
-        p.ferrum=self.ferrum
-        p.magnesium=self.magnesium
-        p.phosphor=self.phosphor
-        p.glutenfree=self.glutenfree
-        p.calcium=self.calcium
-        p.density=self.density
-        p.system_products=self
-        p.elaborated_products=None
-        p.food_types=self.food_types
-        p.obsolete=self.obsolete
-        if self.system_companies is not None:
-            p.companies=self.system_companies.update_linked_company(user)
-        if self.version_parent is not None:
-            p.version_parent=self.version_parent.update_linked_product(user)
-        p.version=self.version
-        p.version_description=self.version_description
-        p.user=user
-        p.save()
-
-        p.additives.set(self.additives.all())
-        p.save()
-        
-        ## Delete old formats
-        ProductsFormatsThrough.objects.filter(products=p).delete()
-        
-        ## Refresh system products formats
-        for f in self.formats.all():
-            spft=SystemProductsFormatsThrough.objects.get(system_products=self, formats=f)
-            th=ProductsFormatsThrough()
-            th.amount=spft.amount
-            th.formats=spft.formats
-            th.products=p
-            th.save()
-            
-        p.save()
-        return p
-        
-    @staticmethod
-    def post_payload():
-            return {
-            'additives': [], 
-            'amount': '5320.000', 
-            'calcium': '8551.000', 
-            'calories': '2190.000', 
-            'carbohydrate': '4137.000', 
-            'cholesterol': '2453.000', 
-            'system_companies': None, 
-            'elaborated_products': None, 
-            'fat': '1346.000', 
-            'ferrum': '9726.000', 
-            'fiber': '4615.000', 
-            'food_types': 'http://testserver/api/food_types/2/', 
-            'formats': [], 
-            'glutenfree': False, 
-            'magnesium': '2657.000', 
-            'name': 'System Product LfFcdY', 
-            'obsolete': False, 
-            'phosphor': '1095.000', 
-            'potassium': '2181.000', 
-            'protein': '1631.000', 
-            'salt': '7799.000', 
-            'saturated_fat': '527.000', 
-            'sodium': '8319.000', 
-            'sugars': '9859.000', 
-            'version': '2023-06-11T05:35:13.673203Z', 
-            'version_description': None, 
-            'version_parent': None, 
-            'density': '670.000'
-        }
-        
-    @staticmethod
-    def update_all_linked_products( user):
-        
-            ## Gets system_companies_id already in companies
-            system_products_ids_in_products=Products.objects.filter(user=user, system_products__isnull=False).values("system_products_id")
-            ## Filter by name and exclude already
-            qs=SystemProducts.objects.filter(id__in=system_products_ids_in_products)
-            for sp in qs:
-                sp.update_linked_product(user)
-                
-    def additives_risk(self):
-        r=0
-        for a in self.additives.all():
-            if a.additive_risks.id>r:
-                r=a.additive_risks.id
-                
-        return r
-
-class SystemProductsFormatsThrough(models.Model):
-    system_products = models.ForeignKey(SystemProducts, on_delete=models.DO_NOTHING)
-    formats = models.ForeignKey(Formats, on_delete=models.DO_NOTHING)
-    amount = models.DecimalField(max_digits=10, decimal_places=3)
-
-        
 class Products(models.Model):
     
     name = models.TextField()
@@ -580,8 +352,6 @@ class Products(models.Model):
     glutenfree = models.BooleanField(blank=False, null=False)
     calcium = models.DecimalField(max_digits=10, decimal_places=3, blank=True, null=True)
     
-    system_products= models.ForeignKey("SystemProducts", models.DO_NOTHING, null=True, blank=True)
-    elaborated_products= models.ForeignKey("ElaboratedProducts", models.DO_NOTHING, null=True, blank=True)
     
     food_types = models.ForeignKey(FoodTypes, models.DO_NOTHING)
     additives = models.ManyToManyField(Additives, blank=True, related_name="additives")
@@ -594,6 +364,10 @@ class Products(models.Model):
     version= models.DateTimeField(auto_now_add=True)
     version_description=models.TextField(blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING) 
+    
+    
+    elaborated_products= models.ForeignKey("ElaboratedProducts", models.DO_NOTHING, null=True, blank=True)
+    openfoodfacts_id=models.IntegerField(blank=True,  null=True)
 
     class Meta:
         managed = True
@@ -615,7 +389,6 @@ class Products(models.Model):
             'calories': '2190.000', 
             'carbohydrate': '4137.000', 
             'cholesterol': '2453.000', 
-            'system_companies': None, 
             'elaborated_products': None, 
             'fat': '1346.000', 
             'ferrum': '9726.000', 
@@ -678,12 +451,12 @@ class ProductsFormatsThrough(models.Model):
 
 
     def is_editable(self):
-        if self.products.system_products is None:
+        if self.products.openfoodfacts_id is None:
             return True
         return False
         
     def is_deletable(self):
-        if self.products.system_products is None:
+        if self.products.openfoodfacts_id is None:
             return True
         return False
 

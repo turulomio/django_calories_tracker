@@ -90,12 +90,11 @@ class BiometricsSerializer(serializers.HyperlinkedModelSerializer):
 
 class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
     is_deletable = serializers.SerializerMethodField()
-    is_editable = serializers.SerializerMethodField()
     uses=serializers.IntegerField(read_only=True)
 
     class Meta:
         model = models.Companies
-        fields = ('url', 'id', 'name', 'last', 'obsolete', 'system_companies', 'uses', 'is_deletable', 'is_editable')
+        fields = ('url', 'id', 'name', 'last', 'obsolete', 'uses', 'is_deletable')
         
     def create(self, validated_data):
         validated_data['user']=self.context.get("request").user
@@ -109,12 +108,6 @@ class CompaniesSerializer(serializers.HyperlinkedModelSerializer):
         if o.uses>0:
             return False
         return True
-
-    @extend_schema_field(OpenApiTypes.BOOL)
-    def get_is_editable(self, o):
-        if o.system_companies is None:
-            return True
-        return False
 
 class ElaboratedProductsProductsInThroughSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -248,7 +241,8 @@ class ElaboratedProductsSerializer(serializers.HyperlinkedModelSerializer):
     @extend_schema_field(OpenApiTypes.INT)
     def get_additives_risk(self, o):
         return o.additives_risk()
-    ## For common development with products and system_products
+
+    ## For common development with products 
     @extend_schema_field(OpenApiTypes.STR)
     def get_fullname(self, o):
         return o.name
@@ -439,7 +433,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Products
         fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 
             'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 
-            'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_products', 'version', 'version_description', 'version_parent', 
+            'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'version', 'version_description', 'version_parent', 
             'fullname', 'uses', 'is_editable', 'is_deletable', 'additives_risk','density'
         )
         
@@ -507,7 +501,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
 
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_editable(self, o):
-        if o.system_products is not None or o.elaborated_products is not None:
+        if o.elaborated_products is not None:
             return False
         return True
         
@@ -515,102 +509,6 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
     def get_additives_risk(self, o):
         return o.additives_risk()
 
-
-class SystemCompaniesSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = models.SystemCompanies
-        fields = ('url', 'id', 'name', 'last', 'obsolete')
-
-    def create(self, validated_data):
-        validated_data['last']=timezone.now()
-        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
-        created.save()
-        return created
-        
-         
-    def update(self, instance, validated_data):
-        validated_data['last']=timezone.now()
-        
-        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
-        updated.save()
-       
-        return updated
-        
-class SystemProductsFormatsThroughSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = models.SystemProductsFormatsThrough
-
-        fields = ('id','system_products',  'amount', 'formats' )
-        
-class SystemProductsSerializer(serializers.HyperlinkedModelSerializer):
-    system_company_name = serializers.SerializerMethodField()
-    formats= SystemProductsFormatsThroughSerializer(many=True, read_only=True, source="systemproductsformatsthrough_set")
-    fullname = serializers.SerializerMethodField()
-    fullname_english= serializers.SerializerMethodField()
-    additives_risk = serializers.SerializerMethodField()
-
-    class Meta:
-        model = models.SystemProducts
-        fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'system_companies', 'version', 'version_description', 'version_parent', 'system_company_name', 'fullname', 'additives_risk','density', 'fullname_english')
-    
-    def create(self, validated_data):
-        request=self.context.get("request")
-        validated_data['version']=timezone.now()
-        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
-        created.save()
-        for d in request.data["formats"]:
-            #Create all new
-            th=models.SystemProductsFormatsThrough()
-            th.amount=d["amount"]
-            th.formats=object_from_url(d["formats"], models.Formats)
-            th.system_products=created
-            th.save()
-        created.save()
-        #created.update_linked_product(request.user)
-        return created
-        
-         
-    def update(self, instance, validated_data):
-        request=self.context.get("request")
-        validated_data['version']=timezone.now()
-        
-        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
-        updated.save()
-        
-        #Delete all
-        qs=models.SystemProductsFormatsThrough.objects.filter(system_products=updated)
-        if len(qs)>0:
-            qs.delete()
-
-        #Create all new
-        for d in request.data["formats"]:
-            th=models.SystemProductsFormatsThrough()
-            th.amount=d["amount"]
-            th.formats=object_from_url(d["formats"], models.Formats)
-            th.system_products=updated
-            th.save()
-        updated.save()
-#        updated.update_linked_product(request.user)
-        
-        return updated
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_system_company_name(self, o):
-        if o.system_companies is None:
-            return None
-        return o.system_companies.name
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_fullname(self, o):
-        return o.fullname()
-        
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_fullname_english(self, o):
-        return o.fullname_english()
-
-    @extend_schema_field(OpenApiTypes.INT)
-    def get_additives_risk(self, o):
-        return o.additives_risk()
 
 class WeightWishesSerializer(serializers.HyperlinkedModelSerializer):
     localname = serializers.SerializerMethodField()

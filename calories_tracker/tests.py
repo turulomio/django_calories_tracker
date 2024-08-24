@@ -108,7 +108,6 @@ class CtTestCase(APITestCase):
 
     def test_companies(self):
         tests_helpers.common_tests_Private(self,  '/api/companies/', models.Companies.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-        tests_helpers.common_tests_Private(self,  '/api/companies/', models.Companies.post_payload(system_companies=True),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
 
     def test_curiosities(self):
         #Test empty database
@@ -250,82 +249,7 @@ class CtTestCase(APITestCase):
     
     def test_products(self):
         tests_helpers.common_tests_Private(self,  '/api/products/', models.Products.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-        
-        #Products to system products by self.client_authorized_1 is not allowed
-        dict_p=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
-        tests_helpers.client_post(self, self.client_authorized_1, f"{dict_p['url']}convert_to_system/", {}, status.HTTP_403_FORBIDDEN)
-        
-        #Only user with catalog_manager rol can convert a product to a system product
-        dict_p=tests_helpers.client_post(self, self.client_catalog_manager, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
-        self.assertEqual(dict_p["system_products"], None)
-        dict_conversion=tests_helpers.client_post(self, self.client_catalog_manager, f"{dict_p['url']}convert_to_system/", {}, status.HTTP_200_OK)
-        self.assertEqual(dict_p["url"], dict_conversion["product"]["url"])
-        self.assertEqual(dict_conversion["product"]["system_products"], dict_conversion["system_product"]["url"])
 
-    def test_system_companies(self):
-        """
-            Checks system product logic
-        """
-
-        tests_helpers.common_tests_PrivateEditableCatalog(self,  "/api/system_companies/", models.SystemCompanies.post_payload(), self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-                
-        #Creates a new system company
-        dict_sc=tests_helpers.client_post(self, self.client_catalog_manager, "/api/system_companies/", models.SystemCompanies.post_payload(), status.HTTP_201_CREATED)
-
-        #List of client_authorized_1 companies len must be 0
-        dict_all_p1=tests_helpers.client_get(self, self.client_authorized_1, "/api/companies/", status.HTTP_200_OK)
-        self.assertEqual(len(dict_all_p1), 0)
-
-        #Client_autenticated_1 creates a system company
-        tests_helpers.client_post(self, self.client_authorized_1, dict_sc["url"]+"create_company/", {},  status.HTTP_200_OK)
-
-        #Client_autenticated_2 creates a system company
-        tests_helpers.client_post(self, self.client_authorized_2, dict_sc["url"]+"create_company/", {} , status.HTTP_200_OK)
-        
-        #List of client_authorized_1 products len must be 1
-        dict_all_p1=tests_helpers.client_get(self, self.client_authorized_1, "/api/companies/", status.HTTP_200_OK)
-        self.assertEqual(len(dict_all_p1), 1)
-        
-        #List of client_authorized_2 products len must be 1
-        dict_all_p2=tests_helpers.client_get(self, self.client_authorized_2, "/api/companies/", status.HTTP_200_OK)
-        self.assertEqual(len(dict_all_p2), 1)
-        
-        #Search system companies
-        dict_found=tests_helpers.client_get(self, self.client_authorized_1, "/api/system_companies/?search=Hacendado", status.HTTP_200_OK)
-        self.assertEqual(len(dict_found),1 )
-        
-    def test_system_product(self):
-        """
-            Checks system product logic
-        """
-
-        tests_helpers.common_tests_PrivateEditableCatalog(self,  "/api/system_products/", models.SystemProducts.post_payload(), self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-                
-        #Creates a new system product
-        dict_sp=tests_helpers.client_post(self, self.client_catalog_manager, "/api/system_products/", models.SystemProducts.post_payload(), status.HTTP_201_CREATED)
-
-
-        #List of client_authorized_1 products len must be 0
-        dict_all_p1=tests_helpers.client_get(self, self.client_authorized_1, "/api/products/", status.HTTP_200_OK)
-        self.assertEqual(len(dict_all_p1), 0)
-
-        #Client_autenticated_1 creates a product
-        tests_helpers.client_post(self, self.client_authorized_1, dict_sp["url"]+"create_product/", {},  status.HTTP_200_OK)
-        
-        #Client_autenticated_2 creates a product
-        tests_helpers.client_post(self, self.client_authorized_2, dict_sp["url"]+"create_product/", {} , status.HTTP_200_OK)
-        
-        #List of client_authorized_1 products len must be 1
-        dict_all_p1=tests_helpers.client_get(self, self.client_authorized_1, "/api/products/", status.HTTP_200_OK)
-        self.assertEqual(len(dict_all_p1), 1)
-        
-        #List of client_authorized_2 products len must be 1
-        dict_all_p2=tests_helpers.client_get(self, self.client_authorized_2, "/api/products/", status.HTTP_200_OK)
-        self.assertEqual(len(dict_all_p2), 1)
-        
-        #Search system product
-        dict_found=tests_helpers.client_get(self, self.client_authorized_1, "/api/system_products/?search=Zucchini", status.HTTP_200_OK)
-        self.assertEqual(len(dict_found),1 )
 
     @tag("current")
     def test_recipes(self):
