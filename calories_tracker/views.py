@@ -90,7 +90,7 @@ class BiometricsViewSet(viewsets.ModelViewSet):
         return models.Biometrics.objects.select_related("user").select_related("user__profiles").select_related("activities").filter(user=self.request.user).order_by("datetime")
 
 class CompaniesViewSet(viewsets.ModelViewSet):
-    queryset = models.Companies.objects.select_related("system_companies").all()
+    queryset = models.Companies.objects.all()
     serializer_class = serializers.CompaniesSerializer
     permission_classes = [permissions.IsAuthenticated]
     def get_queryset(self):
@@ -383,95 +383,19 @@ class PotsViewSet(viewsets.ModelViewSet):
             instance.photo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-
-
 class ProductsViewSet(viewsets.ModelViewSet):
     queryset = models.Products.objects.all()
     serializer_class = serializers.ProductsSerializer
     permission_classes = [permissions.IsAuthenticated]      
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)\
-            .select_related("companies","system_products", "elaborated_products", )\
+            .select_related("companies",  "elaborated_products", )\
             .prefetch_related("additives", "additives__additive_risks","productsformatsthrough_set")\
             .annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True) + Count("elaborationsproductsinthrough", distinct=True)).order_by("name")
     def list(self, request):
         r=viewsets.ModelViewSet.list(self, request)
         show_queries_function()
         return r
-        
-
-    @transaction.atomic
-    @action(detail=True, methods=['POST'], name='Converts a product into a system product, linking it to a new system product', url_path="convert_to_system", url_name='convert_to_system', permission_classes=[permissions.IsAuthenticated, GroupCatalogManager])
-    def convert_to_system(self, request, pk=None):
-        product=self.get_object()
-        if all_args_are_not_none(product):
-            if product.system_products is not None or product.elaborated_products is not None:
-                return Response( "This product can't be converted to system product", status=status.HTTP_400_BAD_REQUEST)
-            sp=models.SystemProducts()
-            sp.name=product.name
-            sp.amount=product.amount
-            sp.fat=product.fat
-            sp.protein=product.protein
-            sp.carbohydrate=product.carbohydrate
-            sp.calories=product.calories
-            sp.salt=product.salt
-            sp.cholesterol=product.cholesterol
-            sp.sodium=product.sodium
-            sp.potassium=product.potassium
-            sp.fiber=product.fiber
-            sp.sugars=product.sugars
-            sp.saturated_fat=product.saturated_fat
-            sp.ferrum=product.ferrum
-            sp.magnesium=product.magnesium
-            sp.phosphor=product.phosphor
-            sp.glutenfree=product.glutenfree
-            sp.calcium=product.calcium
-            sp.food_types=product.food_types
-            sp.obsolete=product.obsolete
-            sp.version=timezone.now()
-            
-            #System company
-            if product.companies==None:
-                sp.system_companies=None
-            else:
-                if product.companies.system_companies is None: #El producto no tiene una companía del sistema
-                    sc=models.SystemCompanies()
-                    sc.name=product.companies.name
-                    sc.last=timezone.now()
-                    sc.obsolete=False
-                    sc.save()
-                else:
-                    sc=product.companies.system_companies
-                sp.system_companies=sc
-            sp.save()
-            
-            #Additives
-            sp.additives.set(product.additives.all())
-            sp.save()
-            #Systemproductsformats
-                    
-            ## Refresh system products formats
-            for f in product.productsformatsthrough_set.all():
-                spft=models.SystemProductsFormatsThrough()
-                spft.amount=f.amount
-                spft.formats=f.formats
-                spft.system_products=sp
-                spft.save()
-            sp.save()
-                
-            product.system_products=sp
-            product.save()
-
-
-            r={
-                "product": serializers.ProductsSerializer(product, context={'request': request}).data, 
-                "system_product":serializers.SystemProductsSerializer(sp, context={'request': request}).data, 
-                "detail":"Product converted to system product"
-            }
-            return Response(r,  status=status.HTTP_200_OK)
-        return Response("Product couldn't be converted to system product",  status=status.HTTP_400_BAD_REQUEST)
-
 
     @action(detail=True, methods=['GET'], name='Returns data from both products to valorate a data transfer', url_path="get_data_transfer", url_name='get_data_transfer', permission_classes=[permissions.IsAuthenticated])
     def get_data_transfer(self, request, pk=None):
@@ -672,7 +596,6 @@ def Settings(request):
             <tr><td>last_name <span class="label label-warning">required</span></td><td>String</td><td>User last name</td></tr>
             <tr><td>first_name <span class="label label-warning">required</span></td><td>String</td><td>User first name</td></tr>
             <tr><td>email <span class="label label-warning">required</span></td><td>String</td><td>User email</td></tr>
-            <tr><td>system_companies <span class="label label-warning">required</span></td><td>SystemCompany url</td><td>System company to create and link a company</td></tr>
 
         </tbody>
         </table>
@@ -758,15 +681,12 @@ def Statistics(request):
         (_("Additives"), models.Additives), 
         (_("Biometrics"), models.Biometrics), 
         (_("Companies"), models.Companies), 
-        (_("System companies"), models.SystemCompanies), 
         (_("Elaborated products"),  models.ElaboratedProducts), 
         (_("Elaborations"),  models.Elaborations), 
         (_("Food types"),  models.FoodTypes), 
         (_("Meals"),  models.Meals), 
         (_("Products"),  models.Products), 
         (_("Recipes"),  models.Recipes), 
-        (_("System companies"), models.SystemCompanies), 
-        (_("System products"),  models.SystemProducts), 
     ):
         r.append({"name": name, "value":cls.objects.all().count()})
     return JsonResponse(r, safe=False)
