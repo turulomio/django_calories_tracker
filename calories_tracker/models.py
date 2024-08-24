@@ -367,7 +367,7 @@ class Products(models.Model):
     
     
     elaborated_products= models.ForeignKey("ElaboratedProducts", models.DO_NOTHING, null=True, blank=True)
-    openfoodfacts_id=models.IntegerField(blank=True,  null=True)
+    openfoodfacts_id=models.CharField(max_length=20,  blank=True,  null=True)
 
     class Meta:
         managed = True
