@@ -433,7 +433,7 @@ class ProductsSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Products
         fields = ('url', 'id', 'additives', 'amount', 'calcium', 'calories','carbohydrate', 'cholesterol', 'companies', 'elaborated_products', 
             'fat', 'ferrum', 'fiber', 'food_types', 'formats', 'glutenfree', 'magnesium', 'name', 'obsolete', 'phosphor', 'potassium', 
-            'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'version', 'version_description', 'version_parent', 
+            'protein', 'salt', 'saturated_fat', 'sodium', 'sugars', 'version', 'version_description', 'version_parent', 'openfoodfacts_id', 
             'fullname', 'uses', 'is_editable', 'is_deletable', 'additives_risk','density'
         )
         
