@@ -1,8 +1,8 @@
 {
   "header": {
     "comment": "eric project file for project django_calories_tracker",
-    "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-12-28, 13:55:48"
+    "copyright": "Copyright (C) 2024 , ",
+    "saved": "2024-08-27, 08:21:20"
   },
   "project": {
     "AUTHOR": "",
@@ -127,6 +127,7 @@
       "calories_tracker/migrations/0043_elaborationsproductsinthrough_automatic_parent.py",
       "calories_tracker/migrations/0044_remove_elaboratedproducts_recipes_and_more.py",
       "calories_tracker/migrations/0045_alter_elaboratedproducts_comment.py",
+      "calories_tracker/migrations/0046_remove_systemproducts_system_companies_and_more.py",
       "calories_tracker/migrations/__init__.py",
       "calories_tracker/models.py",
       "calories_tracker/paginators.py",
@@ -138,11 +139,9 @@
       "calories_tracker/reusing/factory_helpers.py",
       "calories_tracker/reusing/file_functions.py",
       "calories_tracker/reusing/github.py",
-      "calories_tracker/reusing/libmanagers.py",
       "calories_tracker/serializers.py",
       "calories_tracker/tests.py",
       "calories_tracker/tests_helpers.py",
-      "calories_tracker/unogenerator_files.py",
       "calories_tracker/views.py",
       "calories_tracker/views_login.py",
       "django_calories_tracker/__init__.py",
