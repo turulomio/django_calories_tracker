@@ -4,8 +4,9 @@ from calories_tracker.reusing.decorators import ptimeit
 from pydicts.casts import dtaware2str
 from calories_tracker.paginators import PagePaginationWithTotalPages, vtabledata_options2orderby
 from calories_tracker.permissions import GroupCatalogManager
-from request_casting.request_casting import all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListOfUrls, RequestInteger
+from request_casting.request_casting import all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListOfUrls, RequestInteger, RequestDtaware
 from pydicts.myjsonencoder import MyJSONEncoderDecimalsAsFloat
+from dateutil.rrule import rrule, DAILY
 from decimal import Decimal
 from django.db import transaction
 from django.db.models import Count, Min, Prefetch, Sum
@@ -363,6 +364,46 @@ class PillEventsViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+    
+
+    @action(detail=False, methods=['POST'], name='Set pillevents each day at an hour', url_path="set_each_day", url_name='set_each_day', permission_classes=[permissions.IsAuthenticated, ])
+    @transaction.atomic
+    def set_each_day(self, request, pk=None):
+        """
+            It uses hour from dt_from to set hour each day
+        """
+        pillname=RequestString(request, "pillname")
+        dt_from=RequestDtaware(request,  "dt_from", models.get_profile(request.user).get_timezone())
+        days=RequestInteger(request,  "days")
+    
+        if all_args_are_not_none(pillname, dt_from, days):
+            r=[]
+            for dt in rrule(DAILY, dtstart=dt_from, count=days):
+                pe=models.PillEvents()
+                pe.user=request.user
+                pe.pillname=pillname
+                pe.dt=dt
+                pe.dt_intake=None
+                pe.save()
+                r.append(pe)
+            return Response(serializers.PillEventsSerializer(r, many=True,  context={'request': request}).data, status=status.HTTP_200_OK)
+        else:
+            return Response(_("Something was wrong setting pill events each day"), status=status.HTTP_400_BAD_REQUEST)
+            
+    @action(detail=False, methods=['POST'], name='Deletes pillevents from a pillname and a datetime', url_path="delete_from_dt", url_name='delete_from_dt', permission_classes=[permissions.IsAuthenticated, ])
+    def delete_from_dt(self, request, pk=None):
+        """
+            It uses hour from dt_from to set hour each day
+        """
+        pillname=RequestString(request, "pillname")
+        dt_from=RequestDtaware(request,  "dt_from", models.get_profile(request.user).get_timezone())
+    
+        if all_args_are_not_none(pillname, dt_from):
+            deleted=models.PillEvents.objects.filter(user=request.user, pillname=pillname,  dt__gte=dt_from).delete()
+            return Response(deleted, status=status.HTTP_200_OK)
+        else:
+            return Response(_("Something was wrong deleting pill events from dt"), status=status.HTTP_400_BAD_REQUEST)
+    
     
     
 @extend_schema_view(

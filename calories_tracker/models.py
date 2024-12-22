@@ -670,6 +670,9 @@ class Profiles(models.Model):
 
     def age(self):
         return (date.today() - self.birthday) // timedelta(days=365.2425)
+    
+    def get_timezone(self):
+        return "Europe/Madrid"
         
     
 class RecipesCategories(models.Model):
