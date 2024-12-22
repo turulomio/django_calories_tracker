@@ -606,6 +606,23 @@ class Meals(models.Model):
             return None
         return self.amount*component/self.products.amount
         
+class PillEventsStatus(models.Model):
+    name = models.TextField( blank=False, null=False)
+
+    class Meta:
+        managed = True
+        db_table = 'pill_events_status'
+
+class PillEvents(models.Model):
+    pillname = models.TextField( blank=False, null=False)
+    dt=models.DateTimeField(blank=False, null=False)
+    dt_take=models.DateTimeField(blank=True, null=True)
+    status=models.ForeignKey("PillEventsStatus", on_delete=models.DO_NOTHING, blank=False, null=False) 
+
+    class Meta:
+        managed = True
+        db_table = 'pill_events'        
+
 ## Pots and pans
 class Pots(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=False, null=False)
