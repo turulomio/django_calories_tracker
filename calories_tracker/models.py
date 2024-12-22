@@ -619,6 +619,14 @@ class PillEvents(models.Model):
         
     def is_taken(self):
         return not self.dt_intake==None
+        
+    @staticmethod
+    def post_payload():
+        return {
+            "pillname": 'Pill name', 
+            "dt": datetime.now(),
+            "dt_intake": None,  
+        }
 
 ## Pots and pans
 class Pots(models.Model):

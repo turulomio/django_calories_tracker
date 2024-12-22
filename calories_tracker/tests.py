@@ -244,6 +244,10 @@ class CtTestCase(APITestCase):
     def test_measures_types(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/measures_types/', models.MeasuresTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
                 
+    @tag("current")
+    def test_pill_events(self):
+        tests_helpers.common_tests_Private(self,  '/api/pill_events/', models.PillEvents.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
+        
     def test_pots(self):
         tests_helpers.common_tests_Private(self,  '/api/pots/', models.Pots.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
     
@@ -251,7 +255,6 @@ class CtTestCase(APITestCase):
         tests_helpers.common_tests_Private(self,  '/api/products/', models.Products.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
 
 
-    @tag("current")
     def test_recipes(self):
         tests_helpers.common_tests_Private(self,  '/api/recipes/', models.Recipes.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
 
