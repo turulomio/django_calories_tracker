@@ -35,7 +35,6 @@ class Command(BaseCommand):
             "calories_tracker.foodtypes", 
             "calories_tracker.formats", 
             "calories_tracker.measurestypes", 
-            "calories_tracker.pilleventsstatus", 
             "calories_tracker.recipescategories", 
             "calories_tracker.recipeslinkstypes", 
             "calories_tracker.weightwishes", 
