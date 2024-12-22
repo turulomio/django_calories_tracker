@@ -363,6 +363,18 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
     def get_glutenfree(self, o):
         return o.products.glutenfree
     
+class PillEventsSerializer(serializers.HyperlinkedModelSerializer):
+    is_taken= serializers.SerializerMethodField()
+    volume = serializers.SerializerMethodField()
+    photo=FilesSerializer(read_only=True)
+    class Meta:
+        model = models.Pots
+        fields = ('url', 'id', 'pillname', 'dt', 'dt_intake', 'is_taken')
+    
+    @extend_schema_field(OpenApiTypes.BOOL)
+    def get_is_taken(self, obj):
+        return  obj.is_taken()
+
 class PotsSerializer(serializers.HyperlinkedModelSerializer):
     fullname = serializers.SerializerMethodField()
     volume = serializers.SerializerMethodField()

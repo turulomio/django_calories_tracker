@@ -356,6 +356,15 @@ class MealsViewSet(viewsets.ModelViewSet):
         lod.lod_remove_key(lod_, "products__id")
         return JsonResponse(lod_, safe=False)
         
+class PillEventsViewSet(viewsets.ModelViewSet):
+    queryset = models.PillEvents.objects.all()
+    serializer_class = serializers.PillEventsSerializer
+    permission_classes = [permissions.IsAuthenticated]      
+    
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+    
+    
 @extend_schema_view(
     list=extend_schema(
         description="The list action returns all available actions."
