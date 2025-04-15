@@ -1,13 +1,13 @@
-[tool.poetry]
+[project]
 name = "django-calories-tracker"
 version = "0.2.0"
 description = "Migration of caloriestracker project to vue"
-authors = ["turulomio <turulomio@yahoo.es>"]
+authors = [{name="Turulomio", email = "turulomio@yahoo.es"}]
 license = "GPL-3"
 readme = "README.md"
 packages = [{include = "django_calories_tracker"}]
 
-[tool.poetry.dependencies]
+[poetry.dependencies]
 python = ">=3.11,<4.0"
 Django = ">=5.1.4"
 django-cors-headers = ">=4.6.0"
@@ -23,8 +23,9 @@ request-casting = ">=0.7.0"
 humanize = "^4.11.0"
 tqdm = "^4.67.1"
 python-dateutil = "^2.9.0.post0"
+poetry = "^2.0.0"
 
-[tool.poetry.group.dev.dependencies]
+[poetry.group.dev.dependencies]
 coverage = ">=7.6.9"
 poethepoet = ">=0.31.1"
 poetry = ">=1.8.5"
