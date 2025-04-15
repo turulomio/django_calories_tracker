@@ -365,6 +365,15 @@ class PillEventsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
     
+    def list(self, request):
+        year=RequestInteger(self.request, 'year') 
+        month=RequestInteger(self.request, 'month') 
+        if all_args_are_not_none(year, month):
+            queryset= self.get_queryset().filter(dt__year=year, dt__month=month)
+            serializer=self.get_serializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(_("You need to set year and month parameters"), status=status.HTTP_400_BAD_REQUEST)
+    
 
     @action(detail=False, methods=['POST'], name='Set pillevents each day at an hour', url_path="set_each_day", url_name='set_each_day', permission_classes=[permissions.IsAuthenticated, ])
     @transaction.atomic
@@ -390,7 +399,7 @@ class PillEventsViewSet(viewsets.ModelViewSet):
         else:
             return Response(_("Something was wrong setting pill events each day"), status=status.HTTP_400_BAD_REQUEST)
             
-    @action(detail=False, methods=['POST'], name='Set pillevents each day at an hour', url_path="set_each_n_hours", url_name='set_each_n_hours', permission_classes=[permissions.IsAuthenticated, ])
+    @action(detail=False, methods=['POST'], name='Set pillevents each n hours', url_path="set_each_n_hours", url_name='set_each_n_hours', permission_classes=[permissions.IsAuthenticated, ])
     @transaction.atomic
     def set_each_n_hours(self, request, pk=None):
         """
