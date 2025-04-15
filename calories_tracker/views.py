@@ -341,21 +341,20 @@ class MealsViewSet(viewsets.ModelViewSet):
             return Response({"detail":'Meals.delete_several success'}, status=status.HTTP_200_OK)
         return Response({"detail": 'Meals.delete_several failure'}, status=status.HTTP_400_BAD_REQUEST)
 
+
     @action(detail=False, methods=["get"], name='Shows user meals ranking', url_path="ranking", url_name='ranking', permission_classes=[permissions.IsAuthenticated])
     def ranking(self, request):
         from_date=RequestDate(request, "from_date")
         qs_meals=models.Meals.objects.select_related("products").filter(user=request.user)
         if from_date is not None:
             qs_meals=qs_meals.filter(datetime__date__gte=from_date)
-        dict_meals_by_day_amount={}
-        for m in qs_meals:
-            dict_meals_by_day_amount[m.products.id]=dict_meals_by_day_amount.get(m.products.id, 0)+m.amount
-        
+
         lod_=list(qs_meals.values("products__id").annotate(amount=Sum("amount")).order_by("-amount"))
         lod.lod_calculate(lod_, "products",  lambda d, index: models.Products.hurl(request, d["products__id"]))
         lod.lod_calculate(lod_, "ranking",  lambda d, index: index+1)
         lod.lod_remove_key(lod_, "products__id")
-        return JsonResponse(lod_, safe=False)
+
+        return Response(lod_, status=status.HTTP_200_OK)
         
 class PillEventsViewSet(viewsets.ModelViewSet):
     queryset = models.PillEvents.objects.all()
@@ -436,7 +435,6 @@ class PillEventsViewSet(viewsets.ModelViewSet):
             return Response(deleted, status=status.HTTP_200_OK)
         else:
             return Response(_("Something was wrong deleting pill events from dt"), status=status.HTTP_400_BAD_REQUEST)
-    
     
     
 @extend_schema_view(
