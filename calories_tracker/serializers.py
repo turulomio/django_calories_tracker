@@ -363,6 +363,29 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
     def get_glutenfree(self, o):
         return o.products.glutenfree
     
+class PillEventsSerializer(serializers.HyperlinkedModelSerializer):
+    is_taken= serializers.SerializerMethodField()
+    class Meta:
+        model = models.PillEvents
+        fields = ('url', 'id', 'pillname', 'dt', 'dt_intake', 'is_taken')
+    
+    @extend_schema_field(OpenApiTypes.BOOL)
+    def get_is_taken(self, obj):
+        return  obj.is_taken()
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        validated_data['user']=request.user
+        created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
+        return created
+        
+         
+    def update(self, instance, validated_data):
+        validated_data['user']=instance.user
+        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+        return updated
+
+
 class PotsSerializer(serializers.HyperlinkedModelSerializer):
     fullname = serializers.SerializerMethodField()
     volume = serializers.SerializerMethodField()

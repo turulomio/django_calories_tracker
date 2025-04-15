@@ -605,7 +605,29 @@ class Meals(models.Model):
         if component is None or self.products.amount==0:
             return None
         return self.amount*component/self.products.amount
+
+
+class PillEvents(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=False, null=False)
+    pillname = models.TextField( blank=False, null=False)
+    dt=models.DateTimeField(blank=False, null=False)
+    dt_intake=models.DateTimeField(blank=True, null=True)#If not null pill has been taken, else is pending
+
+    class Meta:
+        managed = True
+        db_table = 'pill_events'        
         
+    def is_taken(self):
+        return not self.dt_intake==None
+        
+    @staticmethod
+    def post_payload():
+        return {
+            "pillname": 'Pill name', 
+            "dt": datetime.now(),
+            "dt_intake": None,  
+        }
+
 ## Pots and pans
 class Pots(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=False, null=False)
@@ -648,6 +670,9 @@ class Profiles(models.Model):
 
     def age(self):
         return (date.today() - self.birthday) // timedelta(days=365.2425)
+    
+    def get_timezone(self):
+        return "Europe/Madrid"
         
     
 class RecipesCategories(models.Model):
