@@ -2,36 +2,39 @@
 name = "django-calories-tracker"
 version = "0.2.0"
 description = "Migration of caloriestracker project to vue"
-authors = [{name="Turulomio", email = "turulomio@yahoo.es"}]
-license = "GPL-3"
+authors = [
+    {name = "turulomio",email = "turulomio@yahoo.es"}
+]
+license = {text = "GPL-3.0-only"}
 readme = "README.md"
-packages = [{include = "django_calories_tracker"}]
+requires-python = ">=3.12,<4"
+dependencies = [
+    "Django >=5.2",
+    "django-cors-headers >=4.7.0",
+    "djangorestframework >=3.16.0",
+    "django-simple-history >=3.8.0",
+    "preview-generator >=0.29",
+    "pillow >=11.0.0",
+    "drf-spectacular >=0.28.0",
+    "psycopg >=3.2.6",
+    "pydicts >=1.0.0",
+    "tabulate >=0.9.0",
+    "request-casting >=0.7.0",
+    "humanize >=4.12.2",
+    "tqdm >=4.67.1",
+    "python-dateutil >=2.9.0.post0"
 
-[poetry.dependencies]
-python = ">=3.11,<4.0"
-Django = ">=5.2"
-django-cors-headers = ">=4.7.0"
-djangorestframework = ">=3.16.0"
-django-simple-history = ">=3.8.0"
-preview-generator = ">=0.29"
-pillow = ">=11.0.0"
-drf-spectacular = ">=0.28.0"
-psycopg = ">=3.2.6"
-pydicts = ">=1.0.0"
-tabulate = ">=0.9.0"
-request-casting = ">=0.7.0"
-humanize = "^4.12.2"
-tqdm = "^4.67.1"
-python-dateutil = "^2.9.0.post0"
+]
 
-[poetry.group.dev.dependencies]
-coverage = ">=7.8.0"
-poethepoet = ">=0.33.1"
-poetry = ">=2.1.2"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+poetry = "^2.1.2"
+poethepoet = "^0.33.1"
+coverage = ">=7.6.0"
 
 [tool.poe.tasks]
 reusing = { script = "calories_tracker.poethepoet:reusing" }
@@ -41,3 +44,4 @@ cypress_test_server = { script = "calories_tracker.poethepoet:cypress_test_serve
 homepage = "https://github.com/turulomio/django_calories_tracker/"
 repository = "https://github.com/turulomio/django_calories_tracker/"
 changelog = "https://github.com/turulomio/django_calories_tracker#changelog"
+
