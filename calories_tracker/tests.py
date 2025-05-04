@@ -12,7 +12,7 @@ from django.contrib.auth.models import Group
 
 tag, models
 
-class CtTestCase(APITestCase):
+class CtTestAPI(APITestCase):
     fixtures=["all.json"] #Para cargar datos por defecto
 
     @classmethod
@@ -363,4 +363,3 @@ class CtTestCase(APITestCase):
 
     def test_weight_wishes(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/weight_wishes/', models.WeightWishes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-                
