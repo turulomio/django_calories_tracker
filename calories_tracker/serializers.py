@@ -363,11 +363,16 @@ class MealsSerializer(serializers.HyperlinkedModelSerializer):
     def get_glutenfree(self, o):
         return o.products.glutenfree
     
+
+
+
+
+
 class PillEventsSerializer(serializers.HyperlinkedModelSerializer):
     is_taken= serializers.SerializerMethodField()
     class Meta:
         model = models.PillEvents
-        fields = ('url', 'id', 'pillname', 'dt', 'dt_intake', 'is_taken')
+        fields = ('url', 'id', 'pillname', 'dt', 'dt_intake', 'highlite_late', 'is_taken')
     
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_taken(self, obj):
