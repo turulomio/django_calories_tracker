@@ -372,7 +372,7 @@ class PillEventsSerializer(serializers.HyperlinkedModelSerializer):
     is_taken= serializers.SerializerMethodField()
     class Meta:
         model = models.PillEvents
-        fields = ('url', 'id', 'pillname', 'dt', 'dt_intake', 'highlite_late', 'is_taken')
+        fields = ('url', 'id', 'pillname', 'dt', 'dt_intake', 'highlight_late', 'is_taken')
     
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_taken(self, obj):

@@ -612,7 +612,7 @@ class PillEvents(models.Model):
     pillname = models.TextField( blank=False, null=False)
     dt=models.DateTimeField(blank=False, null=False)
     dt_intake=models.DateTimeField(blank=True, null=True)#If not null pill has been taken, else is pending
-    highlite_late=models.BooleanField(blank=False, null=False, default=False, db_comment="Highlite pill was taken late")#With this boolean I can show this pillevent in dt_intake instead of dt
+    highlight_late=models.BooleanField(blank=False, null=False, default=False, db_comment="Highlite pill was taken late")#With this boolean I can show this pillevent in dt_intake instead of dt
 
     class Meta:
         managed = True
@@ -627,7 +627,7 @@ class PillEvents(models.Model):
             "pillname": 'Pill name', 
             "dt": datetime.now(),
             "dt_intake": None, 
-            "hightlite_late": False, 
+            "highlight_late": False, 
         }
 
 
