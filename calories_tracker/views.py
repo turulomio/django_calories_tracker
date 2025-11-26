@@ -623,7 +623,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return Response(_("You should not pass the recipe that will remain in the list of recipes to be merged"), status=status.HTTP_400_BAD_REQUEST)
             models.RecipesLinks.objects.filter(recipes__in=recipes).update(recipes=main_recipe)
             models.Elaborations.objects.filter(recipes__in=recipes).update(recipes=main_recipe)
-            models.Recipes.objects.filter(id__in=recipes).delete()
+            models.Recipes.objects.filter(id__in=[recipe.id for recipe in recipes]).delete()
             recipes=models.Recipes.objects.get(pk=main_recipe.id)
             return Response(serializers.RecipesSerializer(recipes, context={'request': request}).data, status=status.HTTP_200_OK)
         return Response(_("Something was wrong with your merge urls"), status=status.HTTP_400_BAD_REQUEST)
@@ -872,3 +872,5 @@ def Curiosities(request):
         })
         
     return JsonResponse(r, safe=False)
+
+
