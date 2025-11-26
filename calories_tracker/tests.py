@@ -303,6 +303,9 @@ class CtTestAPI(APITestCase):
         tests_helpers.client_post(self, self.client_authorized_1,  "/api/recipes_links/", models.RecipesLinks.post_payload(recipes=dict_recipe_2["url"]),  status.HTTP_201_CREATED)
         tests_helpers.client_post(self, self.client_authorized_1,  "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipe_2["url"]),  status.HTTP_201_CREATED)
 
+        # Merge with main recipe on list
+        dict_merged=tests_helpers.client_post(self, self.client_authorized_1, dict_recipe_main["url"]+"merge/", {"recipes":[dict_recipe_1["url"], dict_recipe_2["url"], dict_recipe_main["url"]]},  status.HTTP_400_BAD_REQUEST)
+        # Merge without main recipe on list
         dict_merged=tests_helpers.client_post(self, self.client_authorized_1, dict_recipe_main["url"]+"merge/", {"recipes":[dict_recipe_1["url"], dict_recipe_2["url"]]},  status.HTTP_200_OK)
         ## Checks that have 2 elaborations and recipes_links
         self.assertEqual(len(dict_merged["elaborations"]), 2)
