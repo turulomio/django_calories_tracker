@@ -2,7 +2,7 @@ name: Django CI
 
 on:
   push:
-    branches: [ "main", "22-implement-github-actions" ]
+    branches: [ "main", "42-github-action-is-not-working" ]
   pull_request:
     branches: [ "main" ]
 
@@ -25,10 +25,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Python 3.11
+    - name: Set up Python
       uses: actions/setup-python@v4
-      with:
-        python-version: 3.11
 
     - name: Creating calories_tracker database
       run: |
@@ -42,12 +40,14 @@ jobs:
           sleep 2
         done
 
-    - name: Install python dependencies ${{ matrix.python-version }} and other packages
+    - name: Install system and Python dependencies
       run: |
-        sudo apt-get install python3.11 python3.11-venv exiftool
-        sudo python3.11 -m venv .python3.11
-        sudo .python3.11/bin/pip install .
+        sudo apt-get update && sudo apt-get install -y exiftool
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install .
 
     - name: Run Tests
       run: |
-        sudo .python3.11/bin/python manage.py test
+        source .venv/bin/activate
+        python manage.py test
