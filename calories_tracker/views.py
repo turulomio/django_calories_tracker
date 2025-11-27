@@ -619,10 +619,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
         main_recipe=self.get_object()
         recipes=RequestListOfUrls(request, "recipes", models.Recipes, validate_object=lambda o: o.user==request.user)
         if all_args_are_not_none(recipes):
-            recipes_ids= [recipe.id for recipe in recipes]
+            if main_recipe in recipes:
+                return Response(_("You should not pass the recipe that will remain in the list of recipes to be merged"), status=status.HTTP_400_BAD_REQUEST)
             models.RecipesLinks.objects.filter(recipes__in=recipes).update(recipes=main_recipe)
             models.Elaborations.objects.filter(recipes__in=recipes).update(recipes=main_recipe)
-            models.Recipes.objects.filter(id__in=recipes_ids).delete()
+            models.Recipes.objects.filter(id__in=[recipe.id for recipe in recipes]).delete()
             recipes=models.Recipes.objects.get(pk=main_recipe.id)
             return Response(serializers.RecipesSerializer(recipes, context={'request': request}).data, status=status.HTTP_200_OK)
         return Response(_("Something was wrong with your merge urls"), status=status.HTTP_400_BAD_REQUEST)
