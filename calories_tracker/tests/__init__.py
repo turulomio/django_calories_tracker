@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase
+from calories_tracker.tests.tests_dinamic_methods import add_method_to_this_class_dinamically
 
 class CaloriesTrackerAPITestCase(APITestCase):
     """
@@ -9,12 +10,18 @@ class CaloriesTrackerAPITestCase(APITestCase):
     fixtures = ["all.json","test_users.json"]
     _setup_done = False
 
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs )   
+        # add_methodtypes_to_this_object_dinamically(self)
+
     @classmethod
     def setUpClass(cls):
         """
         Set up non-database specific resources once for all test classes.
         """
         super().setUpClass()
+
         if CaloriesTrackerAPITestCase._setup_done:
             return
 
@@ -39,3 +46,4 @@ class CaloriesTrackerAPITestCase(APITestCase):
 
         CaloriesTrackerAPITestCase._setup_done = True
         print("LOADED SETUPCLASS")
+add_method_to_this_class_dinamically(CaloriesTrackerAPITestCase, "calories_tracker/tests", "test_*.py")
