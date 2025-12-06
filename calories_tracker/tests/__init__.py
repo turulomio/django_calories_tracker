@@ -8,7 +8,6 @@ class CaloriesTrackerAPITestCase(APITestCase):
     It sets up fixtures and authenticated clients once for all inheriting test classes.
     """
     fixtures = ["all.json","test_users.json"]
-    _setup_done = False
 
     def __init__(self, *args, **kwargs):
 
@@ -22,28 +21,25 @@ class CaloriesTrackerAPITestCase(APITestCase):
         """
         super().setUpClass()
 
-        if CaloriesTrackerAPITestCase._setup_done:
-            return
 
-        CaloriesTrackerAPITestCase.user_authorized_1 = User.objects.get(username='authorized_1')
-        CaloriesTrackerAPITestCase.user_authorized_2 = User.objects.get(username='authorized_2')
-        CaloriesTrackerAPITestCase.user_catalog_manager = User.objects.get(username='catalog_manager')
+        cls.user_authorized_1 = User.objects.get(username='authorized_1')
+        cls.user_authorized_2 = User.objects.get(username='authorized_2')
+        cls.user_catalog_manager = User.objects.get(username='catalog_manager')
 
-        CaloriesTrackerAPITestCase.client_authorized_1 = APIClient()
-        CaloriesTrackerAPITestCase.client_authorized_1.force_authenticate(user=CaloriesTrackerAPITestCase.user_authorized_1)
-        CaloriesTrackerAPITestCase.client_authorized_1.user = CaloriesTrackerAPITestCase.user_authorized_1
+        cls.client_authorized_1 = APIClient()
+        cls.client_authorized_1.force_authenticate(user=cls.user_authorized_1)
+        cls.client_authorized_1.user = cls.user_authorized_1
 
-        CaloriesTrackerAPITestCase.client_authorized_2 = APIClient()
-        CaloriesTrackerAPITestCase.client_authorized_2.force_authenticate(user=CaloriesTrackerAPITestCase.user_authorized_2)
-        CaloriesTrackerAPITestCase.client_authorized_2.user = CaloriesTrackerAPITestCase.user_authorized_2
+        cls.client_authorized_2 = APIClient()
+        cls.client_authorized_2.force_authenticate(user=cls.user_authorized_2)
+        cls.client_authorized_2.user = cls.user_authorized_2
 
-        CaloriesTrackerAPITestCase.client_anonymous = APIClient()
-        CaloriesTrackerAPITestCase.client_anonymous.user = None
+        cls.client_anonymous = APIClient()
+        cls.client_anonymous.user = None
 
-        CaloriesTrackerAPITestCase.client_catalog_manager = APIClient()
-        CaloriesTrackerAPITestCase.client_catalog_manager.force_authenticate(user=CaloriesTrackerAPITestCase.user_catalog_manager)
-        CaloriesTrackerAPITestCase.client_catalog_manager.user = CaloriesTrackerAPITestCase.user_catalog_manager
+        cls.client_catalog_manager = APIClient()
+        cls.client_catalog_manager.force_authenticate(user=cls.user_catalog_manager)
+        cls.client_catalog_manager.user = cls.user_catalog_manager
 
-        CaloriesTrackerAPITestCase._setup_done = True
-        print("LOADED SETUPCLASS")
+
 add_method_to_this_class_dinamically(CaloriesTrackerAPITestCase, "calories_tracker/tests", "test_*.py")

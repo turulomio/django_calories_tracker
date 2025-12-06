@@ -28,16 +28,22 @@ from sys import path
 
 
 def add_method_to_this_class_dinamically(class_, directory, files_pattern, class_name_in_names=False):
+    """
+        Añade metodos de un directio de ficheros, con un patrón y las mete en una clase dinamicamente
+    
+    :param class_: Description
+    :param directory: Description
+    :param files_pattern: Description
+    :param class_name_in_names: Description
+    """
 
     chdir(directory)
     path.append(directory)
     modules={}
     for fichero in glob.glob(files_pattern):
         module_string=fichero.replace(".py", "")
-        print(f"Encontrado: {fichero}")
+        # print(f"Encontrado: {fichero}")
         modules[module_string]=get_module(directory, module_string)
-
-    print(modules)
 
     for modules_string, d in modules.items():
         for f in d["funciones"]:
