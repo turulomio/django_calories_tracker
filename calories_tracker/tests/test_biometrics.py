@@ -1,99 +1,26 @@
-from calories_tracker import models, tests_helpers
+from calories_tracker import models
+from . import tests_helpers, CaloriesTrackerAPITestCase
 from datetime import date, timedelta
-from django.contrib.auth.models import User
 from django.test import tag
 from django.utils import timezone
 from json import loads
 from pydicts import lod
 from rest_framework import status
-from rest_framework.test import APIClient, APITestCase
-from django.contrib.auth.models import Group
 
 
 tag, models
 
-class CtTestAPI(APITestCase):
-    fixtures=["all.json"] #Para cargar datos por defecto
 
-    @classmethod
-    def setUpClass(cls):
-        """
-            Only instantiated once
-        """
-        super().setUpClass()
-        
-        # User to test api
-        cls.user_authorized_1 = User(
-            email='testing@testing.com',
-            first_name='Testing',
-            last_name='Testing',
-            username='authorized_1',
-        )
-        cls.user_authorized_1.set_password('testing123')
-        cls.user_authorized_1.save()
-        
-        # User to confront security
-        cls.user_authorized_2 = User(
-            email='other@other.com',
-            first_name='Other',
-            last_name='Other',
-            username='authorized_2',
-        )
-        cls.user_authorized_2.set_password('other123')
-        cls.user_authorized_2.save()
-        
-                
-        # User to test api
-        cls.user_catalog_manager = User(
-            email='catalog_manager@catalog_manager.com',
-            first_name='Catalog',
-            last_name='Manager',
-            username='catalog_manager',
-        )
-        cls.user_catalog_manager.set_password('catalog_manager123')
-        cls.user_catalog_manager.save()
-        cls.user_catalog_manager.groups.add(Group.objects.get(name='CatalogManager'))
-
-        client = APIClient()
-        response = client.post('/login/', {'username': cls.user_authorized_1.username, 'password': 'testing123',},format='json')
-        result = loads(response.content)
-        cls.token_user_authorized_1 = result
-        
-        response = client.post('/login/', {'username': cls.user_authorized_2.username, 'password': 'other123',},format='json')
-        result = loads(response.content)
-        cls.token_user_authorized_2 = result
-
-        response = client.post('/login/', {'username': cls.user_catalog_manager.username, 'password': 'catalog_manager123',},format='json')
-        result = loads(response.content)
-        cls.token_user_catalog_manager=result
-        
-        cls.client_authorized_1=APIClient()
-        cls.client_authorized_1.user=cls.user_authorized_1
-        cls.client_authorized_1.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_authorized_1)
-
-        cls.client_authorized_2=APIClient()
-        cls.client_authorized_2.user=cls.user_authorized_2
-        cls.client_authorized_2.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_authorized_2)
-        
-        cls.client_anonymous=APIClient()
-        cls.client_anonymous.user=None
-        
-        cls.client_catalog_manager=APIClient()
-        cls.client_catalog_manager.user=cls.user_catalog_manager
-        cls.client_catalog_manager.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_catalog_manager)
-
-
-    def test_activities(self):
-        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/activities/', models.Activities.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-        
-        
+class AdditivesRisksAPITest(CaloriesTrackerAPITestCase):
     def test_additive_risks(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/additive_risks/', models.AdditiveRisks.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
         
                 
+class AdditivesAPITest(CaloriesTrackerAPITestCase):
     def test_additives(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/additives/', models.Additives.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-                        
+        
+class BiometricsAPITest(CaloriesTrackerAPITestCase):                
     def test_biometrics(self):
         tests_helpers.common_tests_Private(self,  '/api/biometrics/', models.Biometrics.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
         #Today
