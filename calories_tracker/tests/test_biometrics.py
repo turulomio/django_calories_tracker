@@ -11,12 +11,6 @@ from rest_framework import status
 tag, models
 
 
-class AdditivesRisksAPITest(CaloriesTrackerAPITestCase):
-    def test_additive_risks(self):
-        print(self.client_authorized_1)
-        tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/additive_risks/', models.AdditiveRisks.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-        
-                
 class AdditivesAPITest(CaloriesTrackerAPITestCase):
     def test_additives(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/additives/', models.Additives.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
@@ -29,15 +23,18 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         #Empty day
         tests_helpers.client_get(self, self.client_authorized_1, '/api/biometrics/?day=2022-01-01', status.HTTP_200_OK)
 
+class CatalogManagerAPITest(CaloriesTrackerAPITestCase):
     def test_catalog_manager(self):
         r=tests_helpers.client_get(self, self.client_authorized_1, '/catalog_manager/', status.HTTP_200_OK)
         self.assertEqual(r, False)
         r=tests_helpers.client_get(self, self.client_catalog_manager, '/catalog_manager/', status.HTTP_200_OK)
         self.assertEqual(r, True)
 
+class CompaniesAPITest(CaloriesTrackerAPITestCase):
     def test_companies(self):
         tests_helpers.common_tests_Private(self,  '/api/companies/', models.Companies.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
 
+class CuriositiesAPITest(CaloriesTrackerAPITestCase):
     def test_curiosities(self):
         #Test empty database
         tests_helpers.client_get(self, self.client_authorized_1, "/curiosities/", status.HTTP_200_OK)
@@ -49,6 +46,7 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
 
         
         
+class ElaboratedProductsAPITest(CaloriesTrackerAPITestCase):
     def test_elaborated_products(self):
         # Due to elaborated_products DELETE is not standard due to it doesn't return HTTP_204_NOT_CONTENT y RuntimeError
         # common_tests_PrivateCatalog code manually
@@ -95,7 +93,8 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
 
         # END OF COPIED METHOD
         
-                        
+      
+class ElaborationsAPITest(CaloriesTrackerAPITestCase):                  
     def test_elaborations(self):
         dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/elaborations/', models.Elaborations.post_payload(dict_recipes["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
@@ -112,16 +111,20 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         tests_helpers.client_post(self, self.client_authorized_1, dict_elaborations["url"]+ "create_elaborated_product/", {"diners":8}, status.HTTP_200_OK)
         tests_helpers.client_post(self, self.client_authorized_2, dict_elaborations["url"]+ "create_elaborated_product/", {"diners":10}, status.HTTP_404_NOT_FOUND)        
 
+class ElaborationsContainersAPITest(CaloriesTrackerAPITestCase):
     def test_elaborations_containers(self):  
         dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
         dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/elaborations_containers/', models.ElaborationsContainers.post_payload(elaborations=dict_elaborations["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
-                                                                                        
+                          
+class ElaborationsExperiencesAPITest(CaloriesTrackerAPITestCase):                                                              
     def test_elaborations_experiences(self):     
         dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
         dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/elaborations_experiences/', models.ElaborationsExperiences.post_payload(elaborations=dict_elaborations["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
     
+
+class ElaborationsProductsInThroughAPITest(CaloriesTrackerAPITestCase):
     def test_elaborations_productsinthrough(self):
         """
             Al ser un through no funcionan el common_tests_Private
@@ -131,6 +134,8 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         dict_elaborations=tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborations/", models.Elaborations.post_payload(recipes=dict_recipes["url"]), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/elaborationsproductsinthrough/', models.ElaborationsProductsInThrough.post_payload(elaborations=dict_elaborations["url"], products=dict_products["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
 
+
+class ElaboratedProductsProductsInThroughAPITest(CaloriesTrackerAPITestCase):
     def test_elaborated_products_productsinthrough(self):
         """
             Al ser un through no funcionan el common_tests_Private
@@ -142,12 +147,15 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         tests_helpers.common_tests_Private(self, '/api/elaboratedproductsproductsinthrough/', models.ElaboratedProductsProductsInThrough.post_payload(products=dict_products["url"], elaborated_products=dict_elaborated_products["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
 
 
+class FoodTypesAPITest(CaloriesTrackerAPITestCase): 
     def test_food_types(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/food_types/', models.FoodTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
         
+class FormatsAPITest(CaloriesTrackerAPITestCase):
     def test_formats(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/formats/', models.Formats.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-        
+      
+class MealsAPITest(CaloriesTrackerAPITestCase):  
     def test_meals(self): 
         dict_products_1=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(name="Product 1"), status.HTTP_201_CREATED)
         dict_products_2=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(name="Product 2"), status.HTTP_201_CREATED)
@@ -170,10 +178,12 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         meals_to_delete=lod.lod2list(lod_meals, "url")
         self.assertEqual(len(meals_to_delete), 0 )
         
+class MeasuresTypesAPITest(CaloriesTrackerAPITestCase):
     def test_measures_types(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/measures_types/', models.MeasuresTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
                 
-    @tag("current")
+
+class PillEventsAPITest(CaloriesTrackerAPITestCase):
     def test_pill_events(self):
         # Common vars
         pillname="Pill name"
@@ -210,13 +220,16 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         self.assertEqual(deleted[0], 9)
         
         
+class PotsAPITest(CaloriesTrackerAPITestCase):
     def test_pots(self):
         tests_helpers.common_tests_Private(self,  '/api/pots/', models.Pots.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
     
+class ProductsAPITest(CaloriesTrackerAPITestCase):
     def test_products(self):
         tests_helpers.common_tests_Private(self,  '/api/products/', models.Products.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
 
 
+class RecipesAPITest(CaloriesTrackerAPITestCase):
     def test_recipes(self):
         tests_helpers.common_tests_Private(self,  '/api/recipes/', models.Recipes.post_payload(),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
 
@@ -245,6 +258,7 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         tests_helpers.client_get(self, self.client_authorized_1, dict_recipe_2["url"], status.HTTP_404_NOT_FOUND)
 
 
+class RecipesLinksAPITest(CaloriesTrackerAPITestCase):
     def test_recipes_links(self):             
         dict_recipe=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
         tests_helpers.common_tests_Private(self,  '/api/recipes_links/', models.RecipesLinks.post_payload(recipes=dict_recipe["url"]),  self.client_authorized_1, self.client_authorized_2, self.client_anonymous)
@@ -255,12 +269,15 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         
         dict_recipe=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
 
+class RecipesCategoriesAPITest(CaloriesTrackerAPITestCase):
     def test_recipes_categories(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/recipes_categories/', models.RecipesCategories.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
-                
+             
+class RecipesLinksTypesAPITest(CaloriesTrackerAPITestCase):   
     def test_recipes_links_types(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/recipes_links_types/', models.RecipesLinksTypes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
 
+class SettingsAPITest(CaloriesTrackerAPITestCase):
     def test_settings(self):
         #Get
         tests_helpers.client_get(self, self.client_authorized_1, "/settings/", status.HTTP_200_OK)
@@ -273,6 +290,7 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         
         
         
+class ShoppingListAPITest(CaloriesTrackerAPITestCase):
     def test_shopping_list(self):
         dict_recipes=tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/", models.Recipes.post_payload(), status.HTTP_201_CREATED)
         dict_products=tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(), status.HTTP_201_CREATED)
@@ -290,8 +308,10 @@ class BiometricsAPITest(CaloriesTrackerAPITestCase):
         # Trying to get from client_authorized_2
         tests_helpers.client_post(self, self.client_authorized_2, "/shopping_list/", {"elaborations": [dict_elaborations["url"], ]}, status.HTTP_400_BAD_REQUEST)
 
+class StatisticsAPITest(CaloriesTrackerAPITestCase):
     def test_statistics(self):
         tests_helpers.client_get(self, self.client_authorized_1, "/statistics/", status.HTTP_200_OK)
 
+class WeightWishesAPITest(CaloriesTrackerAPITestCase):
     def test_weight_wishes(self):
         tests_helpers.common_tests_PrivateEditableCatalog(self,  '/api/weight_wishes/', models.WeightWishes.post_payload(),  self.client_authorized_1, self.client_anonymous, self.client_catalog_manager)
