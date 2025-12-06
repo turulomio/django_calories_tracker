@@ -637,31 +637,31 @@ class ElaborationsTextsSerializer(serializers.HyperlinkedModelSerializer):
         fields = ( 'url',   'text', )
         
             
-    def create(self, validated_data):
-        """
-            This method require elaborations_id as parameter in post method
-        """
-        request = self.context.get("request")
-#        try:
-        elaborations=models.Elaborations.objects.get(pk=id_from_url(request.data["elaborations"]), recipes__user=request.user)
-#        except:
-#               raise ValidationError("Elaboration doesn't exist")
-        created=models.ElaborationsTexts()
-        created.elaborations=elaborations
-        created.text=validated_data["text"]
-        created.save()
-        created.elaborations.recipes.last=timezone.now()
-        created.elaborations.recipes.save()
-        return created
+#     def create(self, validated_data):
+#         """
+#             This method require elaborations_id as parameter in post method
+#         """
+#         request = self.context.get("request")
+# #        try:
+#         elaborations=models.Elaborations.objects.get(pk=id_from_url(request.data["elaborations"]), recipes__user=request.user)
+# #        except:
+# #               raise ValidationError("Elaboration doesn't exist")
+#         created=models.ElaborationsTexts()
+#         created.elaborations=elaborations
+#         created.text=validated_data["text"]
+#         created.save()
+#         created.elaborations.recipes.last=timezone.now()
+#         created.elaborations.recipes.save()
+#         return created
         
          
-    def update(self, instance, validated_data):
-        updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
-        updated.save()
+#     def update(self, instance, validated_data):
+#         updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
+#         updated.save()
         
-        updated.elaborations.recipes.last=timezone.now()
-        updated.elaborations.recipes.save()
-        return updated
+#         updated.elaborations.recipes.last=timezone.now()
+#         updated.elaborations.recipes.save()
+#         return updated
 
 class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")

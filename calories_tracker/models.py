@@ -8,7 +8,7 @@ from calories_tracker import commons
 from calories_tracker.reusing.decorators import ptimeit
 from datetime import date, timedelta,  datetime
 from decimal import Decimal
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.contrib.auth.models import User # new
 
@@ -734,6 +734,9 @@ class Recipes(models.Model):
 
         return None    
     
+    def update_last_update(self):
+        self.last=timezone.now()
+        self.save(update_fields=["last"])    
 class RecipesLinksTypes(models.Model):
     name=models.TextField( blank=False, null=False)
     class Meta:
@@ -793,6 +796,12 @@ class Elaborations(models.Model):
     def fullname(self):
         return _("{0} ({1} diners)").format(self.recipes.name, self.diners)
         
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super(Elaborations, self).save(*args, **kwargs) #To generate io and then plio
+        self.recipes.update_last_update()
+
+    
         
 class ElaborationsTexts(models.Model):
     elaborations = models.OneToOneField("Elaborations", on_delete=models.CASCADE, primary_key=True , related_name="elaborations_texts")
@@ -858,7 +867,11 @@ class ElaborationsTexts(models.Model):
 
         return oldtext
         
-        
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super(ElaborationsTexts, self).save(*args, **kwargs) #To generate io and then plio
+        self.elaborations.recipes.update_last_update()
+
 class MeasuresTypes(models.Model):
     name=models.TextField( blank=False, null=False)
     class Meta:
@@ -921,6 +934,10 @@ class ElaborationsProductsInThrough(models.Model):
         else:
             return _("{0} {1} of {2}{3}").format(Fraction(self.amount), _(self.measures_types.localname()).lower(), _(self.products.name), comment_string)
 
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super(ElaborationsProductsInThrough, self).save(*args, **kwargs) #To generate io and then plio
+        self.elaborations.recipes.update_last_update()
 
 class ElaborationsContainers(models.Model):
     name=models.TextField( blank=False, null=False)
@@ -939,6 +956,12 @@ class ElaborationsContainers(models.Model):
             "name":  "Elaboration container for testing", 
             "elaborations": elaborations
         }
+    
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super(ElaborationsContainers, self).save(*args, **kwargs) #To generate io and then plio
+        self.elaborations.recipes.update_last_update()
+
 
 class ElaborationsExperiences(models.Model):
     datetime = models.DateTimeField(blank=False, null=False)
@@ -959,6 +982,15 @@ class ElaborationsExperiences(models.Model):
             "experience":  "Elaboration experience for testing", 
             "elaborations": elaborations
         }
+
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super(ElaborationsExperiences, self).save(*args, **kwargs) #To generate io and then plio
+        self.elaborations.recipes.update_last_update()
+
+
+
 
 class eAdditiveRisk:
     NotEvaluated=100
