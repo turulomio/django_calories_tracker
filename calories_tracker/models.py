@@ -810,7 +810,13 @@ class ElaborationsTexts(models.Model):
         managed = True
         db_table = 'elaborations_texts'
         
-                    
+    @staticmethod
+    def post_payload(elaborations, text="My elaboration text"):
+        return {
+            "text": text, 
+            "elaborations":  elaborations,
+        }            
+
     @staticmethod
     def get_ingredients_spans(htmlcode ):
         """
