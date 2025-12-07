@@ -475,7 +475,6 @@ class ProductsViewSet(viewsets.ModelViewSet):
             .annotate(uses=Count("meals", distinct=True)+Count("elaboratedproductsproductsinthrough", distinct=True) + Count("elaborationsproductsinthrough", distinct=True)).order_by("name")
     def list(self, request):
         r=viewsets.ModelViewSet.list(self, request)
-        show_queries_function()
         return r
 
     @action(detail=True, methods=['GET'], name='Returns data from both products to valorate a data transfer', url_path="get_data_transfer", url_name='get_data_transfer', permission_classes=[permissions.IsAuthenticated])
