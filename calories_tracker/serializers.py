@@ -598,21 +598,6 @@ class ElaborationsProductsInThroughSerializer(serializers.HyperlinkedModelSerial
         model = models.ElaborationsProductsInThrough
         fields = ('url', 'id','products', 'measures_types', 'amount', 'elaborations' , 'final_grams', 'fullname', 'comment', 'ni', 'automatic_percentage')
         
-        
-    # def create(self, validated_data):
-    #     created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
-    #     created.elaborations.recipes.last=timezone.now()
-    #     created.elaborations.recipes.save()
-    #     return created
-    
-    # ## Update doesn't update blob, only changes metadata
-    # def update(self, instance, validated_data):
-    #     updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
-    #     updated.elaborations.recipes.last=timezone.now()
-    #     updated.elaborations.recipes.save()
-    #     return updated
-
-        
     @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_final_grams(self, obj):
         return  obj.final_grams()
@@ -635,10 +620,7 @@ class ElaborationsTextsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElaborationsTexts
         fields = ( 'url', 'text', 'elaborations' )
-        # Since 'elaborations' is the Primary Key, it should not be changed on update.
-        # It is required for creation.
         extra_kwargs = {
-            # 'url': {'lookup_field': 'elaborations_id', 'view_name': 'elaborationstexts-detail'},
             'elaborations': {'view_name': 'elaborations-detail', 'lookup_field': 'pk'},
         }
 
@@ -653,21 +635,7 @@ class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Elaborations
         fields = ('url', 'id', 'diners', 'final_amount', 'fullname', 'recipes', 'elaborations_products_in', 
         'elaborations_containers', 'elaborations_experiences',  'automatic', 'automatic_adaptation_step', 'elaborations_texts')
-        
-    # def create(self, validated_data):
-    #     created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
-    #     created.save()
-    #     created.recipes.last=timezone.now()
-    #     created.recipes.save()
-    #     return created
 
-    # def update(self, instance, validated_data):
-    #     updated=serializers.HyperlinkedModelSerializer.update(self, instance, validated_data)
-    #     updated.save()
-        
-    #     updated.recipes.last=timezone.now()
-    #     updated.recipes.save()
-    #     return updated
    
     def get_fullname(self, o):
         return o.fullname()
