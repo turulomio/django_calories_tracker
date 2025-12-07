@@ -17,12 +17,10 @@ def test_shopping_list(self):
     
     # Elaboration without products_in
     shopping_list=tests_helpers.client_post(self, self.client_authorized_1, "/shopping_list/", {"elaborations": [dict_elaborations["url"], ]}, status.HTTP_200_OK)
-    print(shopping_list)
     
     # Elaboration with products_in
     tests_helpers.client_post(self, self.client_authorized_1,  '/api/elaborationsproductsinthrough/', models.ElaborationsProductsInThrough.post_payload(elaborations=dict_elaborations["url"], products=dict_products["url"]),  status.HTTP_201_CREATED)
     shopping_list=tests_helpers.client_post(self, self.client_authorized_1, "/shopping_list/", {"elaborations": [dict_elaborations["url"], ]}, status.HTTP_200_OK)
-    print(shopping_list)
     
     # Trying to get from client_authorized_2
     tests_helpers.client_post(self, self.client_authorized_2, "/shopping_list/", {"elaborations": [dict_elaborations["url"], ]}, status.HTTP_400_BAD_REQUEST)
