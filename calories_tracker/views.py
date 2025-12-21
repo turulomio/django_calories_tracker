@@ -362,7 +362,7 @@ class PillEventsViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]      
     
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
+        return self.queryset.filter(user=self.request.user).order_by("dt","id")
     
     def list(self, request):
         year=RequestInteger(self.request, 'year') 
