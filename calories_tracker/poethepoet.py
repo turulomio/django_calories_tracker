@@ -19,7 +19,7 @@ def reusing():
         download_from_github("turulomio", "reusingcode", "python/file_functions.py", "calories_tracker/reusing")
         download_from_github("turulomio", "reusingcode", "python/github.py", "calories_tracker/reusing")
 
-def cypress_test_server():
+def e2e_server():
     print("- Dropping test_calories_tracker database...")
     system("dropdb -U postgres -h 127.0.0.1 test_calories_tracker")
     print("- Launching python manage.py test_server with user 'test' and password 'test'")
