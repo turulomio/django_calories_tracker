@@ -9,18 +9,18 @@ license = {text = "GPL-3.0-only"}
 readme = "README.md"
 requires-python = ">=3.12,<4"
 dependencies = [
-    "Django >=6.0",
+    "Django >=6.0.2",
     "django-cors-headers >=4.9.0",
     "djangorestframework >=3.16.1",
     "django-simple-history >=3.11.0",
     "preview-generator >=0.29",
-    "pillow >=12.0.0",
+    "pillow >=12.1.1",
     "drf-spectacular >=0.29.0",
     "psycopg >=3.3.2",
     "pydicts >=1.1.0",
     "request-casting >=0.7.0",
     "humanize >=4.15.0",
-    "tqdm >=4.67.1",
+    "tqdm >=4.67.3",
     "python-dateutil >=2.9.0.post0"
 ]
 
@@ -30,9 +30,9 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
-poetry = "^2.2.1"
-poethepoet = "^0.38.0"
-coverage = ">=7.13.0"
+poetry = ">=2.3.2"
+poethepoet = ">=0.41.0"
+coverage = ">=7.13.4"
 
 [tool.poe.tasks]
 reusing = { script = "calories_tracker.poethepoet:reusing" }
