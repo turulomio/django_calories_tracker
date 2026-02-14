@@ -46,3 +46,24 @@ def test_pill_events(self):
     deleted=tests_helpers.client_post(self, self.client_authorized_1,  '/api/pill_events/delete_from_dt/',  {"pillname": pillname,  "dt_from": dt_from-timedelta(seconds=1)},  status.HTTP_200_OK)        
     self.assertEqual(deleted[0], 9)
     
+def test_copy_last_week(self):    
+    dt_base = timezone.now().replace(microsecond=0)
+    # Create 2 events in the previous 7 days
+    models.PillEvents.objects.create(user=self.user_authorized_1, pillname="Pill A", dt=dt_base - timedelta(days=3), highlight_late=True)
+    models.PillEvents.objects.create(user=self.user_authorized_1, pillname="Pill B", dt=dt_base - timedelta(days=5), highlight_late=False)
+    
+    # Call action with explicit dt_from
+    response_data = tests_helpers.client_post(self, self.client_authorized_1, '/api/pill_events/copy_last_week/', {"dt_from": dt_base}, status.HTTP_200_OK)
+    self.assertEqual(len(response_data), 2)
+    
+    # Verify the new events in DB
+    new_events = models.PillEvents.objects.filter(user=self.user_authorized_1, dt__gte=dt_base)
+    self.assertEqual(new_events.count(), 2)
+    
+    event_a = new_events.get(pillname="Pill A")
+    self.assertEqual(event_a.dt, dt_base + timedelta(days=4)) # (base - 3) + 7 = base + 4
+    self.assertTrue(event_a.highlight_late)
+    self.assertIsNone(event_a.dt_intake)
+
+    # Test without dt_from (defaults to now)
+    tests_helpers.client_post(self, self.client_authorized_1, '/api/pill_events/copy_last_week/', {}, status.HTTP_200_OK)

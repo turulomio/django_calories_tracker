@@ -7,6 +7,7 @@ from calories_tracker.permissions import GroupCatalogManager
 from request_casting.request_casting import all_args_are_not_none, RequestUrl, RequestString, RequestDate, RequestBool, RequestListOfUrls, RequestInteger, RequestDtaware
 from pydicts.myjsonencoder import MyJSONEncoderDecimalsAsFloat
 from dateutil.rrule import rrule, DAILY, HOURLY
+from datetime import timedelta
 from decimal import Decimal
 from django.db import transaction
 from django.db.models import Count, Min, Prefetch, Sum
@@ -436,6 +437,29 @@ class PillEventsViewSet(viewsets.ModelViewSet):
         else:
             return Response(_("Something was wrong deleting pill events from dt"), status=status.HTTP_400_BAD_REQUEST)
     
+    @action(detail=False, methods=['POST'], name='Copy last week pill events', url_path="copy_last_week", url_name='copy_last_week', permission_classes=[permissions.IsAuthenticated, ])
+    @transaction.atomic
+    def copy_last_week(self, request, pk=None):
+        dt_from = RequestDtaware(request, "dt_from", models.get_profile(request.user).get_timezone())
+        if dt_from is None:
+            dt_from = timezone.now()
+
+        start_date = dt_from - timedelta(days=7)
+        old_events = models.PillEvents.objects.filter(user=request.user, dt__gte=start_date, dt__lt=dt_from)
+
+        new_events = []
+        for event in old_events:
+            new_event = models.PillEvents(
+                user=request.user,
+                pillname=event.pillname,
+                dt=event.dt + timedelta(days=7),
+                dt_intake=None,
+                highlight_late=event.highlight_late
+            )
+            new_event.save()
+            new_events.append(new_event)
+
+        return Response(serializers.PillEventsSerializer(new_events, many=True, context={'request': request}).data, status=status.HTTP_200_OK)
     
 @extend_schema_view(
     list=extend_schema(
@@ -871,5 +895,3 @@ def Curiosities(request):
         })
         
     return JsonResponse(r, safe=False)
-
-
