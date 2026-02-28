@@ -616,13 +616,11 @@ class ElaborationsExperiencesSerializer(serializers.HyperlinkedModelSerializer):
         model = models.ElaborationsExperiences
         fields = ('url', 'id',  'datetime', 'experience', 'elaborations')
 
-class ElaborationsTextsSerializer(serializers.HyperlinkedModelSerializer):
+class ElaborationsTextsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ElaborationsTexts
-        fields = ( 'url', 'text', 'elaborations' )
-        extra_kwargs = {
-            'elaborations': {'view_name': 'elaborations-detail', 'lookup_field': 'pk'},
-        }
+        fields = ('text', 'elaborations')
+
 
 class ElaborationsSerializer(serializers.HyperlinkedModelSerializer):
     elaborations_products_in = ElaborationsProductsInThroughSerializer(many=True, read_only=True, source="elaborationsproductsinthrough_set")

@@ -256,10 +256,15 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
     def set_elaboration_text(self, request, pk=None):
         elaboration = self.get_object()
         text=RequestString(self.request, "text", "")
-        if all_args_are_not_none(elaboration, text):        
-            elaboration.elaborations_texts.text=text
-            elaboration.elaborations_texts.save()
-            elaboration.recipes.update_last_update()
+        if all_args_are_not_none(elaboration, text):
+            try:
+                # Try to get the existing ElaborationsTexts object
+                elaboration_text_obj = elaboration.elaborations_texts
+            except models.Elaborations.elaborations_texts.RelatedObjectDoesNotExist:
+                # If it doesn't exist, create a new one
+                elaboration_text_obj = models.ElaborationsTexts(elaborations=elaboration)
+            elaboration_text_obj.text = text
+            elaboration_text_obj.save()
             return JsonResponse(serializers.ElaborationsSerializer(elaboration, context={'request': request}).data, status=status.HTTP_200_OK)
         return Response({"detail": "Error setting elaboration text"}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -875,5 +880,3 @@ def Curiosities(request):
         })
         
     return JsonResponse(r, safe=False)
-
-
