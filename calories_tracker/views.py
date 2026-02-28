@@ -253,6 +253,24 @@ class ElaborationsViewSet(viewsets.ModelViewSet):
             return JsonResponse(serializers.ElaborationsSerializer(new, context={'request': request}).data, status=status.HTTP_200_OK)
         return Response({"detail": "Error creating automatic elaboration"}, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['POST'], name='create or update elaboration text', url_path="set_elaboration_text", url_name='set_elaboration_text', permission_classes=[permissions.IsAuthenticated])
+    def set_elaboration_text(self, request, pk=None):
+        elaboration = self.get_object()
+        text=RequestString(self.request, "text", "")
+        if all_args_are_not_none(elaboration, text):
+            try:
+                # Try to get the existing ElaborationsTexts object
+                elaboration_text_obj = elaboration.elaborations_texts
+            except models.Elaborations.elaborations_texts.RelatedObjectDoesNotExist:
+                # If it doesn't exist, create a new one
+                elaboration_text_obj = models.ElaborationsTexts(elaborations=elaboration)
+            elaboration_text_obj.text = text
+            elaboration_text_obj.save()
+            return JsonResponse(serializers.ElaborationsSerializer(elaboration, context={'request': request}).data, status=status.HTTP_200_OK)
+        return Response({"detail": "Error setting elaboration text"}, status=status.HTTP_400_BAD_REQUEST)
+            
+
+
 class ElaborationsContainersViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsContainers.objects.all()
     serializer_class = serializers.ElaborationsContainersSerializer
@@ -275,16 +293,7 @@ class ElaborationsExperiencesViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
         return self.queryset.filter(elaborations__recipes__user=self.request.user)
         
-class ElaborationsTextsViewSet(viewsets.ModelViewSet):
-    queryset = models.ElaborationsTexts.objects.all()
-    serializer_class = serializers.ElaborationsTextsSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        elaboration=RequestUrl(self.request, "elaboration", models.Elaborations)
-        if all_args_are_not_none(elaboration):        
-            return self.queryset.filter(elaborations=elaboration, elaborations__recipes__user=self.request.user)
-        return self.queryset.filter(elaborations__recipes__user=self.request.user)
 
 class ElaborationsProductsInThroughViewSet(viewsets.ModelViewSet):
     queryset = models.ElaborationsProductsInThrough.objects.all()
