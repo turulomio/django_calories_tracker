@@ -17,7 +17,7 @@ class Command(BaseCommand):
     It supports searching for users and products by name and handles multiple results.
     All user-facing strings are marked for translation using Django's i18n system.
     """
-    help = _('Adds a new Meal entry interactively. (e.g., "manage.py tui.add_meal")')
+    help = _('Adds a new Meal entry interactively. (e.g., "manage.py add_meal")')
 
     def _select_object(self, model, prompt_name, user_filter=None):
         """
@@ -38,18 +38,31 @@ class Command(BaseCommand):
                 continue
 
             if model == User:
-                queryset = model.objects.filter(username__icontains=search_term)
+                results = list(model.objects.filter(username__icontains=search_term))
             elif model == Products:
                 if user_filter:
-                    queryset = model.objects.filter(user=user_filter, name__icontains=search_term)
+                    # Fetch all products for the user and then filter by translated fullname.
+                    # Use select_related to optimize database queries for related fields
+                    # accessed within the product.fullname() method.
+                    all_products_for_user = model.objects.filter(user=user_filter).select_related('companies', 'version_parent')
+                    
+                    # Prepare a list of (product_object, translated_fullname) tuples.
+                    # The fullname() method already incorporates gettext for translation.
+                    translated_products_with_names = []
+                    for product in all_products_for_user:
+                        translated_products_with_names.append((product, product.fullname()))
+                    
+                    # Filter this list based on the search term (case-insensitive)
+                    results = [
+                        prod_obj for prod_obj, translated_name in translated_products_with_names
+                        if search_term.lower() in translated_name.lower()
+                    ]
                 else: # This case should ideally not be reached if called correctly
                     self.stdout.write(self.style.ERROR(_("User filter is required for product selection.")))
                     return None
             else:
                 self.stdout.write(self.style.ERROR(_("Unsupported model for selection.")))
                 return None
-
-            results = list(queryset)
 
             if not results:
                 self.stdout.write(self.style.WARNING(_(f"No {prompt_name} found matching '{search_term}'.")))
