@@ -2,6 +2,7 @@ from calories_tracker.reusing.github import download_from_github
 from os import system
 from sys import argv
 
+
 def reusing():
     """
         Actualiza directorio reusing
