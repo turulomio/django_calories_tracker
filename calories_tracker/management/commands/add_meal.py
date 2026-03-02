@@ -38,7 +38,7 @@ class Command(BaseCommand):
                 continue
 
             if model == User:
-                results = list(model.objects.filter(username__icontains=search_term))
+                results = list(model.objects.filter(username__icontains=search_term).order_by('username'))
             elif model == Products:
                 if user_filter:
                     # Fetch all products for the user and then filter by translated fullname.
@@ -52,11 +52,18 @@ class Command(BaseCommand):
                     for product in all_products_for_user:
                         translated_products_with_names.append((product, product.fullname()))
                     
-                    # Filter this list based on the search term (case-insensitive)
-                    results = [
-                        prod_obj for prod_obj, translated_name in translated_products_with_names
+                    # Filter this list based on the search term (case-insensitive) and keep tuples for sorting
+                    filtered_products_with_names = [
+                        (prod_obj, translated_name) for prod_obj, translated_name in translated_products_with_names
                         if search_term.lower() in translated_name.lower()
                     ]
+                    
+                    # Sort the filtered list by the translated fullname (the second element of the tuple)
+                    filtered_products_with_names.sort(key=lambda x: x[1])
+                    
+                    # Extract only the product objects for the final results
+                    results = [prod_obj for prod_obj, _ in filtered_products_with_names]
+
                 else: # This case should ideally not be reached if called correctly
                     self.stdout.write(self.style.ERROR(_("User filter is required for product selection.")))
                     return None
