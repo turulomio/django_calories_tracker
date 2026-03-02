@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-28 19:26+0000\n"
+"POT-Creation-Date: 2026-03-02 12:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -807,42 +807,132 @@ msgstr ""
 msgid "Zucchini"
 msgstr ""
 
-#: calories_tracker/models.py:993
+#: calories_tracker/management/commands/add_meal.py:20
+msgid "Adds a new Meal entry interactively."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:37
+msgid "Search term cannot be empty. Please try again."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:46
+msgid "User filter is required for product selection."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:49
+msgid "Unsupported model for selection."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:96
+msgid "Invalid choice. Please enter a valid number or 's'."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:98
+msgid "Invalid input. Please enter a number or 's'."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:122
+msgid "--- Add New Meal Entry ---"
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:125
+msgid "Step 1: Select a User"
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:126
+msgid "User"
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:128
+msgid "User selection failed. Aborting."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:132
+#, fuzzy
+#| msgid "Accounts"
+msgid "Step 2: Select a Product"
+msgstr "Счета"
+
+#: calories_tracker/management/commands/add_meal.py:133
+#, fuzzy
+#| msgid "Accounts"
+msgid "Product"
+msgstr "Счета"
+
+#: calories_tracker/management/commands/add_meal.py:135
+msgid "Product selection failed. Aborting."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:139
+msgid "Step 3: Enter Amount"
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:142
+msgid "Enter amount in grams (e.g., 150.5): "
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:146
+msgid "Amount must be a positive number."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:149
+msgid "Invalid amount. Please enter a number."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:153
+msgid "Step 4: Enter Datetime (optional)"
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:166
+msgid "Invalid datetime format. Please use YYYY-MM-DD HH:MM:SS."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:172
+msgid "Step 5: Creating Meal..."
+msgstr ""
+
+#: calories_tracker/management/commands/add_meal.py:186
+msgid ""
+"\n"
+"Operation cancelled by user."
+msgstr ""
+
+#: calories_tracker/models.py:797
 #, python-brace-format
 msgid "{0} ({1} diners)"
 msgstr ""
 
-#: calories_tracker/models.py:1117
+#: calories_tracker/models.py:937
 #, python-brace-format
 msgid "{0} g of {1}{2}"
 msgstr ""
 
-#: calories_tracker/models.py:1119
+#: calories_tracker/models.py:939
 #, python-brace-format
 msgid "{0} ml of {1}{2}"
 msgstr ""
 
-#: calories_tracker/models.py:1121
+#: calories_tracker/models.py:941
 #, python-brace-format
 msgid "{0} {1} of {2}{3}"
 msgstr ""
 
-#: calories_tracker/models.py:1218
+#: calories_tracker/models.py:1057
 #, python-brace-format
 msgid "{0} days "
 msgstr ""
 
-#: calories_tracker/models.py:1220
+#: calories_tracker/models.py:1059
 #, python-brace-format
 msgid "{0} hours "
 msgstr ""
 
-#: calories_tracker/models.py:1222
+#: calories_tracker/models.py:1061
 #, python-brace-format
 msgid "{0} minutes "
 msgstr ""
 
-#: calories_tracker/models.py:1224
+#: calories_tracker/models.py:1063
 #, python-brace-format
 msgid "{0} seconds "
 msgstr ""
@@ -871,168 +961,160 @@ msgstr ""
 msgid "Postgresql database"
 msgstr ""
 
-#: calories_tracker/unogenerator_files.py:15
-#, python-brace-format
-msgid "{0} diners"
-msgstr ""
-
-#: calories_tracker/unogenerator_files.py:20
-msgid "Recipe elaboration"
-msgstr ""
-
-#: calories_tracker/unogenerator_files.py:21
-#: calories_tracker/unogenerator_files.py:56
-msgid "This is an automatic generated report from Calories Tracker"
-msgstr ""
-
-#: calories_tracker/unogenerator_files.py:30
-#, fuzzy, python-brace-format
-#| msgid "Investments"
-msgid "Ingredients for {0} diners"
-msgstr "Инвестиции"
-
-#: calories_tracker/unogenerator_files.py:34
-msgid "Containers"
-msgstr ""
-
-#: calories_tracker/unogenerator_files.py:39
-msgid "Recipe"
-msgstr ""
-
-#: calories_tracker/unogenerator_files.py:55
-#: calories_tracker/unogenerator_files.py:61
-#: calories_tracker/unogenerator_files.py:77
-msgid "Shopping list"
-msgstr ""
-
-#: calories_tracker/unogenerator_files.py:65 calories_tracker/views.py:799
-msgid "Recipes"
-msgstr ""
-
-#: calories_tracker/views.py:176
+#: calories_tracker/views.py:178
 #, python-brace-format
 msgid "{0} for {1} diners ({2})"
 msgstr ""
 
-#: calories_tracker/views.py:181
+#: calories_tracker/views.py:183
 #, python-brace-format
 msgid ""
 "This elaborated product was created from '{0}' recipe for {1} diners ({2})."
 msgstr ""
 
-#: calories_tracker/views.py:788
+#: calories_tracker/views.py:384
+msgid "You need to set year and month parameters"
+msgstr ""
+
+#: calories_tracker/views.py:409
+msgid "Something was wrong setting pill events each day"
+msgstr ""
+
+#: calories_tracker/views.py:433
+msgid "Something was wrong setting pill events each n hours"
+msgstr ""
+
+#: calories_tracker/views.py:447
+msgid "Something was wrong deleting pill events from dt"
+msgstr ""
+
+#: calories_tracker/views.py:655
+msgid ""
+"You should not pass the recipe that will remain in the list of recipes to be "
+"merged"
+msgstr ""
+
+#: calories_tracker/views.py:661
+msgid "Something was wrong with your merge urls"
+msgstr ""
+
+#: calories_tracker/views.py:793
 msgid "Activities"
 msgstr ""
 
-#: calories_tracker/views.py:789
+#: calories_tracker/views.py:794
 msgid "Additive risks"
 msgstr ""
 
-#: calories_tracker/views.py:790
+#: calories_tracker/views.py:795
 msgid "Additives"
 msgstr ""
 
-#: calories_tracker/views.py:791
+#: calories_tracker/views.py:796
 msgid "Biometrics"
 msgstr ""
 
-#: calories_tracker/views.py:792
-msgid "Companies"
-msgstr ""
-
-#: calories_tracker/views.py:793 calories_tracker/views.py:800
-msgid "System companies"
-msgstr ""
-
-#: calories_tracker/views.py:794
-#, fuzzy
-#| msgid "Accounts"
-msgid "Elaborated products"
-msgstr "Счета"
-
-#: calories_tracker/views.py:795
-msgid "Elaborations"
-msgstr ""
-
-#: calories_tracker/views.py:796
-msgid "Food types"
-msgstr ""
-
 #: calories_tracker/views.py:797
-msgid "Meals"
+msgid "Companies"
 msgstr ""
 
 #: calories_tracker/views.py:798
 #, fuzzy
 #| msgid "Accounts"
+msgid "Elaborated products"
+msgstr "Счета"
+
+#: calories_tracker/views.py:799
+msgid "Elaborations"
+msgstr ""
+
+#: calories_tracker/views.py:800
+msgid "Food types"
+msgstr ""
+
+#: calories_tracker/views.py:801
+msgid "Meals"
+msgstr ""
+
+#: calories_tracker/views.py:802
+#, fuzzy
+#| msgid "Accounts"
 msgid "Products"
 msgstr "Счета"
 
-#: calories_tracker/views.py:801
-#, fuzzy
-#| msgid "Accounts"
-msgid "System products"
-msgstr "Счета"
+#: calories_tracker/views.py:803
+msgid "Recipes"
+msgstr ""
 
-#: calories_tracker/views.py:822
+#: calories_tracker/views.py:824
 msgid "Since when there is data in the database?"
 msgstr ""
 
-#: calories_tracker/views.py:823
+#: calories_tracker/views.py:825
 #, python-brace-format
 msgid "The first data is from {0}"
 msgstr ""
 
-#: calories_tracker/views.py:837
+#: calories_tracker/views.py:839
 msgid "Which is the product with highest calories in 100 g?"
 msgstr ""
 
-#: calories_tracker/views.py:838
+#: calories_tracker/views.py:840
 #, python-brace-format
 msgid "The product with highest calories is '{0}' with {1} calories."
 msgstr ""
 
-#: calories_tracker/views.py:852
+#: calories_tracker/views.py:854
 msgid "Which is the meal with highest calories I had eaten?"
 msgstr ""
 
-#: calories_tracker/views.py:853
+#: calories_tracker/views.py:855
 msgid ""
 "The meal with the highest calories I ate was '{}' with '{}' calories. I ate "
 "{}g at {}."
 msgstr ""
 
-#: calories_tracker/views.py:866
+#: calories_tracker/views.py:868
 msgid "When did I take the highest calories amount in a day?"
 msgstr ""
 
-#: calories_tracker/views.py:867
+#: calories_tracker/views.py:869
 msgid "The day I took the highest amount of calories was '{}' and I took {}."
 msgstr ""
 
-#: calories_tracker/views.py:879
+#: calories_tracker/views.py:881
 msgid "When did I have my highest weight?"
 msgstr ""
 
-#: calories_tracker/views.py:880
+#: calories_tracker/views.py:882
 msgid "My highest weight was {} kg at {}"
 msgstr ""
 
-#: calories_tracker/views.py:892
+#: calories_tracker/views.py:894
 msgid "When did I have my lowest weight?"
 msgstr ""
 
-#: calories_tracker/views.py:893
+#: calories_tracker/views.py:895
 msgid "My lowest weight was {} kg at {}"
 msgstr ""
 
-#: calories_tracker/views.py:900
+#: calories_tracker/views.py:902
 msgid "Which is my median weight?"
 msgstr ""
 
-#: calories_tracker/views.py:901
+#: calories_tracker/views.py:903
 msgid "My median weight is {} kg"
 msgstr ""
+
+#, fuzzy, python-brace-format
+#~| msgid "Investments"
+#~ msgid "Ingredients for {0} diners"
+#~ msgstr "Инвестиции"
+
+#, fuzzy
+#~| msgid "Accounts"
+#~ msgid "System products"
+#~ msgstr "Счета"
 
 #, fuzzy
 #~| msgid "Investments"
@@ -1214,11 +1296,6 @@ msgstr ""
 #, fuzzy
 #~| msgid "Accounts"
 #~ msgid "Add a new product"
-#~ msgstr "Счета"
-
-#, fuzzy
-#~| msgid "Accounts"
-#~ msgid "Select two products"
 #~ msgstr "Счета"
 
 #, fuzzy
