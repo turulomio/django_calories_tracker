@@ -21,9 +21,9 @@ dependencies = [
     "request-casting >=0.7.0",
     "humanize >=4.15.0",
     "tqdm >=4.67.3",
-    "python-dateutil >=2.9.0.post0"
+    "python-dateutil >=2.9.0.post0",
+    "textual >=8.0.1"
 ]
-
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
