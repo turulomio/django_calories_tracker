@@ -28,8 +28,8 @@ show_queries
 show_queries_function
 
 
-@permission_classes([permissions.IsAuthenticated, ])
 @api_view(['GET', ])
+@permission_classes([permissions.IsAuthenticated, ])
 def CatalogManager(request):
     return JsonResponse( request.user.groups.filter(name="CatalogManager").exists(), encoder=MyJSONEncoderDecimalsAsFloat, safe=False)
 
