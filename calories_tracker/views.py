@@ -602,17 +602,30 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 recipes_with_photo_ids=list(models.RecipesLinks.objects.filter(type_id=models.eRecipeLink.MainPhoto).filter(recipes__user=self.request.user).values_list("recipes__id", flat=True))
                 self.queryset= self.queryset.exclude(pk__in=recipes_with_photo_ids).filter(user=self.request.user)
             elif search.startswith(":LAST"):
-                self.queryset= self.queryset.filter(user=self.request.user)
-            elif search.startswith(":INGREDIENTS "): #:INGREDIENTS 1, 2, 3, 4
+                self.queryset= self.queryset.filter(user=self.request.user).order_by("-last")
+            elif search.startswith(":INGREDIENTSANY "): #:INGREDIENTS 1, 2, 3, 4 Recetas con algun ingrediente
                 try:
-                    products_ids=commons.string2list_of_integers(search.replace(":INGREDIENTS ", ""), ",")
-                    qs=self.queryset
+                    products_ids=commons.string2list_of_integers(search.replace(":INGREDIENTSANY ", ""), ",")
+                    if not products_ids:
+                        return Response("Product IDs list cannot be empty for :INGREDIENTSANY search", status=status.HTTP_400_BAD_REQUEST)
+                    self.queryset=self.queryset.filter(elaborations__elaborationsproductsinthrough__products_id__in=products_ids, user=self.request.user).distinct()
+                except ValueError:
+                    return Response("Error parsing ingredients: invalid product ID format", status=status.HTTP_400_BAD_REQUEST)
+            elif search.startswith(":INGREDIENTSALL "): #:INGREDIENTS 1, 2, 3, 4 Recetas con todos los ingredientes
+                try:
+                    # Correctly extract product IDs for :INGREDIENTSALL
+                    products_ids = commons.string2list_of_integers(search.replace(":INGREDIENTSALL ", ""), ",")
+                    if not products_ids:
+                        return Response("Product IDs list cannot be empty for :INGREDIENTSALL search", status=status.HTTP_400_BAD_REQUEST)
+
+                    # Filter for recipes that contain ALL specified ingredients
+                    # Chain filters for each product ID to ensure all are present
+                    qs = self.queryset.filter(user=self.request.user)
                     for product_id in products_ids:
-                        qs=qs.filter(elaborations__elaborationsproductsinthrough__products__id=product_id)
-                    self.queryset= qs.distinct()
-                except:
-                    print("Error parsing ingredients")
-                    self.queryset= self.queryset.none()
+                        qs = qs.filter(elaborations__elaborationsproductsinthrough__products_id=product_id)
+                    self.queryset = qs.distinct()
+                except ValueError:
+                    return Response("Error parsing ingredients: invalid product ID format", status=status.HTTP_400_BAD_REQUEST)
             else:
                 self.queryset.filter(user=self.request.user)
                 arr=search.split(" ")
@@ -661,58 +674,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return Response(serializers.RecipesSerializer(recipes, context={'request': request}).data, status=status.HTTP_200_OK)
         return Response(_("Something was wrong with your merge urls"), status=status.HTTP_400_BAD_REQUEST)
     
-
-    @extend_schema(
-        request={
-            'application/json': {
-                'type': 'object',
-                'properties': {
-                    'products': {
-                        'type': 'array',
-                        'items': {'type': 'string', 'format': 'uri'},
-                        'description': 'List of product URLs to search for as ingredients.'
-                    }
-                },
-                'required': ['products']
-            }
-        },
-        responses={
-            200: serializers.RecipesSerializer(many=True),
-            400: OpenApiTypes.OBJECT
-        },
-        summary='Search recipes by ingredients',
-        description='Returns recipes whose elaborations contain all of the specified product ingredients.'
-    )
-    @action(detail=False, methods=['POST'], name='Search recipes by ingredients', url_path="search_by_ingredients", url_name='search_by_ingredients', permission_classes=[permissions.IsAuthenticated])
-    def search_by_ingredients(self, request):
-        product_urls = RequestListOfUrls(request, "products", models.Products, [], validate_object=lambda o: o.user==request.user)
-
-        if len(product_urls)==0:
-            return Response({"detail": "The 'products' list cannot be empty."}, status=status.HTTP_400_BAD_REQUEST)
-
-        product_ids = [p.id for p in product_urls]
-
-        # Find elaborations that contain all specified distinct products for the current user
-        matching_elaborations = models.ElaborationsProductsInThrough.objects.filter(
-            products__id__in=product_ids,
-            elaborations__recipes__user=request.user
-        ).values('elaborations__id').annotate(
-            distinct_products_count=Count('products__id', distinct=True)
-        ).filter(
-            distinct_products_count=len(product_ids)
-        )
-
-        # Get the IDs of recipes associated with these matching elaborations
-        final_recipe_ids = models.Elaborations.objects.filter(
-            id__in=[e['elaborations__id'] for e in matching_elaborations]
-        ).values_list('recipes__id', flat=True).distinct()
-
-        queryset = self.get_queryset().filter(id__in=final_recipe_ids)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
 class RecipesCategoriesViewSet(CatalogModelViewSet):
     queryset = models.RecipesCategories.objects.all()
     serializer_class = serializers.RecipesCategoriesSerializer
