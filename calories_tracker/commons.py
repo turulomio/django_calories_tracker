@@ -25,3 +25,13 @@ def string2list_of_integers(s, separator=", "):
         for a in arrs:
             arr.append(int(a))
     return arr
+
+
+def list_of_integers2string(arr, separator=", "):
+    """Convers a list of integer into a string of integer separated by comma"""
+    s=""
+    if len(arr)>0:
+        s=str(arr[0])
+        for a in arr[1:]:
+            s=s+separator+str(a)
+    return s

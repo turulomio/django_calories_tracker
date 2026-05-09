@@ -1,4 +1,4 @@
-from calories_tracker import models
+from calories_tracker import models, commons
 from . import tests_helpers
 from rest_framework import status
 
@@ -63,41 +63,94 @@ def test_recipes_search_by_ingredients(self):
     tests_helpers.client_post(self, self.client_authorized_1, "/api/elaborationsproductsinthrough/", models.ElaborationsProductsInThrough.post_payload(elaborations=elaboration_other["url"], products=product3["url"]), status.HTTP_201_CREATED)
 
     # Test case 1: Search for all three ingredients (A, B, C)
-    payload = {"products": [product1["url"], product2["url"], product3["url"]]}
-    response = tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/search_by_ingredients/", payload, status.HTTP_200_OK)
-    self.assertEqual(len(response), 1)
-    self.assertEqual(response[0]["id"], recipe_all_ingredients["id"])
+    search_ids_abc = commons.list_of_integers2string([product1["id"], product2["id"], product3["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes/?search=:INGREDIENTSALL {search_ids_abc}", status.HTTP_200_OK)
+    self.assertEqual(len(response["results"]), 1)
+    self.assertEqual(response["results"][0]["id"], recipe_all_ingredients["id"])
 
     # Test case 2: Search for two ingredients (A, B)
-    payload = {"products": [product1["url"], product2["url"]]}
-    response = tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/search_by_ingredients/", payload, status.HTTP_200_OK)
-    self.assertEqual(len(response), 2) # Should match recipe_all_ingredients and recipe_subset_ingredients
-    response_ids = [r["id"] for r in response]
+    search_ids_ab = commons.list_of_integers2string([product1["id"], product2["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes/?search=:INGREDIENTSALL {search_ids_ab}", status.HTTP_200_OK)
+    self.assertEqual(len(response["results"]), 2) # Should match recipe_all_ingredients and recipe_subset_ingredients
+    response_ids = [r["id"] for r in response["results"]]
     self.assertIn(recipe_all_ingredients["id"], response_ids)
     self.assertIn(recipe_subset_ingredients["id"], response_ids)
 
     # Test case 3: Search for one ingredient (C)
-    payload = {"products": [product3["url"]]}
-    response = tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/search_by_ingredients/", payload, status.HTTP_200_OK)
-    self.assertEqual(len(response), 2) # Should match recipe_all_ingredients and recipe_other_ingredients
-    response_ids = [r["id"] for r in response]
+    search_ids_c = commons.list_of_integers2string([product3["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes/?search=:INGREDIENTSALL {search_ids_c}", status.HTTP_200_OK)
+    self.assertEqual(len(response["results"]), 2) # Should match recipe_all_ingredients and recipe_other_ingredients
+    response_ids = [r["id"] for r in response["results"]]
     self.assertIn(recipe_all_ingredients["id"], response_ids)
     self.assertIn(recipe_other_ingredients["id"], response_ids)
 
     # Test case 4: Search for an ingredient not in any recipe
     product_non_existent = tests_helpers.client_post(self, self.client_authorized_1, "/api/products/", models.Products.post_payload(name="Non-existent Ingredient"), status.HTTP_201_CREATED)
-    payload = {"products": [product_non_existent["url"]]}
-    response = tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/search_by_ingredients/", payload, status.HTTP_200_OK)
-    self.assertEqual(len(response), 0)
+    search_ids_non_existent = commons.list_of_integers2string([product_non_existent["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes/?search=:INGREDIENTSALL {search_ids_non_existent}", status.HTTP_200_OK)
+    self.assertEqual(len(response["results"]), 0)
 
     # Test case 5: Empty product list
-    payload = {"products": []}
-    response = tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/search_by_ingredients/", payload, status.HTTP_400_BAD_REQUEST)
+    # This tests the "Product IDs list cannot be empty" validation in views.py
+    response = tests_helpers.client_get(self, self.client_authorized_1, "/api/recipes/?search=:INGREDIENTSALL ", status.HTTP_400_BAD_REQUEST)
+    self.assertEqual(response, "Product IDs list cannot be empty for :INGREDIENTSALL search")
 
-    # Test case 6: Missing products parameter
-    payload = {}
-    response = tests_helpers.client_post(self, self.client_authorized_1, "/api/recipes/search_by_ingredients/", payload, status.HTTP_400_BAD_REQUEST)
+    # Test case 6: Malformed product IDs (e.g., non-integer in list)
+    # This tests the ValueError from commons.string2list_of_integers
+    response = tests_helpers.client_get(self, self.client_authorized_1, "/api/recipes/?search=:INGREDIENTSALL 1,abc,3", status.HTTP_400_BAD_REQUEST)
+    self.assertEqual(response, "Error parsing ingredients: invalid product ID format")
 
     # Test case 7: Unauthorized user
-    payload = {"products": [product1["url"]]}
-    response = tests_helpers.client_post(self, self.client_anonymous, "/api/recipes/search_by_ingredients/", payload, status.HTTP_401_UNAUTHORIZED)
+    search_ids_product1 = commons.list_of_integers2string([product1["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_anonymous, f"/api/recipes/?search=:INGREDIENTSALL {search_ids_product1}", status.HTTP_401_UNAUTHORIZED)
+
+    # Test case 8: Search for ingredients that are not all present in any recipe
+    # For example, search for A, C. recipe_ab has A, recipe_c has C, recipe_abc has A,B,C.
+    # Only recipe_abc should be returned.
+    search_ids_ac = commons.list_of_integers2string([product1["id"], product3["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes/?search=:INGREDIENTSALL {search_ids_ac}", status.HTTP_200_OK)
+    self.assertEqual(len(response["results"]), 1)
+    self.assertEqual(response["results"][0]["id"], recipe_all_ingredients["id"])
+
+    # --- Tests for :INGREDIENTSANY ---
+
+    # Test case 9: Search for ingredients A, B (any of them)
+    search_ids_ab_any = commons.list_of_integers2string([product1["id"], product2["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes/?search=:INGREDIENTSANY {search_ids_ab_any}", status.HTTP_200_OK)
+    self.assertEqual(len(response["results"]), 2) # Should match recipe_all_ingredients and recipe_subset_ingredients
+    response_ids = [r["id"] for r in response["results"]]
+    self.assertIn(recipe_all_ingredients["id"], response_ids)
+    self.assertIn(recipe_subset_ingredients["id"], response_ids)
+
+    # Test case 10: Search for ingredient C (any)
+    search_ids_c_any = commons.list_of_integers2string([product3["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes/?search=:INGREDIENTSANY {search_ids_c_any}", status.HTTP_200_OK)
+    self.assertEqual(len(response["results"]), 2) # Should match recipe_all_ingredients and recipe_other_ingredients
+    response_ids = [r["id"] for r in response["results"]]
+    self.assertIn(recipe_all_ingredients["id"], response_ids)
+    self.assertIn(recipe_other_ingredients["id"], response_ids)
+
+    # Test case 11: Search for ingredient A (any)
+    search_ids_a_any = commons.list_of_integers2string([product1["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes/?search=:INGREDIENTSANY {search_ids_a_any}", status.HTTP_200_OK)
+    self.assertEqual(len(response["results"]), 2) # Should match recipe_all_ingredients and recipe_subset_ingredients
+    response_ids = [r["id"] for r in response["results"]]
+    self.assertIn(recipe_all_ingredients["id"], response_ids)
+    self.assertIn(recipe_subset_ingredients["id"], response_ids)
+
+    # Test case 12: Search for an ingredient not in any recipe (any)
+    search_ids_non_existent_any = commons.list_of_integers2string([product_non_existent["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_authorized_1, f"/api/recipes/?search=:INGREDIENTSANY {search_ids_non_existent_any}", status.HTTP_200_OK)
+    self.assertEqual(len(response["results"]), 0)
+
+    # Test case 13: Empty product list for :INGREDIENTSANY
+    response = tests_helpers.client_get(self, self.client_authorized_1, "/api/recipes/?search=:INGREDIENTSANY ", status.HTTP_400_BAD_REQUEST)
+    self.assertEqual(response, "Product IDs list cannot be empty for :INGREDIENTSANY search")
+
+    # Test case 14: Malformed product IDs for :INGREDIENTSANY
+    response = tests_helpers.client_get(self, self.client_authorized_1, "/api/recipes/?search=:INGREDIENTSANY 1,xyz,3", status.HTTP_400_BAD_REQUEST)
+    self.assertEqual(response, "Error parsing ingredients: invalid product ID format")
+
+    # Test case 15: Unauthorized user for :INGREDIENTSANY
+    search_ids_product1_any = commons.list_of_integers2string([product1["id"]], ",")
+    response = tests_helpers.client_get(self, self.client_anonymous, f"/api/recipes/?search=:INGREDIENTSANY {search_ids_product1_any}", status.HTTP_401_UNAUTHORIZED)
