@@ -660,6 +660,58 @@ class RecipesViewSet(viewsets.ModelViewSet):
             recipes=models.Recipes.objects.get(pk=main_recipe.id)
             return Response(serializers.RecipesSerializer(recipes, context={'request': request}).data, status=status.HTTP_200_OK)
         return Response(_("Something was wrong with your merge urls"), status=status.HTTP_400_BAD_REQUEST)
+    
+
+    @extend_schema(
+        request={
+            'application/json': {
+                'type': 'object',
+                'properties': {
+                    'products': {
+                        'type': 'array',
+                        'items': {'type': 'string', 'format': 'uri'},
+                        'description': 'List of product URLs to search for as ingredients.'
+                    }
+                },
+                'required': ['products']
+            }
+        },
+        responses={
+            200: serializers.RecipesSerializer(many=True),
+            400: OpenApiTypes.OBJECT
+        },
+        summary='Search recipes by ingredients',
+        description='Returns recipes whose elaborations contain all of the specified product ingredients.'
+    )
+    @action(detail=False, methods=['POST'], name='Search recipes by ingredients', url_path="search_by_ingredients", url_name='search_by_ingredients', permission_classes=[permissions.IsAuthenticated])
+    def search_by_ingredients(self, request):
+        product_urls = RequestListOfUrls(request, "products", models.Products, [], validate_object=lambda o: o.user==request.user)
+
+        if len(product_urls)==0:
+            return Response({"detail": "The 'products' list cannot be empty."}, status=status.HTTP_400_BAD_REQUEST)
+
+        product_ids = [p.id for p in product_urls]
+
+        # Find elaborations that contain all specified distinct products for the current user
+        matching_elaborations = models.ElaborationsProductsInThrough.objects.filter(
+            products__id__in=product_ids,
+            elaborations__recipes__user=request.user
+        ).values('elaborations__id').annotate(
+            distinct_products_count=Count('products__id', distinct=True)
+        ).filter(
+            distinct_products_count=len(product_ids)
+        )
+
+        # Get the IDs of recipes associated with these matching elaborations
+        final_recipe_ids = models.Elaborations.objects.filter(
+            id__in=[e['elaborations__id'] for e in matching_elaborations]
+        ).values_list('recipes__id', flat=True).distinct()
+
+        queryset = self.get_queryset().filter(id__in=final_recipe_ids)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 class RecipesCategoriesViewSet(CatalogModelViewSet):
     queryset = models.RecipesCategories.objects.all()

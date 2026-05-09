@@ -712,9 +712,9 @@ class Recipes(models.Model):
         
         
     @staticmethod
-    def post_payload():
+    def post_payload(name="Recipe for testing"):
         return {
-            "name": 'Recipe for testing', 
+            "name": name, 
             "datetime": '2023-06-11T05:35:13.673203Z', 
             "last": '2023-06-11T05:35:13.673203Z', 
             "food_types":'http://testserver/api/food_types/2/', 
