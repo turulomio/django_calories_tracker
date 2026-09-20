@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Database dumps & SQL files
+*.sql
+*.dump
+
+# Coverage & testing reports
+.coverage
+htmlcov/
+.tox/
+
+# IDE & Editor files
+.vscode/
+.idea/
+.eric7project/
+*.epj
+.jedi/
+
+# Documentation builds
+doc/html/
