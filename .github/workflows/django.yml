@@ -2,7 +2,7 @@ name: Django CI/CD
 
 on:
   push:
-    branches: [ "main", "64-create-docker-image-and-update-actions" ]
+    branches: [ "main" ]
     tags: [ "v*.*.*" ]
   pull_request:
     branches: [ "main" ]
