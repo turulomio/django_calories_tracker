@@ -35,13 +35,16 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-# Install PostgreSQL server and runtime dependencies (exiftool, libmagic, libpq)
+# Install PostgreSQL server and runtime dependencies (exiftool, libmagic, libmagickwand, imagemagick, poppler-utils, libpq)
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     postgresql \
     postgresql-contrib \
     libpq-dev \
     exiftool \
     libmagic1 \
+    libmagickwand-dev \
+    imagemagick \
+    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy wheels and requirements from builder stage

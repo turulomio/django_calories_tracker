@@ -37,11 +37,14 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Set the working directory in the container
 WORKDIR /app
 
-# Install runtime dependencies (libpq for psycopg, exiftool & libmagic for preview-generator)
+# Install runtime dependencies (libpq for psycopg, exiftool, libmagic & imagemagick/wand for preview-generator)
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libpq-dev \
     exiftool \
     libmagic1 \
+    libmagickwand-dev \
+    imagemagick \
+    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy pre-built wheels from builder stage
