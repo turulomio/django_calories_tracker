@@ -91,11 +91,11 @@ class Activities(models.Model):
         return self.name
     
     @staticmethod
-    def post_payload():
+    def post_payload(name="Activity", description="Example of activity for testing", multiplier=2):
         return {
-            "name":  "Activity", 
-            "description": "Example of activity for testing",
-            "multiplier": 2, 
+            "name": name, 
+            "description": description,
+            "multiplier": multiplier, 
         }
         
     
@@ -111,9 +111,9 @@ class AdditiveRisks(models.Model):
         return self.name
         
     @staticmethod
-    def post_payload():
+    def post_payload(name="Additive risk for testing"):
         return {
-            "name":  "Additive risk for testing", 
+            "name": name, 
         }
 
 class WeightWishes(models.Model):
@@ -127,9 +127,9 @@ class WeightWishes(models.Model):
         return self.name
 
     @staticmethod
-    def post_payload():
+    def post_payload(name="Weight wish for testing"):
         return {
-            "name":  "Weight wish for testing", 
+            "name": name, 
         }
 
 class Additives(models.Model):
@@ -149,11 +149,11 @@ class Additives(models.Model):
         
         
     @staticmethod
-    def post_payload():
+    def post_payload(name="Additive for testing", description="Description of an additive for testing", additive_risks='http://testserver/api/additive_risks/2/'):
         return {
-            "name":  "Additive for testing", 
-            "description":  "Description of an additive for testing", 
-            'additive_risks': 'http://testserver/api/additive_risks/2/', 
+            "name": name, 
+            "description": description, 
+            'additive_risks': additive_risks, 
         }
     
 def get_profile(user):
@@ -185,13 +185,13 @@ class Biometrics(models.Model):
         
                 
     @staticmethod
-    def post_payload():
+    def post_payload(datetime=timezone.now(), weight=71.12, height=177, activities='http://testserver/api/activities/2/', weight_wishes="http://testserver/api/weight_wishes/2/"):
         return {
-            "datetime": '2023-06-11T05:35:13.673203Z', 
-            "weight": 71.12, 
-            "height":177, 
-            "activities":'http://testserver/api/activities/2/', 
-            "weight_wishes":  "http://testserver/api/weight_wishes/2/", 
+            "datetime": datetime, 
+            "weight": weight, 
+            "height": height, 
+            "activities": activities, 
+            "weight_wishes": weight_wishes, 
         }
     
     ##basal metabolic rate
@@ -281,9 +281,9 @@ class FoodTypes(models.Model):
     def __str__(self):
         return self.name
     @staticmethod
-    def post_payload():
+    def post_payload(name="Food type for testing"):
         return {
-            "name":  "Food type for testing", 
+            "name": name, 
         }
 
 class Companies(models.Model):
@@ -299,11 +299,11 @@ class Companies(models.Model):
         return self.name
                         
     @staticmethod
-    def post_payload():
+    def post_payload(last=timezone.now(), name="Company for testing", obsolete=False):
         return {
-            "last": '2023-06-11T05:35:13.673203Z', 
-            "name": "Company for testing", 
-            "obsolete": False, 
+            "last": last, 
+            "name": name, 
+            "obsolete": obsolete, 
         }
         
     def is_deletable(self):
@@ -323,9 +323,9 @@ class Formats(models.Model):
         return self.name
 
     @staticmethod
-    def post_payload():
+    def post_payload(name="Format for testing"):
         return {
-            "name":  "Format for testing", 
+            "name": name, 
         }
 
 class Products(models.Model):
@@ -379,35 +379,63 @@ class Products(models.Model):
         return request.build_absolute_uri(reverse('products-detail', args=(id, )))
                 
     @staticmethod
-    def post_payload(name="Product 1"):
-            return {
-            'additives': [], 
-            'amount': '5320.000', 
-            'calcium': '8551.000', 
-            'calories': '2190.000', 
-            'carbohydrate': '4137.000', 
-            'cholesterol': '2453.000', 
-            'elaborated_products': None, 
-            'fat': '1346.000', 
-            'ferrum': '9726.000', 
-            'fiber': '4615.000', 
-            'food_types': 'http://testserver/api/food_types/2/', 
-            'formats': [], 
-            'glutenfree': False, 
-            'magnesium': '2657.000', 
+    def post_payload(
+        name="Product 1",
+        additives=None,
+        amount='5320.000',
+        calcium='8551.000',
+        calories='2190.000',
+        carbohydrate='4137.000',
+        cholesterol='2453.000',
+        elaborated_products=None,
+        fat='1346.000',
+        ferrum='9726.000',
+        fiber='4615.000',
+        food_types='http://testserver/api/food_types/2/',
+        formats=None,
+        glutenfree=False,
+        magnesium='2657.000',
+        obsolete=False,
+        phosphor='1095.000',
+        potassium='2181.000',
+        protein='1631.000',
+        salt='7799.000',
+        saturated_fat='527.000',
+        sodium='8319.000',
+        sugars='9859.000',
+        version=timezone.now(),
+        version_description=None,
+        version_parent=None,
+        density='670.000'
+    ):
+        return {
+            'additives': [] if additives is None else additives, 
+            'amount': amount, 
+            'calcium': calcium, 
+            'calories': calories, 
+            'carbohydrate': carbohydrate, 
+            'cholesterol': cholesterol, 
+            'elaborated_products': elaborated_products, 
+            'fat': fat, 
+            'ferrum': ferrum, 
+            'fiber': fiber, 
+            'food_types': food_types, 
+            'formats': [] if formats is None else formats, 
+            'glutenfree': glutenfree, 
+            'magnesium': magnesium, 
             'name': name, 
-            'obsolete': False, 
-            'phosphor': '1095.000', 
-            'potassium': '2181.000', 
-            'protein': '1631.000', 
-            'salt': '7799.000', 
-            'saturated_fat': '527.000', 
-            'sodium': '8319.000', 
-            'sugars': '9859.000', 
-            'version': '2023-06-11T05:35:13.673203Z', 
-            'version_description': None, 
-            'version_parent': None, 
-            'density': '670.000'
+            'obsolete': obsolete, 
+            'phosphor': phosphor, 
+            'potassium': potassium, 
+            'protein': protein, 
+            'salt': salt, 
+            'saturated_fat': saturated_fat, 
+            'sodium': sodium, 
+            'sugars': sugars, 
+            'version': version, 
+            'version_description': version_description, 
+            'version_parent': version_parent, 
+            'density': density
         }
     def fullname(self):
         company=""
@@ -480,14 +508,14 @@ class ElaboratedProducts(models.Model):
         return request.build_absolute_uri(reverse('elaboratedproducts-detail', args=(id, )))
 
     @staticmethod
-    def post_payload(recipes=None):
+    def post_payload(name="Elaborated product for testing", final_amount=1200, last=timezone.now(), food_types='http://testserver/api/food_types/2/', obsolete=False, recipes=None):
         return {
-            "name": "Elaborated product for testing", 
-            "final_amount": 1200, 
-            "last": '2023-06-11T05:35:13.673203Z', 
-            "food_types":'http://testserver/api/food_types/2/', 
-            "obsolete": False, 
-            "recipes":recipes, 
+            "name": name, 
+            "final_amount": final_amount, 
+            "last": last, 
+            "food_types": food_types, 
+            "obsolete": obsolete, 
+            "recipes": recipes, 
         }
     def is_deletable(self):
         if self.uses() >0:
@@ -570,10 +598,10 @@ class ElaboratedProductsProductsInThrough(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=3)
 
     @staticmethod
-    def post_payload(products=None, elaborated_products=None):
+    def post_payload(products=None, amount=1200, elaborated_products=None):
         return {
             "products": products, 
-            "amount": 1200, 
+            "amount": amount, 
             "elaborated_products": elaborated_products
         }
 
@@ -591,11 +619,11 @@ class Meals(models.Model):
         return f"{self.products} ({self.amount}g)"
         
     @staticmethod
-    def post_payload(datetime_=timezone.now(), products=products, amount=330):
+    def post_payload(products=None, datetime=timezone.now(), amount=330):
         return {
-            "datetime": datetime_, 
+            "datetime": datetime, 
             "products": products, 
-            "amount":  amount, 
+            "amount": amount, 
         }
         
     ## name can be, fat, saturated_fat, fiber, sodiumm...
@@ -621,12 +649,12 @@ class PillEvents(models.Model):
         return not self.dt_intake==None
         
     @staticmethod
-    def post_payload():
+    def post_payload(pillname='Pill name', dt=timezone.now(), dt_intake=None, highlight_late=False):
         return {
-            "pillname": 'Pill name', 
-            "dt": datetime.now(),
-            "dt_intake": None, 
-            "highlight_late": False, 
+            "pillname": pillname, 
+            "dt": dt, 
+            "dt_intake": dt_intake, 
+            "highlight_late": highlight_late, 
         }
 
 
@@ -647,12 +675,12 @@ class Pots(models.Model):
         self.fullname()
         
     @staticmethod
-    def post_payload():
+    def post_payload(name='Pot for testing', weight=2000, diameter=20, height=33):
         return {
-            "name": 'Pot for testing', 
-            "weight": 2000,
-           "diameter": 20,  
-            "height":  33, 
+            "name": name, 
+            "weight": weight, 
+            "diameter": diameter, 
+            "height": height, 
         }
     def fullname(self):
         return f"{self.name} ({self.diameter}cm, {self.weight}g)"
@@ -687,9 +715,9 @@ class RecipesCategories(models.Model):
     def __str__(self):
         return self.name
     @staticmethod
-    def post_payload():
+    def post_payload(name="Recipe category type for testing"):
         return {
-            "name":  "Recipe category type for testing", 
+            "name": name, 
         }
 
 class Recipes(models.Model):
@@ -711,18 +739,29 @@ class Recipes(models.Model):
         
         
     @staticmethod
-    def post_payload(name="Recipe for testing"):
+    def post_payload(
+        name="Recipe for testing",
+        datetime=timezone.now(),
+        last=timezone.now(),
+        food_types='http://testserver/api/food_types/2/',
+        obsolete=False,
+        comment="This is my recipe comment for testing",
+        valoration=20,
+        guests=True,
+        soon=True,
+        recipes_categories=None
+    ):
         return {
             "name": name, 
-            "datetime": '2023-06-11T05:35:13.673203Z', 
-            "last": '2023-06-11T05:35:13.673203Z', 
-            "food_types":'http://testserver/api/food_types/2/', 
-            "obsolete":False, 
-            "comment": "This is my recipe comment for testing", 
-            "valoration": 20,  
-            "guests":  True,
-            "soon": True,  
-            "recipes_categories": [], 
+            "datetime": datetime, 
+            "last": last, 
+            "food_types": food_types, 
+            "obsolete": obsolete, 
+            "comment": comment, 
+            "valoration": valoration, 
+            "guests": guests, 
+            "soon": soon, 
+            "recipes_categories": [] if recipes_categories is None else recipes_categories, 
         }
 
     ##Returns a files url, then you can use content/ or thumbnail/
@@ -745,9 +784,9 @@ class RecipesLinksTypes(models.Model):
     def __str__(self):
         return self.name
     @staticmethod
-    def post_payload():
+    def post_payload(name="Recipe link type for testing"):
         return {
-            "name":  "Recipe link type for testing", 
+            "name": name, 
         }
 class RecipesLinks(models.Model):
     datetime = models.DateTimeField(blank=False, null=False)
@@ -760,13 +799,19 @@ class RecipesLinks(models.Model):
         managed = True
         db_table = 'recipes_links'
     @staticmethod
-    def post_payload(recipes):
+    def post_payload(
+        recipes=None,
+        datetime=timezone.now(),
+        description="Recipe links for testing",
+        type='http://testserver/api/recipes_links_types/3/',
+        link="Link for testing"
+    ):
         return {
-            "datetime": '2023-06-11T05:35:13.673203Z', 
-            "description":  "Recipe links for testing", 
-            "type": 'http://testserver/api/recipes_links_types/3/',
-            "link": "Link for testing", 
-            "recipes":recipes, 
+            "datetime": datetime, 
+            "description": description, 
+            "type": type, 
+            "link": link, 
+            "recipes": recipes, 
         }
     
     
@@ -785,13 +830,13 @@ class Elaborations(models.Model):
     def __str__(self):
         return self.fullname()
     @staticmethod
-    def post_payload(recipes):
+    def post_payload(recipes=None, diners=4, final_amount=1000, automatic=False, automatic_adaptation_step=""):
         return {
-            "diners": 4, 
-            "recipes":  recipes, 
-            "final_amount": 1000, 
-            "automatic": False, 
-            "automatic_adaptation_step": ""
+            "diners": diners, 
+            "recipes": recipes, 
+            "final_amount": final_amount, 
+            "automatic": automatic, 
+            "automatic_adaptation_step": automatic_adaptation_step
         }
         
     def fullname(self):
@@ -812,10 +857,10 @@ class ElaborationsTexts(models.Model):
         db_table = 'elaborations_texts'
         
     @staticmethod
-    def post_payload(elaborations, text="My elaboration text"):
+    def post_payload(elaborations=None, text="My elaboration text"):
         return {
             "text": text, 
-            "elaborations":  elaborations,
+            "elaborations": elaborations,
         }            
 
     @staticmethod
@@ -891,9 +936,9 @@ class MeasuresTypes(models.Model):
     def localname(self):
         return _(self.name)
     @staticmethod
-    def post_payload():
+    def post_payload(name="Measure type for testing"):
         return {
-            "name":  "Measure type for testing", 
+            "name": name, 
         }
 
 class ElaborationsProductsInThrough(models.Model):
@@ -907,15 +952,23 @@ class ElaborationsProductsInThrough(models.Model):
     automatic_parent=models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True, db_comment="Parent ElaborationProductsIn for this register", default=None)
  
     @staticmethod
-    def post_payload(elaborations, products):
+    def post_payload(
+        elaborations=None,
+        products=None,
+        measures_types='http://testserver/api/measures_types/2/',
+        amount=1212,
+        comment="Elaboration comment for testing",
+        ni=True,
+        automatic_percentage=100
+    ):
         return {
             "elaborations": elaborations, 
             "products": products, 
-            "measures_types":  'http://testserver/api/measures_types/2/', 
-            "amount": 1212, 
-            "comment": "Elaboration comment for testing", 
-            "ni": True, 
-            "automatic_percentage": 100, 
+            "measures_types": measures_types, 
+            "amount": amount, 
+            "comment": comment, 
+            "ni": ni, 
+            "automatic_percentage": automatic_percentage, 
         }
 
     def final_grams(self):
@@ -958,9 +1011,9 @@ class ElaborationsContainers(models.Model):
         return self.name
 
     @staticmethod
-    def post_payload(elaborations):
+    def post_payload(elaborations=None, name="Elaboration container for testing"):
         return {
-            "name":  "Elaboration container for testing", 
+            "name": name, 
             "elaborations": elaborations
         }
     
@@ -983,10 +1036,10 @@ class ElaborationsExperiences(models.Model):
         return self.name
 
     @staticmethod
-    def post_payload(elaborations):
+    def post_payload(elaborations=None, datetime=timezone.now(), experience="Elaboration experience for testing"):
         return {
-            "datetime": '2023-06-11T05:35:13.673203Z', 
-            "experience":  "Elaboration experience for testing", 
+            "datetime": datetime, 
+            "experience": experience, 
             "elaborations": elaborations
         }
 
