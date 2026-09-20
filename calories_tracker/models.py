@@ -23,7 +23,6 @@ from preview_generator.manager import PreviewManager
 from re import findall
 from simple_history.models import HistoricalRecords
 
-ptimeit
 
 class Files(models.Model):
     content=models.BinaryField(blank=False, null=False)
@@ -751,6 +750,7 @@ class RecipesLinksTypes(models.Model):
             "name":  "Recipe link type for testing", 
         }
 class RecipesLinks(models.Model):
+    datetime = models.DateTimeField(blank=False, null=False)
     description=models.TextField( blank=False, null=False)
     type=models.ForeignKey(RecipesLinksTypes, models.DO_NOTHING)
     link=models.TextField( blank=False, null=True)
@@ -762,10 +762,11 @@ class RecipesLinks(models.Model):
     @staticmethod
     def post_payload(recipes):
         return {
+            "datetime": '2023-06-11T05:35:13.673203Z', 
             "description":  "Recipe links for testing", 
             "type": 'http://testserver/api/recipes_links_types/3/',
-           "link": "Link for testing", 
-           "recipes":recipes, 
+            "link": "Link for testing", 
+            "recipes":recipes, 
         }
     
     
