@@ -563,7 +563,7 @@ class RecipesLinksSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.RecipesLinks
-        fields = ('url', 'id', 'description', 'type', 'link', 'recipes', 'files')
+        fields = ('url', 'id', 'datetime', 'description', 'type', 'link', 'recipes', 'files')
         
     def create(self, validated_data):
         request = self.context.get("request")
