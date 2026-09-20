@@ -1,0 +1,77 @@
+# --- Stage 1: Build dependencies ---
+FROM python:3.14-slim-bookworm AS builder
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    gcc \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry and export plugin
+RUN pip install poetry && poetry self add poetry-plugin-export
+
+# Copy Poetry configuration files
+COPY pyproject.toml poetry.lock /app/
+
+# Export dependencies to requirements.txt and compile wheels
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
+RUN pip wheel --no-cache-dir --wheel-dir=/usr/src/app/wheels -r requirements.txt
+
+# --- Stage 2: Final E2E image (with embedded PostgreSQL & pre-loaded fixtures) ---
+FROM python:3.14-slim-bookworm
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+# Install PostgreSQL server and runtime dependencies (exiftool, libmagic, libpq)
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    postgresql \
+    postgresql-contrib \
+    libpq-dev \
+    exiftool \
+    libmagic1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy wheels and requirements from builder stage
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /app/requirements.txt /app/requirements.txt
+
+# Install Python packages and Gunicorn
+RUN pip install --no-cache-dir /wheels/* -r requirements.txt gunicorn
+
+# Copy application source code
+COPY . /app
+
+# Configure embedded PostgreSQL, apply migrations, and pre-load test fixtures during build
+RUN service postgresql start \
+    && su - postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD 'postgres';\"" \
+    && su - postgres -c "createdb -O postgres calories_tracker" \
+    && DJANGO_SETTINGS_MODULE=django_calories_tracker.settings_docker POSTGRES_HOST=127.0.0.1 POSTGRES_PORT=5432 POSTGRES_DB=calories_tracker POSTGRES_USER=postgres POSTGRES_PASSWORD=postgres python manage.py migrate \
+    && DJANGO_SETTINGS_MODULE=django_calories_tracker.settings_docker POSTGRES_HOST=127.0.0.1 POSTGRES_PORT=5432 POSTGRES_DB=calories_tracker POSTGRES_USER=postgres POSTGRES_PASSWORD=postgres python manage.py loaddata calories_tracker/fixtures/all.json calories_tracker/fixtures/test_server.json \
+    && service postgresql stop
+
+# Expose HTTP port
+EXPOSE 8000
+
+# Default environment variables for standalone E2E execution
+ENV DJANGO_SETTINGS_MODULE=django_calories_tracker.settings_docker
+ENV PORT=8000
+ENV POSTGRES_HOST=127.0.0.1
+ENV POSTGRES_PORT=5432
+ENV POSTGRES_DB=calories_tracker
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+
+# Start embedded PostgreSQL and Gunicorn server
+CMD ["sh", "-c", "service postgresql start && until pg_isready -h 127.0.0.1 -p 5432 -U postgres; do sleep 0.5; done && gunicorn --bind 0.0.0.0:${PORT:-8000} django_calories_tracker.wsgi:application"]

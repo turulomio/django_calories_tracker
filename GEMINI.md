@@ -7,7 +7,7 @@
   - Preserve and update existing documentation when modifying code.
 
 ## Technology Stack & Architecture
-- **Language & Runtime**: Python >= 3.12.
+- **Language & Runtime**: Python >= 3.14.
 - **Framework**: Django >= 6.0, Django REST Framework (DRF), django-simple-history.
 - **Package & Task Management**: Poetry (`poetry run ...`), PoeThePoet (`poe ...`).
 - **Database**: PostgreSQL (psycopg3).
