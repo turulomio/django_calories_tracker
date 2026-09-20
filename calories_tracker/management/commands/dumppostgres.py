@@ -5,6 +5,24 @@ This module provides a management command (`dumppostgres`) that executes `pg_dum
 directly against the configured default database. Dumping via `pg_dump` allows
 efficient, stream-based backups with low memory/swap consumption compared to
 Django's native `dumpdata` command for large datasets.
+
+Database Restoration Instructions (Custom Format `c`)
+------------------------------------------------------
+To restore a backup file generated in custom format (`.dump`), use `pg_restore`:
+
+```bash
+# Basic restore:
+pg_restore -U <db_user> -h <db_host> -p <db_port> -d <db_name> <filename>.dump
+
+# Clean/drop existing objects before recreating them:
+pg_restore -U <db_user> -h <db_host> -p <db_port> -d <db_name> --clean --if-exists <filename>.dump
+
+# Parallel restore with multiple jobs (faster for large databases):
+pg_restore -U <db_user> -h <db_host> -p <db_port> -d <db_name> -j 4 <filename>.dump
+
+# If password is required:
+PGPASSWORD="<password>" pg_restore -U <db_user> -h <db_host> -p <db_port> -d <db_name> <filename>.dump
+```
 """
 
 from datetime import datetime
@@ -22,6 +40,9 @@ class Command(BaseCommand):
     Reads connection parameters (HOST, PORT, USER, NAME, PASSWORD) from Django's
     configured `default` database in `settings.DATABASES` and generates a timestamped
     backup file.
+
+    See module docstring for instructions on restoring the generated backup files
+    using `pg_restore` or `psql`.
     """
 
     help = 'Command to dump postgres database efficiently without consuming excessive memory/swap'
