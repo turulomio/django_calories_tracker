@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     gcc \
     git \
+    exiftool \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry and export plugin
