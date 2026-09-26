@@ -12,6 +12,7 @@ from django.utils import timezone
 from calories_tracker import models
 from calories_tracker.management.commands.import_recipe import (
     OllamaClient,
+    ProductMatcher,
     RecipeImporter,
     RecipeTextExtractor,
     YouTubeHelper,
@@ -472,6 +473,82 @@ def test_recipe_importer_only_matches_target_user_products(self):
     self.assertEqual(through_items.count(), 1)
     self.assertEqual(through_items.first().products, prod_user1)
     self.assertFalse(through_items.filter(products=prod_user2).exists())
+
+
+def test_recipe_import_atomic_rollback_on_failure(self):
+    """
+    Test that import_recipe is atomic: if an exception occurs during elaboration creation,
+    all previously inserted objects (Recipe, RecipesLinks, Files) are rolled back.
+    """
+    importer = RecipeImporter()
+    mock_recipe_json = {
+        "name": "Receta Fallida Rollback Test",
+        "comment": "Prueba de atomicidad",
+        "food_type": "Dessert",
+        "categories": ["Dessert"],
+        "diners": 4,
+        "ingredients": [],
+        "steps": "Paso 1.",
+    }
+
+    initial_recipes_count = models.Recipes.objects.count()
+    initial_links_count = models.RecipesLinks.objects.count()
+
+    with patch.object(RecipeTextExtractor, "extract_from_url", return_value=("Texto receta", "Receta")):
+        with patch.object(importer.client, "generate", return_value=mock_recipe_json):
+            # Mock create_automatic_elaboration to simulate unexpected error after recipe and links were created
+            with patch.object(
+                importer,
+                "create_automatic_elaboration",
+                side_effect=RuntimeError("Simulated database failure during elaboration"),
+            ):
+                with self.assertRaises(RuntimeError):
+                    importer.import_recipe(
+                        url="https://example.com/rollback-test",
+                        user=self.user_authorized_1,
+                    )
+
+    # Verify atomic rollback: no Recipe or RecipesLinks remain in the database
+    self.assertEqual(models.Recipes.objects.count(), initial_recipes_count)
+    self.assertEqual(models.RecipesLinks.objects.count(), initial_links_count)
+    self.assertFalse(models.Recipes.objects.filter(name__icontains="Receta Fallida Rollback Test").exists())
+
+
+def test_product_matcher_heuristics(self):
+    """
+    Test ProductMatcher confidence calculations, modifier conflict detection, and false positive prevention.
+    """
+    # 1. Exact and normalized matches
+    score_exact = ProductMatcher.calculate_confidence("Pechuga de pollo", "Pechuga de pollo")
+    self.assertEqual(score_exact, 1.0)
+
+    score_norm = ProductMatcher.calculate_confidence("Aceite de oliva virgen extra", "aceite de oliva vírgen extra")
+    self.assertGreaterEqual(score_norm, 0.98)
+
+    score_plural = ProductMatcher.calculate_confidence("Huevos frescos", "Huevo")
+    self.assertGreaterEqual(score_plural, 0.90)
+
+    # 2. Conflicting modifiers must produce score 0.0
+    score_conflict_oil = ProductMatcher.calculate_confidence("Aceite de oliva", "Aceite de girasol")
+    self.assertEqual(score_conflict_oil, 0.0)
+
+    score_conflict_wine = ProductMatcher.calculate_confidence("Vino blanco", "Vino tinto")
+    self.assertEqual(score_conflict_wine, 0.0)
+
+    score_conflict_milk = ProductMatcher.calculate_confidence("Leche desnatada", "Leche entera")
+    self.assertEqual(score_conflict_milk, 0.0)
+
+    score_conflict_flour = ProductMatcher.calculate_confidence("Harina de trigo", "Harina de avena")
+    self.assertEqual(score_conflict_flour, 0.0)
+
+    # 3. Substrings with low similarity must be rejected (score < CONFIDENCE_THRESHOLD)
+    score_sal = ProductMatcher.calculate_confidence("Sal", "Salmón")
+    self.assertLess(score_sal, ProductMatcher.CONFIDENCE_THRESHOLD)
+
+    score_ajo = ProductMatcher.calculate_confidence("Ajo", "Majo")
+    self.assertLess(score_ajo, ProductMatcher.CONFIDENCE_THRESHOLD)
+
+
 
 
 

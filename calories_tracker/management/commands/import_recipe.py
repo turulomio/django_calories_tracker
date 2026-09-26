@@ -5,6 +5,7 @@ elaborations using a local Ollama LLM instance.
 
 from decimal import Decimal
 import base64
+import difflib
 from glob import glob
 import html
 import json
@@ -15,6 +16,7 @@ from os import path
 import re
 import shutil
 import subprocess
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -670,6 +672,199 @@ class RecipeTextExtractor:
         return text, raw_bytes, mime_type
 
 
+class ProductMatcher:
+    """
+    High-confidence heuristic matcher to safely map recipe ingredient names
+    to existing user products without introducing false positive matches.
+    """
+
+    STOPWORDS = {
+        "de", "del", "la", "el", "los", "las", "un", "una", "unos", "unas",
+        "para", "con", "sin", "y", "e", "o", "u", "al", "en", "por",
+        "fresco", "fresca", "frescos", "frescas", "natural", "naturales",
+        "crudo", "cruda", "crudos", "crudas", "troceado", "troceada", "picado", "picada",
+        "rallado", "rallada", "cocido", "cocida", "frito", "frita", "asado", "asada",
+        "fresh", "raw", "chopped", "diced", "sliced", "grated", "cooked", "fried",
+    }
+
+    # Groups of mutually exclusive modifier tokens. If ingredient and product specify different
+    # tokens from the same group, they MUST NOT match.
+    MUTUALLY_EXCLUSIVE_MODIFIER_GROUPS = [
+        {"oliva", "girasol", "coco", "sesamo", "maiz", "soja", "palma", "colza", "cacahuete", "aguacate"},
+        {"entera", "desnatada", "semidesnatada", "skim", "whole", "semi", "descremada"},
+        {"blanco", "tinto", "rosado", "negro", "verde", "rojo", "amarillo", "morado", "white", "red", "black", "green", "yellow"},
+        {"vaca", "cabra", "oveja", "soja", "avena", "almendra", "arroz", "coco", "avellana"},
+        {"trigo", "centeno", "espelta", "maiz", "maicena", "arroz", "avena", "garbanzo"},
+        {"dulce", "salado", "amargo", "picante", "agridulce", "sweet", "salty", "spicy"},
+        {"pechuga", "muslo", "ala", "lomo", "solomillo", "costilla", "higado", "picada"},
+        {"molido", "grano", "polvo", "entero", "hoja", "rama"},
+    ]
+
+    CONFIDENCE_THRESHOLD = 0.85
+
+    @classmethod
+    def normalize_text(cls, text: str) -> str:
+        """
+        Normalize text by lowercasing, removing accents, punctuation, and extra whitespace.
+
+        :param text: Input string.
+        :return: Normalized string.
+        """
+        if not text:
+            return ""
+        text = text.lower().strip()
+        nfkd = unicodedata.normalize("NFKD", text)
+        no_accents = "".join(c for c in nfkd if not unicodedata.combining(c))
+        cleaned = re.sub(r"[^\w\s]", " ", no_accents)
+        return re.sub(r"\s+", " ", cleaned).strip()
+
+    @classmethod
+    def singularize_word(cls, word: str) -> str:
+        """
+        Basic singularization for Spanish and English words.
+
+        :param word: Word string.
+        :return: Singularized word.
+        """
+        if len(word) <= 3:
+            return word
+        if word.endswith("ces"):
+            return word[:-3] + "z"
+        if word.endswith("es") and word[-3] not in "aeiou":
+            return word[:-2]
+        if word.endswith("s") and not word.endswith("ss"):
+            return word[:-1]
+        return word
+
+    @classmethod
+    def extract_meaningful_tokens(cls, text: str) -> tuple[list[str], set[str]]:
+        """
+        Extract normalized, singularized, non-stopword tokens from a text string.
+
+        :param text: Input string.
+        :return: Tuple of (ordered_tokens_list, tokens_set).
+        """
+        norm = cls.normalize_text(text)
+        tokens = [cls.singularize_word(w) for w in norm.split() if w and w not in cls.STOPWORDS]
+        return tokens, set(tokens)
+
+    @classmethod
+    def has_conflicting_modifiers(cls, ing_tokens_set: set[str], prod_tokens_set: set[str]) -> bool:
+        """
+        Check if ingredient and product contain mutually exclusive distinguishing tokens.
+
+        :param ing_tokens_set: Set of meaningful tokens in ingredient.
+        :param prod_tokens_set: Set of meaningful tokens in product.
+        :return: True if conflicting modifiers exist, False otherwise.
+        """
+        for group in cls.MUTUALLY_EXCLUSIVE_MODIFIER_GROUPS:
+            ing_intersect = ing_tokens_set.intersection(group)
+            prod_intersect = prod_tokens_set.intersection(group)
+            if ing_intersect and prod_intersect and ing_intersect != prod_intersect:
+                return True
+        return False
+
+    @classmethod
+    def calculate_confidence(cls, ing_name: str, prod_name: str) -> float:
+        """
+        Calculate match confidence score between an ingredient name and a product name.
+
+        :param ing_name: Ingredient name from recipe.
+        :param prod_name: Product name from user database.
+        :return: Float score between 0.0 and 1.0.
+        """
+        if not ing_name or not prod_name:
+            return 0.0
+
+        raw_ing = ing_name.strip().lower()
+        raw_prod = prod_name.strip().lower()
+
+        # 1. Exact raw match
+        if raw_ing == raw_prod:
+            return 1.0
+
+        norm_ing = cls.normalize_text(ing_name)
+        norm_prod = cls.normalize_text(prod_name)
+
+        # 2. Exact normalized match (ignoring accents, case, punctuation)
+        if norm_ing == norm_prod:
+            return 0.98
+
+        ing_tokens, ing_set = cls.extract_meaningful_tokens(ing_name)
+        prod_tokens, prod_set = cls.extract_meaningful_tokens(prod_name)
+
+        if not ing_tokens or not prod_tokens:
+            return 0.0
+
+        # Check for conflicting modifiers (e.g. olive oil vs sunflower oil)
+        if cls.has_conflicting_modifiers(ing_set, prod_set):
+            return 0.0
+
+        # 3. Exact token set match (ignoring word order and stopwords)
+        if ing_set == prod_set:
+            return 0.95
+
+        stem_ing = " ".join(ing_tokens)
+        stem_prod = " ".join(prod_tokens)
+
+        # 4. Exact stemmed sequence match
+        if stem_ing == stem_prod:
+            return 0.94
+
+        # 5. Sequence similarity over normalized and stemmed representations
+        ratio_norm = difflib.SequenceMatcher(None, norm_ing, norm_prod).ratio()
+        ratio_stem = difflib.SequenceMatcher(None, stem_ing, stem_prod).ratio()
+        base_ratio = max(ratio_norm, ratio_stem)
+
+        # Ensure that if the ingredient has key tokens, they are predominantly in the product
+        if len(ing_set) == 1 and len(prod_set) == 1:
+            single_ing = list(ing_set)[0]
+            single_prod = list(prod_set)[0]
+            if single_ing != single_prod:
+                token_sim = difflib.SequenceMatcher(None, single_ing, single_prod).ratio()
+                if token_sim < 0.88 or min(len(single_ing), len(single_prod)) <= 3:
+                    return 0.0
+                return token_sim * 0.9
+
+        # If one token set is a subset of the other, check if all essential tokens are matched
+        if ing_set.issubset(prod_set) or prod_set.issubset(ing_set):
+            common_count = len(ing_set.intersection(prod_set))
+            total_count = max(len(ing_set), len(prod_set))
+            subset_ratio = common_count / total_count
+            if subset_ratio >= 0.80:
+                return max(base_ratio, subset_ratio * 0.92)
+
+        return base_ratio
+
+    @classmethod
+    def find_best_product(cls, ing_name: str, candidate_products) -> tuple[models.Products | None, float]:
+        """
+        Find the single product with the highest confidence score exceeding CONFIDENCE_THRESHOLD.
+
+        :param ing_name: Name of ingredient from recipe.
+        :param candidate_products: Iterable / QuerySet of user Products.
+        :return: Tuple (best_product, confidence_score) or (None, 0.0).
+        """
+        best_product = None
+        best_score = 0.0
+
+        for product in candidate_products:
+            p_name = getattr(product, "name", "")
+            if not p_name or not p_name.strip():
+                continue
+
+            score = cls.calculate_confidence(ing_name, p_name)
+            if score > best_score:
+                best_score = score
+                best_product = product
+                if score >= 0.98:  # Near perfect match, early exit
+                    break
+
+        if best_score >= cls.CONFIDENCE_THRESHOLD:
+            return best_product, best_score
+        return None, best_score
+
+
 class RecipeImporter:
     """
     Coordinates LLM parsing, database object creation (Recipes, RecipesLinks,
@@ -1006,26 +1201,24 @@ class RecipeImporter:
             if not ing_name or len(ing_name) < 2:
                 continue
 
-            # Resolve product - only look up valid, non-empty existing products for the specific user
+            # Resolve product - only look up valid, non-empty existing products for the specific user using high-confidence matching
             target_user = user or recipe.user
-            qs_user_products = (
+            user_products = (
                 models.Products.objects.filter(user=target_user, obsolete=False)
                 .exclude(name__isnull=True)
                 .exclude(name__exact="")
                 .exclude(name__regex=r"^\s*$")
             )
 
-            # 1. Exact match (case insensitive) for user's own products
-            product = qs_user_products.filter(name__iexact=ing_name).first()
+            product, confidence = ProductMatcher.find_best_product(ing_name, user_products)
 
-            # 2. Substring match fallback: only if ing_name is specific enough (at least 4 chars)
-            if not product and len(ing_name) >= 4:
-                product = qs_user_products.filter(name__icontains=ing_name).first()
-
-            if not product or not getattr(product, "id", None) or not getattr(product, "name", "").strip():
-                # If product does not exist for the user, do not add it and do not create placeholder products
+            if not product or confidence < ProductMatcher.CONFIDENCE_THRESHOLD:
                 user_name_display = getattr(target_user, "username", str(target_user)) if target_user else "desconocido"
-                print(f"  - Ingrediente ignorado (el producto no existe para el usuario '{user_name_display}'): '{ing_name}'", flush=True)
+                conf_pct = int(confidence * 100)
+                print(
+                    f"  - Ingrediente ignorado (no coincide con alta confianza para el usuario '{user_name_display}', coincidencia={conf_pct}%): '{ing_name}'",
+                    flush=True,
+                )
                 continue
 
             # Resolve unit & measure type
@@ -1091,6 +1284,7 @@ class RecipeImporter:
 
         return elaboration
 
+    @transaction.atomic
     def create_elaboration_from_recipe_links(self, recipe: models.Recipes, user: User, locale: str = None) -> models.Elaborations:
         """
         Generate an automatic elaboration for an existing recipe by reading its associated RecipesLinks.
@@ -1133,6 +1327,7 @@ class RecipeImporter:
         recipe_data = self.parse_recipe_with_llm(combined_text, audio_base64=audio_base64, user=user, locale=loc)
         return self.create_automatic_elaboration(recipe, recipe_data, user, locale=loc)
 
+    @transaction.atomic
     def import_recipe(
         self,
         url: str = None,
