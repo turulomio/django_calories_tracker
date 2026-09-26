@@ -23,7 +23,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
 from calories_tracker import models
@@ -156,6 +156,7 @@ class YouTubeHelper:
         :param video_id: 11-character YouTube video ID.
         :return: Tuple (image_bytes, mime_type) or None if download fails.
         """
+        print(f"[YouTube] Descargando snapshot/miniatura para el vídeo '{video_id}'...", flush=True)
         thumbnail_urls = [
             f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg",
             f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
@@ -175,9 +176,12 @@ class YouTubeHelper:
                         content = resp.read()
                         # Some missing maxresdefault return 1097 byte placeholder; check valid length
                         if len(content) > 1500:
+                            print(f"[YouTube] ✓ Snapshot descargado exitosamente ({len(content)} bytes, image/jpeg)", flush=True)
                             return content, "image/jpeg"
             except Exception as e:
                 logger.debug("Failed downloading thumbnail from %s: %s", thumb_url, e)
+        print(f"[YouTube] ⚠ No se pudo obtener snapshot/miniatura para '{video_id}'", flush=True)
+        return None
 
     @classmethod
     def clean_vtt(cls, vtt_content: str) -> str:
@@ -208,12 +212,13 @@ class YouTubeHelper:
         return " ".join(lines)
 
     @classmethod
-    def extract_full_youtube_data(cls, url: str, video_id: str) -> dict:
+    def extract_full_youtube_data(cls, url: str, video_id: str, locale: str = "es") -> dict:
         """
         Extract title, description, spoken subtitles/transcript, and audio track from YouTube using yt-dlp.
 
         :param url: YouTube video URL.
         :param video_id: 11-character YouTube video ID.
+        :param locale: Preferred language code for subtitle extraction (default: "es").
         :return: Dict containing title, description, transcript, combined_text, and base64 audio.
         """
         result = {
@@ -229,6 +234,7 @@ class YouTubeHelper:
 
         if ytdlp_bin:
             # 1. Extract metadata and subtitles/transcripts
+            print(f"[YouTube] Extrayendo metadatos y subtítulos con yt-dlp (ID: {video_id})...", flush=True)
             sub_template = f"{tmp_dir}/yt_sub_{video_id}"
             try:
                 for f in glob(f"{sub_template}*"):
@@ -237,6 +243,9 @@ class YouTubeHelper:
                     except OSError:
                         pass
 
+                clean_loc = (locale or "es").split("_")[0].lower()
+                sub_langs = f"{clean_loc},{clean_loc}-orig,es,en,es-orig,en-orig,es-419"
+
                 proc = subprocess.run(
                     [
                         ytdlp_bin,
@@ -244,7 +253,7 @@ class YouTubeHelper:
                         "--skip-download",
                         "--write-auto-sub",
                         "--write-sub",
-                        "--sub-lang", "es,en,es-orig,en-orig,es-419",
+                        "--sub-lang", sub_langs,
                         "--sub-format", "vtt/best",
                         "-o", f"subtitle:{sub_template}",
                         url,
@@ -258,6 +267,7 @@ class YouTubeHelper:
                         meta = json.loads(proc.stdout)
                         result["title"] = meta.get("title", "")
                         result["description"] = meta.get("description", "")
+                        print(f"[YouTube] ✓ Título: '{result['title']}'", flush=True)
                     except Exception as e:
                         logger.debug("Failed parsing yt-dlp metadata JSON: %s", e)
 
@@ -267,6 +277,7 @@ class YouTubeHelper:
                     try:
                         with open(sub_files[0], "r", encoding="utf-8", errors="replace") as sf:
                             result["transcript"] = cls.clean_vtt(sf.read())
+                        print(f"[YouTube] ✓ Subtítulos extraídos ({len(result['transcript'])} caracteres)", flush=True)
                     except Exception as e:
                         logger.debug("Failed reading subtitle file: %s", e)
                     finally:
@@ -275,10 +286,14 @@ class YouTubeHelper:
                                 os.remove(f)
                             except OSError:
                                 pass
+                else:
+                    print("[YouTube] ℹ No se encontraron subtítulos VTT; se usará la descripción", flush=True)
             except Exception as e:
                 logger.debug("yt-dlp metadata/subtitle extraction error: %s", e)
+                print(f"[YouTube] ⚠ Error extrayendo subtítulos: {e}", flush=True)
 
             # 2. Extract audio track from video
+            print(f"[YouTube] Extrayendo y convirtiendo pista de audio a MP3 con yt-dlp (ID: {video_id})...", flush=True)
             audio_template = f"{tmp_dir}/yt_audio_{video_id}.%(ext)s"
             try:
                 for f in glob(f"{tmp_dir}/yt_audio_{video_id}.*"):
@@ -306,17 +321,22 @@ class YouTubeHelper:
                             audio_bytes = af.read()
                             if audio_bytes:
                                 result["audio_base64"] = base64.b64encode(audio_bytes).decode("utf-8")
+                                print(f"[YouTube] ✓ Pista de audio convertida y codificada en Base64 ({len(audio_bytes)} bytes)", flush=True)
                         for af_path in generated_audios:
                             try:
                                 os.remove(af_path)
                             except OSError:
                                 pass
+                else:
+                    print(f"[YouTube] ⚠ Falló la conversión de audio: {audio_proc.stderr}", flush=True)
             except Exception as e:
                 logger.debug("yt-dlp audio extraction error: %s", e)
+                print(f"[YouTube] ⚠ Error al extraer pista de audio: {e}", flush=True)
 
         # Fallback to HTML extraction if title or description are empty
         if not result["title"] or not result["description"]:
             try:
+                print("[YouTube] Realizando extracción fallback HTML...", flush=True)
                 html_text, html_title = RecipeTextExtractor.extract_from_url(url)
                 if not result["title"]:
                     result["title"] = html_title
@@ -348,6 +368,7 @@ class RecipeTextExtractor:
         :return: Tuple of (extracted_text, title).
         :raises RuntimeError: If URL cannot be retrieved.
         """
+        print(f"[Web] Extrayendo contenido de la URL: {url}...", flush=True)
         headers = {
             "User-Agent": (
                 "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -397,6 +418,7 @@ class RecipeTextExtractor:
 
         # Collapse whitespace
         text = re.sub(r"\s+", " ", text).strip()
+        print(f"[Web] ✓ Texto extraído: '{title}' ({len(text)} caracteres)", flush=True)
 
         return text, title
 
@@ -416,6 +438,8 @@ class RecipeTextExtractor:
         mime_type, _encoding = mimetypes.guess_type(file_path)
         if not mime_type:
             mime_type = "application/octet-stream"
+
+        print(f"[Documento] Leyendo archivo local '{file_path}' (MIME: {mime_type})...", flush=True)
 
         with open(file_path, "rb") as f:
             raw_bytes = f.read()
@@ -443,6 +467,7 @@ class RecipeTextExtractor:
 
         # Collapse whitespace
         text = re.sub(r"[ \t]+", " ", text).strip()
+        print(f"[Documento] ✓ Texto extraído ({len(text)} caracteres, {len(raw_bytes)} bytes)", flush=True)
         return text, raw_bytes, mime_type
 
 
@@ -488,28 +513,45 @@ class RecipeImporter:
         "tazas": 5,
     }
 
-    def __init__(self, ollama_client: OllamaClient = None):
+    def __init__(self, ollama_client: OllamaClient = None, locale: str = "es"):
         """
         Initialize the recipe importer.
 
         :param ollama_client: Optional custom OllamaClient instance.
+        :param locale: Default locale/language code for imports and translations (default: "es").
         """
         self.client = ollama_client or OllamaClient()
+        self.locale = locale or "es"
 
-    def parse_recipe_with_llm(self, content_text: str, audio_base64: str = None) -> dict:
+    def parse_recipe_with_llm(self, content_text: str, audio_base64: str = None, locale: str = None) -> dict:
         """
         Send recipe text and optional audio to Ollama and obtain structured JSON.
 
         :param content_text: Plain text extracted from URL, transcript, or document.
         :param audio_base64: Optional base64 encoded audio track.
+        :param locale: Optional locale override (defaults to self.locale).
         :return: Parsed dictionary with recipe attributes.
         """
         # Truncate content text if excessively large to stay within context
         truncated_text = content_text[:12000]
+        loc = (locale or self.locale or "es").split("_")[0].lower()
+        lang_map = {
+            "es": "Spanish",
+            "en": "English",
+            "fr": "French",
+            "de": "German",
+            "it": "Italian",
+            "pt": "Portuguese",
+        }
+        lang_name = lang_map.get(loc, "Spanish" if loc.startswith("es") else "English")
+
+        print(f"[Ollama] Enviando contenido al LLM (modelo: '{self.client.model}', idioma: {lang_name})...", flush=True)
+        if audio_base64:
+            print("[Ollama] Adjuntando pista de audio codificada en Base64...", flush=True)
 
         system_prompt = (
-            "You are a professional culinary assistant. Your task is to analyze the provided text and audio, "
-            "summarize the recipe clearly and concisely, and extract recipe information into a strict JSON format.\n"
+            f"You are a professional culinary assistant. Your task is to analyze the provided text and audio, "
+            f"summarize the recipe clearly and concisely in {lang_name}, and extract recipe information into a strict JSON format.\n"
             "Respond ONLY with valid JSON conforming to the requested schema. Do not include markdown formatting outside the JSON."
         )
 
@@ -521,9 +563,9 @@ class RecipeImporter:
             cats_prompt_line = "- \"categories\": (array of strings) List of suitable recipe categories.\n"
 
         prompt = (
-            "Analyze the following text, summarize the recipe clearly and concisely, and extract the recipe information into a single JSON object with these exact keys:\n"
-            "- \"name\": (string) Recipe title in Spanish or original language.\n"
-            "- \"comment\": (string) Concise summary or description of the recipe.\n"
+            f"Analyze the following text, summarize the recipe clearly and concisely in {lang_name}, and extract the recipe information into a single JSON object with these exact keys:\n"
+            f"- \"name\": (string) Recipe title in {lang_name}.\n"
+            f"- \"comment\": (string) Concise summary or description of the recipe in {lang_name}.\n"
             "- \"food_type\": (string) Main category (e.g., 'Homemade food', 'Meat', 'Fish', 'Vegetables', 'Pasta', 'Bakery', 'Eggs', 'Dessert').\n"
             f"{cats_prompt_line}"
             "- \"diners\": (integer) Number of servings/diners (default 4 if not specified).\n"
@@ -532,16 +574,19 @@ class RecipeImporter:
             "    - \"amount\": (number) Quantity needed.\n"
             "    - \"unit\": (string) Unit of measure ('g', 'ml', 'tbsp', 'tsp', 'cup', 'unit').\n"
             "    - \"comment\": (string) Preparation notes (e.g., 'chopped', 'diced', 'peeled', 'at room temperature').\n"
-            "- \"steps\": (string) Summarized, concise, step-by-step preparation instructions in Markdown format.\n\n"
+            f"- \"steps\": (string) Summarized, concise, step-by-step preparation instructions in {lang_name} in Markdown format.\n\n"
             f"Recipe source text:\n{truncated_text}\n"
         )
 
-        return self.client.generate(
+        result_json = self.client.generate(
             prompt=prompt,
             system_prompt=system_prompt,
             format_json=True,
             audio_base64=audio_base64,
         )
+        if isinstance(result_json, dict):
+            print(f"[Ollama] ✓ Respuesta estructurada recibida: '{result_json.get('name')}' ({len(result_json.get('ingredients', []))} ingredientes)", flush=True)
+        return result_json
 
     @transaction.atomic
     def save_recipe(
@@ -550,6 +595,7 @@ class RecipeImporter:
         user: User,
         source_url: str = None,
         source_file_info: tuple[str, bytes, str] = None,
+        locale: str = None,
     ) -> models.Recipes:
         """
         Persist Recipe, RecipesLinks, and RecipesCategories to database.
@@ -558,8 +604,12 @@ class RecipeImporter:
         :param user: Owner user for the recipe.
         :param source_url: Optional source URL for RecipesLinks.
         :param source_file_info: Optional tuple (filename, raw_bytes, mime_type) for RecipesLinks.
+        :param locale: Optional locale override for i18n notices.
         :return: Created Recipes model instance.
         """
+        loc = locale or self.locale or "es"
+        translation.activate(loc)
+
         # Resolve FoodType
         food_type_name = recipe_data.get("food_type", "Homemade food")
         food_type = (
@@ -575,6 +625,8 @@ class RecipeImporter:
         else:
             final_name = raw_name
 
+        print(f"[BD] Guardando receta '{final_name}' (Tipo: {food_type.name})...", flush=True)
+
         recipe = models.Recipes()
         recipe.name = final_name
         recipe.datetime = timezone.now()
@@ -585,9 +637,11 @@ class RecipeImporter:
         recipe.guests = False
         recipe.soon = False
         recipe.save()
+        print(f"[BD] ✓ Receta creada con ID {recipe.id}", flush=True)
 
         # Handle Categories: only associate existing categories, do not create new ones
         category_names = recipe_data.get("categories", [])
+        added_categories = []
         if isinstance(category_names, list):
             for cat_name in category_names:
                 if isinstance(cat_name, str) and cat_name.strip():
@@ -598,6 +652,12 @@ class RecipeImporter:
                     )
                     if cat:
                         recipe.recipes_categories.add(cat)
+                        added_categories.append(cat.name)
+                    else:
+                        print(f"[BD] ℹ Categoría '{name_clean}' no encontrada en la base de datos (omitida)", flush=True)
+
+        if added_categories:
+            print(f"[BD] ✓ Categorías vinculadas: {added_categories}", flush=True)
 
         # Handle URL Link
         if source_url:
@@ -622,6 +682,7 @@ class RecipeImporter:
             rl.link = source_url
             rl.recipes = recipe
             rl.save()
+            print(f"[BD] ✓ Enlace guardado: '{source_url}' ({link_type.name})", flush=True)
 
             # If origin is YouTube, fetch thumbnail and set as Main Photo
             if yt_video_id:
@@ -648,6 +709,7 @@ class RecipeImporter:
                     main_rl.files = thumb_file
                     main_rl.recipes = recipe
                     main_rl.save()
+                    print(f"[BD] ✓ Snapshot guardado como Main Photo (Files ID: {thumb_file.id})", flush=True)
 
         # Handle File Link
         if source_file_info:
@@ -670,6 +732,7 @@ class RecipeImporter:
             rl.files = file_obj
             rl.recipes = recipe
             rl.save()
+            print(f"[BD] ✓ Documento adjunto guardado: '{path.basename(file_name)}' (Files ID: {file_obj.id})", flush=True)
 
         return recipe
 
@@ -679,6 +742,7 @@ class RecipeImporter:
         recipe: models.Recipes,
         recipe_data: dict,
         user: User,
+        locale: str = None,
     ) -> models.Elaborations:
         """
         Create an automatic Elaboration for the recipe with ingredients and text steps.
@@ -686,8 +750,12 @@ class RecipeImporter:
         :param recipe: The parent Recipes model.
         :param recipe_data: Structured recipe data containing ingredients and steps.
         :param user: User performing the action.
+        :param locale: Optional locale override for i18n notices.
         :return: Created Elaborations model instance.
         """
+        loc = locale or self.locale or "es"
+        translation.activate(loc)
+
         diners = recipe_data.get("diners", 4)
         try:
             diners = int(diners)
@@ -695,6 +763,8 @@ class RecipeImporter:
                 diners = 4
         except (ValueError, TypeError):
             diners = 4
+
+        print(f"[Elaboración] Creando elaboración automática ({diners} comensales) para receta ID {recipe.id}...", flush=True)
 
         elaboration = models.Elaborations()
         elaboration.recipes = recipe
@@ -706,20 +776,35 @@ class RecipeImporter:
         ingredients = recipe_data.get("ingredients", [])
         through_list = []
 
+        print(f"[Elaboración] Procesando {len(ingredients)} ingredientes...", flush=True)
+
         for ing in ingredients:
             if not isinstance(ing, dict):
                 continue
 
             ing_name = str(ing.get("name", "")).strip()
-            if not ing_name:
+            if not ing_name or len(ing_name) < 2:
                 continue
 
-            # Resolve product
-            product = models.Products.objects.filter(name__iexact=ing_name).first()
-            if not product:
-                product = models.Products.objects.filter(name__icontains=ing_name).first()
-            if not product:
+            # Resolve product - only look up valid, non-empty existing products
+            qs_valid = models.Products.objects.filter(obsolete=False).exclude(name__isnull=True).exclude(name__exact="").exclude(name__regex=r"^\s*$")
+
+            # 1. Exact match (case insensitive) for user's own products first, then any non-obsolete product
+            product = (
+                qs_valid.filter(name__iexact=ing_name, user=user).first()
+                or qs_valid.filter(name__iexact=ing_name).first()
+            )
+
+            # 2. Substring match fallback: only if ing_name is specific enough (at least 4 chars)
+            if not product and len(ing_name) >= 4:
+                product = (
+                    qs_valid.filter(name__icontains=ing_name, user=user).first()
+                    or qs_valid.filter(name__icontains=ing_name).first()
+                )
+
+            if not product or not getattr(product, "id", None) or not getattr(product, "name", "").strip():
                 # If product is not found in the database, do not add it and do not create placeholder products
+                print(f"  - Ingrediente ignorado (no existe producto en BD): '{ing_name}'", flush=True)
                 continue
 
             # Resolve unit & measure type
@@ -755,6 +840,7 @@ class RecipeImporter:
             pi.automatic_percentage = 100
             pi.save()
             through_list.append(pi)
+            print(f"  + Ingrediente vinculado: '{product.name}' ({amount_dec} {measure_type.name})", flush=True)
 
         # ElaborationsTexts
         steps_text = recipe_data.get("steps", "")
@@ -780,17 +866,22 @@ class RecipeImporter:
         elaboration_text.elaborations = elaboration
         elaboration_text.text = steps_text
         elaboration_text.save()
+        print(f"[Elaboración] ✓ Pasos de elaboración guardados ({len(steps_text)} caracteres)", flush=True)
 
         return elaboration
 
-    def create_elaboration_from_recipe_links(self, recipe: models.Recipes, user: User) -> models.Elaborations:
+    def create_elaboration_from_recipe_links(self, recipe: models.Recipes, user: User, locale: str = None) -> models.Elaborations:
         """
         Generate an automatic elaboration for an existing recipe by reading its associated RecipesLinks.
 
         :param recipe: The existing Recipe instance.
         :param user: User executing the action.
+        :param locale: Optional locale override.
         :return: Created Elaborations model instance.
         """
+        loc = locale or self.locale or "es"
+        translation.activate(loc)
+
         combined_text = f"Receta: {recipe.name}\n{recipe.comment or ''}\n"
         audio_base64 = None
 
@@ -799,7 +890,7 @@ class RecipeImporter:
                 yt_id = YouTubeHelper.get_video_id(link.link)
                 if yt_id:
                     try:
-                        yt_data = YouTubeHelper.extract_full_youtube_data(link.link, yt_id)
+                        yt_data = YouTubeHelper.extract_full_youtube_data(link.link, yt_id, locale=loc)
                         combined_text += f"\n--- Contenido de YouTube ({link.link}) ---\n{yt_data['combined_text']}\n"
                         if yt_data.get("audio_base64"):
                             audio_base64 = yt_data["audio_base64"]
@@ -818,8 +909,8 @@ class RecipeImporter:
                 except Exception as e:
                     logger.warning("Could not decode file content for recipe %s: %s", recipe.id, e)
 
-        recipe_data = self.parse_recipe_with_llm(combined_text, audio_base64=audio_base64)
-        return self.create_automatic_elaboration(recipe, recipe_data, user)
+        recipe_data = self.parse_recipe_with_llm(combined_text, audio_base64=audio_base64, locale=loc)
+        return self.create_automatic_elaboration(recipe, recipe_data, user, locale=loc)
 
     def import_recipe(
         self,
@@ -827,6 +918,7 @@ class RecipeImporter:
         file_path: str = None,
         user: User = None,
         create_elaboration: bool = True,
+        locale: str = None,
     ) -> tuple[models.Recipes, models.Elaborations | None]:
         """
         Full workflow: extracts text from source, queries Ollama LLM,
@@ -836,9 +928,13 @@ class RecipeImporter:
         :param file_path: Path to local document file.
         :param user: Owner user for created entities.
         :param create_elaboration: If True, creates automatic Elaboration with ingredients & steps.
+        :param locale: Optional locale override (defaults to self.locale).
         :return: Tuple of (created_recipe, created_elaboration).
         :raises ValueError: If neither url nor file_path is provided, or no user available.
         """
+        loc = locale or self.locale or "es"
+        translation.activate(loc)
+
         if not url and not file_path:
             raise ValueError("Must provide either a URL or a file path.")
 
@@ -852,7 +948,7 @@ class RecipeImporter:
         if url:
             yt_id = YouTubeHelper.get_video_id(url)
             if yt_id:
-                yt_data = YouTubeHelper.extract_full_youtube_data(url, yt_id)
+                yt_data = YouTubeHelper.extract_full_youtube_data(url, yt_id, locale=loc)
                 extracted_text = yt_data["combined_text"]
                 audio_base64 = yt_data.get("audio_base64")
             else:
@@ -862,7 +958,7 @@ class RecipeImporter:
             source_file_info = (file_path, raw_bytes, mime_type)
 
         # Parse with LLM (passing text and audio when available)
-        recipe_data = self.parse_recipe_with_llm(extracted_text, audio_base64=audio_base64)
+        recipe_data = self.parse_recipe_with_llm(extracted_text, audio_base64=audio_base64, locale=loc)
 
         # Save Recipe, Categories, Links
         recipe = self.save_recipe(
@@ -870,12 +966,13 @@ class RecipeImporter:
             user=user,
             source_url=url,
             source_file_info=source_file_info,
+            locale=loc,
         )
 
         # Create Elaboration
         elaboration = None
         if create_elaboration:
-            elaboration = self.create_automatic_elaboration(recipe, recipe_data, user)
+            elaboration = self.create_automatic_elaboration(recipe, recipe_data, user, locale=loc)
 
         return recipe, elaboration
 
@@ -909,6 +1006,12 @@ class Command(BaseCommand):
             default=None,
         )
         parser.add_argument(
+            "--locale",
+            type=str,
+            help="Locale/language code for recipe import and translation (e.g., 'es', 'en'). Default is 'es'.",
+            default="es",
+        )
+        parser.add_argument(
             "--user_id",
             type=int,
             help="ID of the User who will own the imported recipe.",
@@ -938,75 +1041,84 @@ class Command(BaseCommand):
         """
         Execute command logic.
         """
-        importer = RecipeImporter()
-
-        # Resolve User
-        user = None
-        if options.get("user_id"):
-            try:
-                user = User.objects.get(pk=options["user_id"])
-            except User.DoesNotExist:
-                raise CommandError(f"User with ID {options['user_id']} does not exist.")
-        elif options.get("username"):
-            try:
-                user = User.objects.get(username=options["username"])
-            except User.DoesNotExist:
-                raise CommandError(f"User with username '{options['username']}' does not exist.")
-        else:
-            user = User.objects.filter(is_superuser=True).first() or User.objects.first()
-            if not user:
-                raise CommandError("No users exist in the database. Please create a user first.")
-
-        # Mode 1: Create automatic elaboration from existing recipe's recipes_links
-        if options.get("from_recipe_id"):
-            recipe_id = options["from_recipe_id"]
-            try:
-                recipe = models.Recipes.objects.get(pk=recipe_id)
-            except models.Recipes.DoesNotExist:
-                raise CommandError(f"Recipe with ID {recipe_id} not found.")
-
-            self.stdout.write(self.style.NOTICE(f"Processing recipe '{recipe.name}' (ID: {recipe.id}) from its recipes_links..."))
-            try:
-                elaboration = importer.create_elaboration_from_recipe_links(recipe, user=user)
-                self.stdout.write(
-                    self.style.SUCCESS(
-                        f"Successfully created automatic elaboration (ID: {elaboration.id}) for recipe '{recipe.name}' with {elaboration.diners} diners."
-                    )
-                )
-            except Exception as e:
-                raise CommandError(f"Failed to generate elaboration from recipe links: {e}") from e
-            return
-
-        # Mode 2: Import new recipe from URL or document
-        url = options.get("url")
-        document = options.get("document")
-
-        if not url and not document:
-            raise CommandError("You must provide either --url, --document (or --file), or --from-recipe-id.")
-
-        source_desc = f"URL '{url}'" if url else f"file '{document}'"
-        self.stdout.write(self.style.NOTICE(f"Importing recipe from {source_desc} using Ollama LLM..."))
+        locale = options.get("locale", "es") or "es"
+        current_language = translation.get_language()
+        translation.activate(locale)
 
         try:
-            recipe, elaboration = importer.import_recipe(
-                url=url,
-                file_path=document,
-                user=user,
-                create_elaboration=not options.get("no_elaboration"),
-            )
-        except Exception as e:
-            raise CommandError(f"Error importing recipe: {e}") from e
+            importer = RecipeImporter(locale=locale)
 
-        self.stdout.write(self.style.SUCCESS(f"Successfully created Recipe '{recipe.name}' (ID: {recipe.id})"))
-        self.stdout.write(f"  - Food Type: {recipe.food_types.name}")
-        self.stdout.write(f"  - Categories: {', '.join([c.name for c in recipe.recipes_categories.all()]) or 'None'}")
-        self.stdout.write(f"  - Associated Links: {recipe.recipes_links.count()}")
+            # Resolve User
+            user = None
+            if options.get("user_id"):
+                try:
+                    user = User.objects.get(pk=options["user_id"])
+                except User.DoesNotExist:
+                    raise CommandError(f"User with ID {options['user_id']} does not exist.")
+            elif options.get("username"):
+                try:
+                    user = User.objects.get(username=options["username"])
+                except User.DoesNotExist:
+                    raise CommandError(f"User with username '{options['username']}' does not exist.")
+            else:
+                user = User.objects.filter(is_superuser=True).first() or User.objects.first()
+                if not user:
+                    raise CommandError("No users exist in the database. Please create a user first.")
 
-        if elaboration:
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"Successfully created automatic Elaboration (ID: {elaboration.id}, {elaboration.diners} diners)"
+            # Mode 1: Create automatic elaboration from existing recipe's recipes_links
+            if options.get("from_recipe_id"):
+                recipe_id = options["from_recipe_id"]
+                try:
+                    recipe = models.Recipes.objects.get(pk=recipe_id)
+                except models.Recipes.DoesNotExist:
+                    raise CommandError(f"Recipe with ID {recipe_id} not found.")
+
+                self.stdout.write(self.style.NOTICE(f"Processing recipe '{recipe.name}' (ID: {recipe.id}) from its recipes_links..."))
+                try:
+                    elaboration = importer.create_elaboration_from_recipe_links(recipe, user=user, locale=locale)
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"Successfully created automatic elaboration (ID: {elaboration.id}) for recipe '{recipe.name}' with {elaboration.diners} diners."
+                        )
+                    )
+                except Exception as e:
+                    raise CommandError(f"Failed to generate elaboration from recipe links: {e}") from e
+                return
+
+            # Mode 2: Import new recipe from URL or document
+            url = options.get("url")
+            document = options.get("document")
+
+            if not url and not document:
+                raise CommandError("You must provide either --url, --document (or --file), or --from-recipe-id.")
+
+            source_desc = f"URL '{url}'" if url else f"file '{document}'"
+            self.stdout.write(self.style.NOTICE(f"Importing recipe from {source_desc} using Ollama LLM (locale: {locale})..."))
+
+            try:
+                recipe, elaboration = importer.import_recipe(
+                    url=url,
+                    file_path=document,
+                    user=user,
+                    create_elaboration=not options.get("no_elaboration"),
+                    locale=locale,
                 )
-            )
-            pi_count = models.ElaborationsProductsInThrough.objects.filter(elaborations=elaboration).count()
-            self.stdout.write(f"  - Ingredients added: {pi_count}")
+            except Exception as e:
+                raise CommandError(f"Error importing recipe: {e}") from e
+
+            self.stdout.write(self.style.SUCCESS(f"Successfully created Recipe '{recipe.name}' (ID: {recipe.id})"))
+            self.stdout.write(f"  - Food Type: {recipe.food_types.name}")
+            self.stdout.write(f"  - Categories: {', '.join([c.name for c in recipe.recipes_categories.all()]) or 'None'}")
+            self.stdout.write(f"  - Associated Links: {recipe.recipes_links.count()}")
+
+            if elaboration:
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"Successfully created automatic Elaboration (ID: {elaboration.id}, {elaboration.diners} diners)"
+                    )
+                )
+                pi_count = models.ElaborationsProductsInThrough.objects.filter(elaborations=elaboration).count()
+                self.stdout.write(f"  - Ingredients added: {pi_count}")
+        finally:
+            if current_language:
+                translation.activate(current_language)
