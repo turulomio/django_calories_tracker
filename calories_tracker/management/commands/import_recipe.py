@@ -523,12 +523,19 @@ class RecipeImporter:
         self.client = ollama_client or OllamaClient()
         self.locale = locale or "es"
 
-    def parse_recipe_with_llm(self, content_text: str, audio_base64: str = None, locale: str = None) -> dict:
+    def parse_recipe_with_llm(
+        self,
+        content_text: str,
+        audio_base64: str = None,
+        user: User = None,
+        locale: str = None,
+    ) -> dict:
         """
         Send recipe text and optional audio to Ollama and obtain structured JSON.
 
         :param content_text: Plain text extracted from URL, transcript, or document.
         :param audio_base64: Optional base64 encoded audio track.
+        :param user: Optional target user to provide user-specific products hint to LLM.
         :param locale: Optional locale override (defaults to self.locale).
         :return: Parsed dictionary with recipe attributes.
         """
@@ -562,6 +569,20 @@ class RecipeImporter:
         else:
             cats_prompt_line = "- \"categories\": (array of strings) List of suitable recipe categories.\n"
 
+        user_products = []
+        if user:
+            user_products = list(
+                models.Products.objects.filter(user=user, obsolete=False)
+                .exclude(name__isnull=True)
+                .exclude(name__exact="")
+                .values_list("name", flat=True)[:50]
+            )
+        if user_products:
+            prod_sample = ", ".join(f"'{p}'" for p in user_products)
+            ing_prompt_line = f"- \"ingredients\": (array of objects) Whenever possible, match ingredient names with user's available products: [{prod_sample}]. Each object must have:\n"
+        else:
+            ing_prompt_line = "- \"ingredients\": (array of objects) Each object must have:\n"
+
         prompt = (
             f"Analyze the following text, summarize the recipe clearly and concisely in {lang_name}, and extract the recipe information into a single JSON object with these exact keys:\n"
             f"- \"name\": (string) Recipe title in {lang_name}.\n"
@@ -569,7 +590,7 @@ class RecipeImporter:
             "- \"food_type\": (string) Main category (e.g., 'Homemade food', 'Meat', 'Fish', 'Vegetables', 'Pasta', 'Bakery', 'Eggs', 'Dessert').\n"
             f"{cats_prompt_line}"
             "- \"diners\": (integer) Number of servings/diners (default 4 if not specified).\n"
-            "- \"ingredients\": (array of objects) Each object must have:\n"
+            f"{ing_prompt_line}"
             "    - \"name\": (string) Ingredient/Product name.\n"
             "    - \"amount\": (number) Quantity needed.\n"
             "    - \"unit\": (string) Unit of measure ('g', 'ml', 'tbsp', 'tsp', 'cup', 'unit').\n"
@@ -786,25 +807,26 @@ class RecipeImporter:
             if not ing_name or len(ing_name) < 2:
                 continue
 
-            # Resolve product - only look up valid, non-empty existing products
-            qs_valid = models.Products.objects.filter(obsolete=False).exclude(name__isnull=True).exclude(name__exact="").exclude(name__regex=r"^\s*$")
-
-            # 1. Exact match (case insensitive) for user's own products first, then any non-obsolete product
-            product = (
-                qs_valid.filter(name__iexact=ing_name, user=user).first()
-                or qs_valid.filter(name__iexact=ing_name).first()
+            # Resolve product - only look up valid, non-empty existing products for the specific user
+            target_user = user or recipe.user
+            qs_user_products = (
+                models.Products.objects.filter(user=target_user, obsolete=False)
+                .exclude(name__isnull=True)
+                .exclude(name__exact="")
+                .exclude(name__regex=r"^\s*$")
             )
+
+            # 1. Exact match (case insensitive) for user's own products
+            product = qs_user_products.filter(name__iexact=ing_name).first()
 
             # 2. Substring match fallback: only if ing_name is specific enough (at least 4 chars)
             if not product and len(ing_name) >= 4:
-                product = (
-                    qs_valid.filter(name__icontains=ing_name, user=user).first()
-                    or qs_valid.filter(name__icontains=ing_name).first()
-                )
+                product = qs_user_products.filter(name__icontains=ing_name).first()
 
             if not product or not getattr(product, "id", None) or not getattr(product, "name", "").strip():
-                # If product is not found in the database, do not add it and do not create placeholder products
-                print(f"  - Ingrediente ignorado (no existe producto en BD): '{ing_name}'", flush=True)
+                # If product does not exist for the user, do not add it and do not create placeholder products
+                user_name_display = getattr(target_user, "username", str(target_user)) if target_user else "desconocido"
+                print(f"  - Ingrediente ignorado (el producto no existe para el usuario '{user_name_display}'): '{ing_name}'", flush=True)
                 continue
 
             # Resolve unit & measure type
@@ -909,7 +931,7 @@ class RecipeImporter:
                 except Exception as e:
                     logger.warning("Could not decode file content for recipe %s: %s", recipe.id, e)
 
-        recipe_data = self.parse_recipe_with_llm(combined_text, audio_base64=audio_base64, locale=loc)
+        recipe_data = self.parse_recipe_with_llm(combined_text, audio_base64=audio_base64, user=user, locale=loc)
         return self.create_automatic_elaboration(recipe, recipe_data, user, locale=loc)
 
     def import_recipe(
@@ -957,8 +979,8 @@ class RecipeImporter:
             extracted_text, raw_bytes, mime_type = RecipeTextExtractor.extract_from_file(file_path)
             source_file_info = (file_path, raw_bytes, mime_type)
 
-        # Parse with LLM (passing text and audio when available)
-        recipe_data = self.parse_recipe_with_llm(extracted_text, audio_base64=audio_base64, locale=loc)
+        # Parse with LLM (passing text and audio when available, and user for product suggestions)
+        recipe_data = self.parse_recipe_with_llm(extracted_text, audio_base64=audio_base64, user=user, locale=loc)
 
         # Save Recipe, Categories, Links
         recipe = self.save_recipe(
