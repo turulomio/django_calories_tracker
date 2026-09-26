@@ -20,7 +20,7 @@ from calories_tracker.management.commands.import_recipe import (
 
 def test_ollama_client_parse_json(self):
     """
-    Test JSON parsing logic of OllamaClient with plain and markdown-fenced responses.
+    Test JSON parsing logic of OllamaClient with plain, markdown-fenced, trailing commas, unescaped newlines, and truncated responses.
     """
     client = OllamaClient()
 
@@ -37,6 +37,28 @@ def test_ollama_client_parse_json(self):
     # JSON with surrounding text
     res_surrounded = client._parse_json_response('Here is the recipe:\n{"name": "Tortilla", "diners": 4}\nEnjoy!')
     self.assertEqual(res_surrounded["name"], "Tortilla")
+
+    # JSON with trailing commas
+    res_trailing = client._parse_json_response('{"name": "Tortilla con cebolla", "diners": 4, "categories": ["Eggs",],}')
+    self.assertEqual(res_trailing["name"], "Tortilla con cebolla")
+
+    # JSON with unescaped newlines in steps string
+    raw_newlines = '{\n"name": "Tortilla Newline",\n"steps": "Paso 1:\nBatir huevos\nPaso 2:\nFreír patatas",\n"diners": 2\n}'
+    res_newlines = client._parse_json_response(raw_newlines)
+    self.assertEqual(res_newlines["name"], "Tortilla Newline")
+    self.assertEqual(res_newlines["diners"], 2)
+
+    # Truncated JSON recovery
+    truncated = '{"name": "Bizcocho Truncado", "diners": 6, "ingredients": [{"name": "Harina", "amount": 250, "unit": "g"}]'
+    res_truncated = client._parse_json_response(truncated)
+    self.assertEqual(res_truncated["name"], "Bizcocho Truncado")
+    self.assertEqual(res_truncated["diners"], 6)
+
+    # Malformed text recovered via fallback extractor
+    malformed_text = 'Result of LLM analysis: "name": "Guiso Recuperado", "food_type": "Meat", "diners": 5, "steps": "Cocinar a fuego lento."'
+    res_fallback = client._parse_json_response(malformed_text)
+    self.assertEqual(res_fallback["name"], "Guiso Recuperado")
+    self.assertEqual(res_fallback["diners"], 5)
 
 
 def test_recipe_text_extractor_html(self):
