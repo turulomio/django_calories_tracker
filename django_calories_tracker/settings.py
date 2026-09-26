@@ -167,7 +167,8 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Ollama LLM Configuration
+# Ollama LLM Configuration & Recipe Import Matching
 OLLAMA_BASE_URL = 'http://localhost:11434'
 OLLAMA_MODEL = 'gemma4:e2b'
+PRODUCT_SIMILARITY_PERCENTAGE = 75
 

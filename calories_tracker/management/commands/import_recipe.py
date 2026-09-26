@@ -56,8 +56,8 @@ KEY FUNCTIONALITIES & ARCHITECTURE:
    - Stopwords Filtering: Strips culinary filler words ('de', 'fresco', 'picado', 'crudo', etc.).
    - Conflicting Modifier Protection: Rejects matches containing mutually exclusive modifiers
      (e.g., olive oil vs sunflower oil, white wine vs red wine, whole milk vs skim milk).
-   - High Confidence Threshold (>= 85%): Eliminates loose substring false positives
-     (e.g., 'Sal' vs 'Salmón', 'Ajo' vs 'Majo').
+   - Configurable Similarity Threshold: Governed by `settings.PRODUCT_SIMILARITY_PERCENTAGE`
+     (default: 75%). Matches below this threshold are rejected.
    - Omission of Unmatched Items: Never inserts blank or placeholder product records.
 
 5. CLI Options & Management Command:
@@ -767,7 +767,21 @@ class ProductMatcher:
         {"molido", "grano", "polvo", "entero", "hoja", "rama"},
     ]
 
-    CONFIDENCE_THRESHOLD = 0.85
+    @classmethod
+    def get_confidence_threshold(cls) -> float:
+        """
+        Get the configured product matching confidence threshold from Django settings.
+        Supports settings.PRODUCT_SIMILARITY_PERCENTAGE (e.g. 75 or 0.75).
+        Defaults to 0.75 (75%).
+        """
+        setting_val = getattr(settings, "PRODUCT_SIMILARITY_PERCENTAGE", 75)
+        try:
+            val = float(setting_val)
+            if val > 1.0:
+                val = val / 100.0
+            return max(0.0, min(1.0, val))
+        except (ValueError, TypeError):
+            return 0.75
 
     @classmethod
     def normalize_text(cls, text: str) -> str:
@@ -904,14 +918,16 @@ class ProductMatcher:
         return base_ratio
 
     @classmethod
-    def find_best_product(cls, ing_name: str, candidate_products) -> tuple[models.Products | None, float]:
+    def find_best_product(cls, ing_name: str, candidate_products, threshold: float = None) -> tuple[models.Products | None, float]:
         """
-        Find the single product with the highest confidence score exceeding CONFIDENCE_THRESHOLD.
+        Find the single product with the highest confidence score exceeding confidence threshold.
 
         :param ing_name: Name of ingredient from recipe.
         :param candidate_products: Iterable / QuerySet of user Products.
+        :param threshold: Optional threshold override (defaults to configured settings.PRODUCT_SIMILARITY_PERCENTAGE).
         :return: Tuple (best_product, confidence_score) or (None, 0.0).
         """
+        min_threshold = threshold if threshold is not None else cls.get_confidence_threshold()
         best_product = None
         best_score = 0.0
 
@@ -927,7 +943,7 @@ class ProductMatcher:
                 if score >= 0.98:  # Near perfect match, early exit
                     break
 
-        if best_score >= cls.CONFIDENCE_THRESHOLD:
+        if best_score >= min_threshold:
             return best_product, best_score
         return None, best_score
 
@@ -1279,11 +1295,12 @@ class RecipeImporter:
 
             product, confidence = ProductMatcher.find_best_product(ing_name, user_products)
 
-            if not product or confidence < ProductMatcher.CONFIDENCE_THRESHOLD:
+            if not product:
                 user_name_display = getattr(target_user, "username", str(target_user)) if target_user else "desconocido"
                 conf_pct = int(confidence * 100)
+                req_pct = int(ProductMatcher.get_confidence_threshold() * 100)
                 print(
-                    f"  - Ingrediente ignorado (no coincide con alta confianza para el usuario '{user_name_display}', coincidencia={conf_pct}%): '{ing_name}'",
+                    f"  - Ingrediente ignorado (coincidencia={conf_pct}% inferior al umbral del {req_pct}% para el usuario '{user_name_display}'): '{ing_name}'",
                     flush=True,
                 )
                 continue

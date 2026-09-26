@@ -541,12 +541,23 @@ def test_product_matcher_heuristics(self):
     score_conflict_flour = ProductMatcher.calculate_confidence("Harina de trigo", "Harina de avena")
     self.assertEqual(score_conflict_flour, 0.0)
 
-    # 3. Substrings with low similarity must be rejected (score < CONFIDENCE_THRESHOLD)
+    # 3. Substrings with low similarity must be rejected (score < get_confidence_threshold())
+    threshold = ProductMatcher.get_confidence_threshold()
+    self.assertEqual(threshold, 0.75)
+
     score_sal = ProductMatcher.calculate_confidence("Sal", "Salmón")
-    self.assertLess(score_sal, ProductMatcher.CONFIDENCE_THRESHOLD)
+    self.assertLess(score_sal, threshold)
 
     score_ajo = ProductMatcher.calculate_confidence("Ajo", "Majo")
-    self.assertLess(score_ajo, ProductMatcher.CONFIDENCE_THRESHOLD)
+    self.assertLess(score_ajo, threshold)
+
+    # 4. find_best_product with setting threshold
+    mock_prod = MagicMock()
+    mock_prod.name = "Pechuga de pollo"
+    found_prod, conf = ProductMatcher.find_best_product("Pechuga de pollo", [mock_prod])
+    self.assertEqual(found_prod, mock_prod)
+    self.assertGreaterEqual(conf, 0.75)
+
 
 
 
