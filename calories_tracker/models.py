@@ -942,8 +942,8 @@ class MeasuresTypes(models.Model):
         }
 
 class ElaborationsProductsInThrough(models.Model):
-    products = models.ForeignKey(Products, on_delete=models.DO_NOTHING)
-    elaborations = models.ForeignKey(Elaborations, on_delete=models.DO_NOTHING)
+    products = models.ForeignKey(Products, on_delete=models.DO_NOTHING, null=False)
+    elaborations = models.ForeignKey(Elaborations, on_delete=models.DO_NOTHING, null=False)
     measures_types = models.ForeignKey(MeasuresTypes, on_delete=models.DO_NOTHING)
     amount = models.DecimalField(max_digits=10, decimal_places=3)
     comment = models.CharField(max_length=100, blank=True, null=True) #Add product aclarations, cut, temperature...

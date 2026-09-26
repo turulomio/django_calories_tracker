@@ -190,7 +190,17 @@ class YouTubeHelper:
         lines = []
         for line in vtt_content.splitlines():
             line = line.strip()
-            if not line or line.startswith("WEBVTT") or "-->" in line or line.startswith("NOTE") or line.isdigit():
+            if (
+                not line
+                or line.startswith("WEBVTT")
+                or line.startswith("Kind:")
+                or line.startswith("Language:")
+                or line.startswith("Style:")
+                or line.startswith("NOTE")
+                or line.startswith("REGION")
+                or "-->" in line
+                or line.isdigit()
+            ):
                 continue
             cleaned = re.sub(r"<[^>]+>", "", line).strip()
             if cleaned and (not lines or lines[-1] != cleaned):
@@ -503,12 +513,19 @@ class RecipeImporter:
             "Respond ONLY with valid JSON conforming to the requested schema. Do not include markdown formatting outside the JSON."
         )
 
+        existing_categories = list(models.RecipesCategories.objects.values_list("name", flat=True))
+        if existing_categories:
+            cats_sample = ", ".join(f"'{c}'" for c in existing_categories[:30])
+            cats_prompt_line = f"- \"categories\": (array of strings) List of categories chosen ONLY from available ones (e.g. [{cats_sample}]).\n"
+        else:
+            cats_prompt_line = "- \"categories\": (array of strings) List of suitable recipe categories.\n"
+
         prompt = (
             "Analyze the following text, summarize the recipe clearly and concisely, and extract the recipe information into a single JSON object with these exact keys:\n"
             "- \"name\": (string) Recipe title in Spanish or original language.\n"
             "- \"comment\": (string) Concise summary or description of the recipe.\n"
             "- \"food_type\": (string) Main category (e.g., 'Homemade food', 'Meat', 'Fish', 'Vegetables', 'Pasta', 'Bakery', 'Eggs', 'Dessert').\n"
-            "- \"categories\": (array of strings) List of suitable recipe categories (e.g. ['Chicken', 'Rice', 'Appetizer', 'Pasta']).\n"
+            f"{cats_prompt_line}"
             "- \"diners\": (integer) Number of servings/diners (default 4 if not specified).\n"
             "- \"ingredients\": (array of objects) Each object must have:\n"
             "    - \"name\": (string) Ingredient/Product name.\n"
@@ -569,13 +586,18 @@ class RecipeImporter:
         recipe.soon = False
         recipe.save()
 
-        # Handle Categories
+        # Handle Categories: only associate existing categories, do not create new ones
         category_names = recipe_data.get("categories", [])
         if isinstance(category_names, list):
             for cat_name in category_names:
                 if isinstance(cat_name, str) and cat_name.strip():
-                    cat, _created = models.RecipesCategories.objects.get_or_create(name=cat_name.strip())
-                    recipe.recipes_categories.add(cat)
+                    name_clean = cat_name.strip()
+                    cat = (
+                        models.RecipesCategories.objects.filter(name__iexact=name_clean).first()
+                        or models.RecipesCategories.objects.filter(name__icontains=name_clean).first()
+                    )
+                    if cat:
+                        recipe.recipes_categories.add(cat)
 
         # Handle URL Link
         if source_url:
@@ -697,16 +719,8 @@ class RecipeImporter:
             if not product:
                 product = models.Products.objects.filter(name__icontains=ing_name).first()
             if not product:
-                # Create a placeholder product
-                product = models.Products()
-                product.name = ing_name
-                product.amount = Decimal("100.000")
-                product.calories = Decimal("100.000")
-                product.food_types = recipe.food_types
-                product.glutenfree = False
-                product.obsolete = False
-                product.user = user
-                product.save()
+                # If product is not found in the database, do not add it and do not create placeholder products
+                continue
 
             # Resolve unit & measure type
             unit_str = str(ing.get("unit", "g")).lower().strip()

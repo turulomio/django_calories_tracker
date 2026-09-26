@@ -76,7 +76,7 @@ def test_recipe_importer_save_and_automatic_elaboration(self):
         "name": "Pollo con Patatas Test",
         "comment": "Receta deliciosa para toda la familia",
         "food_type": "Meat",
-        "categories": ["Chicken", "Meat", "Potatos"],
+        "categories": ["Chicken", "NonExistentCategoryTest"],
         "diners": 4,
         "ingredients": [
             {
@@ -95,6 +95,17 @@ def test_recipe_importer_save_and_automatic_elaboration(self):
         "steps": "1. Cortar Pechuga de pollo test.\n2. Añadir Aceite de oliva test y hornear a 180C durante 30 minutos.",
     }
 
+    # Create one existing product in DB, leave the second one non-existent
+    existing_product = models.Products.objects.create(
+        name="Pechuga de pollo test",
+        amount=Decimal("100.000"),
+        calories=Decimal("110.000"),
+        food_types=models.FoodTypes.objects.first(),
+        glutenfree=False,
+        obsolete=False,
+        user=self.user_authorized_1,
+    )
+
     # 1. Save recipe with URL link
     recipe = importer.save_recipe(
         recipe_data=recipe_data,
@@ -109,6 +120,8 @@ def test_recipe_importer_save_and_automatic_elaboration(self):
     link = recipe.recipes_links.first()
     self.assertEqual(link.link, "https://recetas.test/pollo-patatas")
     self.assertTrue(recipe.recipes_categories.filter(name="Chicken").exists())
+    self.assertFalse(recipe.recipes_categories.filter(name="NonExistentCategoryTest").exists())
+    self.assertFalse(models.RecipesCategories.objects.filter(name="NonExistentCategoryTest").exists())
 
     # 2. Create automatic elaboration
     elaboration = importer.create_automatic_elaboration(
@@ -121,9 +134,13 @@ def test_recipe_importer_save_and_automatic_elaboration(self):
     self.assertEqual(elaboration.diners, 4)
     self.assertFalse(elaboration.automatic)
 
-    # Check products in through
+    # Check products in through: only existing product was added (count == 1)
     through_items = models.ElaborationsProductsInThrough.objects.filter(elaborations=elaboration)
-    self.assertEqual(through_items.count(), 2)
+    self.assertEqual(through_items.count(), 1)
+    self.assertEqual(through_items.first().products, existing_product)
+
+    # Verify placeholder product for non-existing ingredient was NOT created in DB
+    self.assertFalse(models.Products.objects.filter(name="Aceite de oliva test").exists())
 
     # Check elaboration text
     self.assertTrue(hasattr(elaboration, "elaborations_texts"))
