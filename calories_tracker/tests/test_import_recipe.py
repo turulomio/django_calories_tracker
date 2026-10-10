@@ -499,11 +499,22 @@ def test_product_matcher_heuristics(self):
     score_ajo = ProductMatcher.calculate_confidence("Ajo", "Majo")
     self.assertLess(score_ajo, threshold)
 
-    # 4. find_best_product with setting threshold
+    # 4. Parenthesized brands and culinary preparation stopwords
+    score_brand = ProductMatcher.calculate_confidence("Leche entera", "Leche entera (Hacendado)")
+    self.assertGreaterEqual(score_brand, 0.95)
+
+    score_prep = ProductMatcher.calculate_confidence("Cebolla picada finamente", "Cebolla")
+    self.assertGreaterEqual(score_prep, 0.90)
+
+    score_garlic = ProductMatcher.calculate_confidence("3 dientes de ajo pelados", "Ajo")
+    self.assertGreaterEqual(score_garlic, 0.82)
+
+    # 5. find_best_product with setting threshold
     mock_prod = MagicMock()
     mock_prod.name = "Pechuga de pollo"
-    found_prod, conf = ProductMatcher.find_best_product("Pechuga de pollo", [mock_prod])
+    found_prod, conf, cand = ProductMatcher.find_best_product("Pechuga de pollo", [mock_prod])
     self.assertEqual(found_prod, mock_prod)
+    self.assertEqual(cand, mock_prod)
     self.assertGreaterEqual(conf, 0.75)
 
 

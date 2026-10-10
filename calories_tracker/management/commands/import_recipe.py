@@ -48,12 +48,19 @@ KEY FUNCTIONALITIES & ARCHITECTURE:
 4. High-Confidence Heuristic Product Matching (`ProductMatcher`):
    - Strict User Isolation: Matches ingredients ONLY against active, non-obsolete products
      owned by the target user (`Products.user == target_user`).
+   - Dual-Phase Matching:
+     * Phase 1: Matches against canonical grocery product names extracted by the LLM (`product_name`),
+       stripping preparation notes (e.g., 'Cebolla', 'Pechuga de pollo').
+     * Phase 2: Fallback matching against full ingredient description strings.
    - Normalization & Diacritic Stripping: Lowercases and strips accents/diacritics,
-     punctuation, and redundant whitespace.
+     punctuation, parenthesized brand names (e.g., '(Hacendado)'), and redundant whitespace.
    - Morphological Normalization: Singularization and stemming (e.g. 'Huevos' -> 'Huevo').
-   - Stopwords Filtering: Strips culinary filler words ('de', 'fresco', 'picado', 'crudo', etc.).
+   - Culinary Stopwords & Preparation Filtering: Strips culinary filler, cuts, and cooking states
+     ('de', 'fresco', 'picado finamente', 'troceado', 'pelado', 'dientes', 'pizca', etc.).
    - Conflicting Modifier Protection: Rejects matches containing mutually exclusive modifiers
      (e.g., olive oil vs sunflower oil, white wine vs red wine, whole milk vs skim milk).
+   - Core Product Token Containment: Boosts confidence when all essential tokens of a concise
+     product (e.g., 'Ajo', 'Sal marina', 'Pechuga de pollo') appear inside a longer ingredient description.
    - Configurable Similarity Threshold: Governed by `settings.PRODUCT_SIMILARITY_PERCENTAGE`
      (default: 75%). Matches below this threshold are rejected.
    - Omission of Unmatched Items: Never inserts blank or placeholder product records.
@@ -75,7 +82,7 @@ import json
 import logging
 import mimetypes
 import os
-from os import path
+from pathlib import Path
 import re
 import shutil
 import subprocess
@@ -696,26 +703,26 @@ class RecipeTextExtractor:
         :raises FileNotFoundError: If file does not exist.
         :raises RuntimeError: If file cannot be read.
         """
-        if not path.isfile(file_path):
+        p = Path(file_path)
+        if not p.is_file():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        mime_type, _encoding = mimetypes.guess_type(file_path)
+        mime_type, _encoding = mimetypes.guess_type(str(p))
         if not mime_type:
             mime_type = "application/octet-stream"
 
         print(f"[Documento] Leyendo archivo local '{file_path}' (MIME: {mime_type})...", flush=True)
 
-        with open(file_path, "rb") as f:
-            raw_bytes = f.read()
+        raw_bytes = p.read_bytes()
 
         text = ""
         # Handle plain text, markdown, html, json
-        if mime_type.startswith("text/") or file_path.endswith((".md", ".txt", ".html", ".htm", ".json", ".rst")):
+        if mime_type.startswith("text/") or str(p).endswith((".md", ".txt", ".html", ".htm", ".json", ".rst")):
             try:
                 text = raw_bytes.decode("utf-8")
             except UnicodeDecodeError:
                 text = raw_bytes.decode("latin-1", errors="replace")
-        elif file_path.lower().endswith(".pdf"):
+        elif str(p).lower().endswith(".pdf"):
             # Attempt to extract text from PDF if pypdf or PyPDF2 is installed
             try:
                 import pypdf
@@ -745,9 +752,17 @@ class ProductMatcher:
         "de", "del", "la", "el", "los", "las", "un", "una", "unos", "unas",
         "para", "con", "sin", "y", "e", "o", "u", "al", "en", "por",
         "fresco", "fresca", "frescos", "frescas", "natural", "naturales",
-        "crudo", "cruda", "crudos", "crudas", "troceado", "troceada", "picado", "picada",
-        "rallado", "rallada", "cocido", "cocida", "frito", "frita", "asado", "asada",
+        "crudo", "cruda", "crudos", "crudas", "troceado", "troceada", "troceados", "troceadas",
+        "picado", "picada", "picados", "picadas", "finamente", "grueso", "fino",
+        "rallado", "rallada", "rallados", "ralladas", "cocido", "cocida", "cocidos", "cocidas",
+        "frito", "frita", "fritos", "fritas", "asado", "asada", "asados", "asadas",
+        "pelado", "pelada", "pelados", "peladas", "cortado", "cortada", "cortados", "cortadas",
+        "triturado", "triturada", "triturados", "trituradas", "laminado", "laminada", "laminados", "laminadas",
+        "limpio", "limpia", "limpios", "limpias", "escurrido", "escurrida", "lavado", "lavada",
+        "mediano", "mediana", "grandes", "pequeno", "pequena", "pequenos", "pequenas",
+        "diente", "dientes", "gajo", "gajos", "pizca", "pizcas", "chorrito", "gusto",
         "fresh", "raw", "chopped", "diced", "sliced", "grated", "cooked", "fried",
+        "peeled", "minced", "crushed", "shredded", "medium", "small", "large", "pinch", "taste",
     }
 
     # Groups of mutually exclusive modifier tokens. If ingredient and product specify different
@@ -780,16 +795,20 @@ class ProductMatcher:
             return 0.75
 
     @classmethod
-    def normalize_text(cls, text: str) -> str:
+    def normalize_text(cls, text: str, strip_parentheses: bool = False) -> str:
         """
         Normalize text by lowercasing, removing accents, punctuation, and extra whitespace.
+        Optionally strips parenthesized expressions (e.g. brand names or package sizes).
 
         :param text: Input string.
+        :param strip_parentheses: If True, removes text inside parentheses.
         :return: Normalized string.
         """
         if not text:
             return ""
         text = text.lower().strip()
+        if strip_parentheses:
+            text = re.sub(r"\(.*?\)", " ", text)
         nfkd = unicodedata.normalize("NFKD", text)
         no_accents = "".join(c for c in nfkd if not unicodedata.combining(c))
         cleaned = re.sub(r"[^\w\s]", " ", no_accents)
@@ -867,6 +886,12 @@ class ProductMatcher:
         if norm_ing == norm_prod:
             return 0.98
 
+        # 2b. Exact normalized match ignoring parenthetical brands (e.g. "Leche entera" vs "Leche entera (Hacendado)")
+        norm_prod_nobrand = cls.normalize_text(prod_name, strip_parentheses=True)
+        norm_ing_nobrand = cls.normalize_text(ing_name, strip_parentheses=True)
+        if norm_ing_nobrand and norm_prod_nobrand and norm_ing_nobrand == norm_prod_nobrand:
+            return 0.97
+
         ing_tokens, ing_set = cls.extract_meaningful_tokens(ing_name)
         prod_tokens, prod_set = cls.extract_meaningful_tokens(prod_name)
 
@@ -877,8 +902,11 @@ class ProductMatcher:
         if cls.has_conflicting_modifiers(ing_set, prod_set):
             return 0.0
 
-        # 3. Exact token set match (ignoring word order and stopwords)
-        if ing_set == prod_set:
+        # Also check without parenthesized brand in product
+        prod_tokens_nobrand, prod_set_nobrand = cls.extract_meaningful_tokens(norm_prod_nobrand)
+
+        # 3. Exact token set match (ignoring word order, stopwords, or brands)
+        if ing_set == prod_set or (prod_set_nobrand and ing_set == prod_set_nobrand):
             return 0.95
 
         stem_ing = " ".join(ing_tokens)
@@ -891,7 +919,11 @@ class ProductMatcher:
         # 5. Sequence similarity over normalized and stemmed representations
         ratio_norm = difflib.SequenceMatcher(None, norm_ing, norm_prod).ratio()
         ratio_stem = difflib.SequenceMatcher(None, stem_ing, stem_prod).ratio()
-        base_ratio = max(ratio_norm, ratio_stem)
+        if prod_set_nobrand:
+            ratio_nobrand = difflib.SequenceMatcher(None, norm_ing_nobrand, norm_prod_nobrand).ratio()
+            base_ratio = max(ratio_norm, ratio_stem, ratio_nobrand)
+        else:
+            base_ratio = max(ratio_norm, ratio_stem)
 
         # Ensure that if the ingredient has key tokens, they are predominantly in the product
         if len(ing_set) == 1 and len(prod_set) == 1:
@@ -903,28 +935,52 @@ class ProductMatcher:
                     return 0.0
                 return token_sim * 0.9
 
-        # If one token set is a subset of the other, check if all essential tokens are matched
-        if ing_set.issubset(prod_set) or prod_set.issubset(ing_set):
-            common_count = len(ing_set.intersection(prod_set))
-            total_count = max(len(ing_set), len(prod_set))
-            subset_ratio = common_count / total_count
-            if subset_ratio >= 0.80:
-                return max(base_ratio, subset_ratio * 0.92)
+        # Head-noun boost: If the primary ingredient token (head noun) matches the product's primary token
+        active_prod_set = prod_set_nobrand if prod_set_nobrand else prod_set
+        active_prod_tokens = prod_tokens_nobrand if prod_tokens_nobrand else prod_tokens
+        if ing_tokens and active_prod_tokens and ing_tokens[0] == active_prod_tokens[0]:
+            base_ratio = max(base_ratio, 0.85)
+
+        # Core product token containment:
+        # If the product is a concise name (e.g. 1-2 tokens like "Arroz", "Pechuga de pollo", "Ajo", "Cebolla", "Sal")
+        # and ALL its non-conflicting tokens are contained within the ingredient's tokens, it is a high-confidence match.
+        if active_prod_set and active_prod_set.issubset(ing_set):
+            # All tokens of product exist in the ingredient name (e.g. "sal fina marina" contains "sal")
+            containment_score = 0.92 if len(active_prod_set) > 1 else 0.88
+            base_ratio = max(base_ratio, containment_score)
+        elif ing_set and ing_set.issubset(active_prod_set):
+            # All tokens of ingredient exist in product (e.g. ingredient "pollo" in product "pechuga de pollo")
+            subset_ratio = len(ing_set) / max(1, len(active_prod_set))
+            if subset_ratio >= 0.50:
+                base_ratio = max(base_ratio, subset_ratio * 0.90)
+
+        # Token set intersection ratio
+        common_count = len(ing_set.intersection(active_prod_set))
+        if common_count > 0:
+            jaccard = common_count / len(ing_set.union(active_prod_set))
+            if jaccard >= 0.60:
+                base_ratio = max(base_ratio, jaccard * 0.95)
 
         return base_ratio
 
     @classmethod
-    def find_best_product(cls, ing_name: str, candidate_products, threshold: float = None) -> tuple[models.Products | None, float]:
+    def find_best_product(
+        cls,
+        ing_name: str,
+        candidate_products,
+        threshold: float = None,
+    ) -> tuple[models.Products | None, float, models.Products | None]:
         """
-        Find the single product with the highest confidence score exceeding confidence threshold.
+        Find the single product with the highest confidence score.
 
         :param ing_name: Name of ingredient from recipe.
         :param candidate_products: Iterable / QuerySet of user Products.
         :param threshold: Optional threshold override (defaults to configured settings.PRODUCT_SIMILARITY_PERCENTAGE).
-        :return: Tuple (best_product, confidence_score) or (None, 0.0).
+        :return: Tuple (matched_product, best_score, best_candidate_product).
+                 `matched_product` is non-None only if `best_score >= threshold`.
         """
         min_threshold = threshold if threshold is not None else cls.get_confidence_threshold()
-        best_product = None
+        best_candidate = None
         best_score = 0.0
 
         for product in candidate_products:
@@ -935,13 +991,12 @@ class ProductMatcher:
             score = cls.calculate_confidence(ing_name, p_name)
             if score > best_score:
                 best_score = score
-                best_product = product
+                best_candidate = product
                 if score >= 0.98:  # Near perfect match, early exit
                     break
 
-        if best_score >= min_threshold:
-            return best_product, best_score
-        return None, best_score
+        matched_product = best_candidate if best_score >= min_threshold else None
+        return matched_product, best_score, best_candidate
 
 
 class RecipeImporter:
@@ -1054,7 +1109,11 @@ class RecipeImporter:
             prod_sample = ", ".join(f"'{p}'" for p in user_products)
             ing_prompt_line = f"- \"ingredients\": (array of objects) Whenever possible, match ingredient names with user's available products: [{prod_sample}]. Each object must have:\n"
         else:
-            ing_prompt_line = "- \"ingredients\": (array of objects) Each object must have:\n"
+            ing_prompt_line = (
+                "- \"ingredients\": (array of objects) Extract all ingredients. For 'product_name', provide the canonical, singular, base grocery product name "
+                f"in {lang_name} (e.g. 'Cebolla', 'Pechuga de pollo', 'Aceite de oliva virgen extra', 'Sal', 'Huevo', 'Ajo'), stripping culinary preparations or cuts. "
+                "Each object must have:\n"
+            )
 
         prompt = (
             f"Analyze the following text, summarize the recipe clearly and concisely in {lang_name}, and extract the recipe information into a single JSON object with these exact keys:\n"
@@ -1064,8 +1123,9 @@ class RecipeImporter:
             f"{cats_prompt_line}"
             "- \"diners\": (integer) Number of servings/diners (default 4 if not specified).\n"
             f"{ing_prompt_line}"
-            "    - \"name\": (string) Ingredient/Product name.\n"
-            "    - \"amount\": (number) Quantity needed.\n"
+            f"    - \"name\": (string) Full ingredient description (e.g. '2 cebollas medianas picadas').\n"
+            f"    - \"product_name\": (string) Base food/product name in {lang_name} (e.g. 'Cebolla', 'Pechuga de pollo', 'Arroz redondo').\n"
+            "    - \"amount\": (number) Numeric quantity needed.\n"
             "    - \"unit\": (string) Unit of measure ('g', 'ml', 'tbsp', 'tsp', 'cup', 'unit').\n"
             "    - \"comment\": (string) Preparation notes (e.g., 'chopped', 'diced', 'peeled', 'at room temperature').\n"
             f"- \"steps\": (string) Summarized, concise, step-by-step preparation instructions in {lang_name} in Markdown format.\n\n"
@@ -1221,12 +1281,13 @@ class RecipeImporter:
             )
             rl = models.RecipesLinks()
             rl.datetime = timezone.now()
-            rl.description = f"Documento: {path.basename(file_name)}"
+            base_filename = Path(file_name).name
+            rl.description = f"Documento: {base_filename}"
             rl.type = link_type
             rl.files = file_obj
             rl.recipes = recipe
             rl.save()
-            print(f"[BD] ✓ Documento adjunto guardado: '{path.basename(file_name)}' (Files ID: {file_obj.id})", flush=True)
+            print(f"[BD] ✓ Documento adjunto guardado: '{base_filename}' (Files ID: {file_obj.id})", flush=True)
 
         return recipe
 
@@ -1270,35 +1331,76 @@ class RecipeImporter:
         ingredients = recipe_data.get("ingredients", [])
         through_list = []
 
-        print(f"[Elaboración] Procesando {len(ingredients)} ingredientes...", flush=True)
+        # Pre-fetch user products once to avoid N+1 database queries
+        target_user = user or recipe.user
+        user_products = list(
+            models.Products.objects.filter(user=target_user, obsolete=False)
+            .exclude(name__isnull=True)
+            .exclude(name__exact="")
+            .exclude(name__regex=r"^\s*$")
+        )
+
+        # Pre-cache MeasuresTypes
+        all_measures = {m.pk: m for m in models.MeasuresTypes.objects.all()}
+        default_measure = all_measures.get(1)
+
+        user_name_display = getattr(target_user, "username", str(target_user)) if target_user else "desconocido"
+        if not user_products:
+            print(
+                f"[Elaboración] ⚠ El usuario '{user_name_display}' no tiene productos registrados en su despensa (Products.objects.filter(user=...)). "
+                f"No se pueden vincular ingredientes automáticamente.",
+                flush=True,
+            )
+        else:
+            print(f"[Elaboración] Procesando {len(ingredients)} ingredientes con {len(user_products)} productos en despensa del usuario '{user_name_display}'...", flush=True)
 
         for ing in ingredients:
             if not isinstance(ing, dict):
                 continue
 
             ing_name = str(ing.get("name", "")).strip()
-            if not ing_name or len(ing_name) < 2:
+            product_canonical = str(ing.get("product_name", "")).strip()
+            if not ing_name and not product_canonical:
                 continue
 
-            # Resolve product - only look up valid, non-empty existing products for the specific user using high-confidence matching
-            target_user = user or recipe.user
-            user_products = (
-                models.Products.objects.filter(user=target_user, obsolete=False)
-                .exclude(name__isnull=True)
-                .exclude(name__exact="")
-                .exclude(name__regex=r"^\s*$")
-            )
+            # Resolve product using high-confidence matching against cached products list:
+            # 1. First attempt with canonical product name if provided by LLM (e.g. 'Cebolla')
+            product = None
+            confidence = 0.0
+            candidate = None
+            if product_canonical and user_products:
+                product, confidence, candidate = ProductMatcher.find_best_product(product_canonical, user_products)
 
-            product, confidence = ProductMatcher.find_best_product(ing_name, user_products)
+            # 2. Second attempt with full ingredient name if canonical failed or was not provided
+            if not product and ing_name and user_products:
+                p_alt, conf_alt, cand_alt = ProductMatcher.find_best_product(ing_name, user_products)
+                if p_alt:
+                    product = p_alt
+                    confidence = conf_alt
+                    candidate = cand_alt
+                elif conf_alt > confidence:
+                    confidence = conf_alt
+                    candidate = cand_alt
 
             if not product:
-                user_name_display = getattr(target_user, "username", str(target_user)) if target_user else "desconocido"
+                search_term = product_canonical or ing_name
                 conf_pct = int(confidence * 100)
                 req_pct = int(ProductMatcher.get_confidence_threshold() * 100)
-                print(
-                    f"  - Ingrediente ignorado (coincidencia={conf_pct}% inferior al umbral del {req_pct}% para el usuario '{user_name_display}'): '{ing_name}'",
-                    flush=True,
-                )
+                if not user_products:
+                    print(
+                        f"  - Ingrediente ignorado: '{search_term}' (sin productos en la despensa del usuario '{user_name_display}')",
+                        flush=True,
+                    )
+                elif candidate:
+                    print(
+                        f"  - Ingrediente ignorado: '{search_term}' (mejor candidato: '{candidate.name}' con coincidencia={conf_pct}%, umbral requerido={req_pct}%)",
+                        flush=True,
+                    )
+                else:
+                    print(
+                        f"  - Ingrediente ignorado (sin coincidencias afines >= {req_pct}%): '{search_term}'",
+                        flush=True,
+                    )
                 continue
 
             # Resolve unit & measure type
@@ -1320,9 +1422,7 @@ class RecipeImporter:
 
             comment = str(ing.get("comment", "")).strip()[:100]
 
-            measure_type = models.MeasuresTypes.objects.filter(pk=measure_id).first()
-            if not measure_type:
-                measure_type = models.MeasuresTypes.objects.get(pk=1)
+            measure_type = all_measures.get(measure_id) or default_measure
 
             pi = models.ElaborationsProductsInThrough()
             pi.elaborations = elaboration

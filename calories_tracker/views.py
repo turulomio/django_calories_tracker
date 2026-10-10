@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import shutil
 import tempfile
 from calories_tracker import serializers, models,  commons
@@ -779,11 +780,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 if hasattr(document, "read"):
                     orig_name = getattr(document, "name", "document.txt")
                     temp_dir = tempfile.mkdtemp()
-                    temp_file_path = os.path.join(temp_dir, os.path.basename(orig_name))
-                    with open(temp_file_path, "wb") as f:
+                    temp_file = Path(temp_dir) / Path(orig_name).name
+                    with open(temp_file, "wb") as f:
                         for chunk in document.chunks():
                             f.write(chunk)
-                    document_path = temp_file_path
+                    document_path = str(temp_file)
                 elif isinstance(document, str):
                     document_path = document
 
@@ -812,7 +813,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         finally:
-            if temp_dir and os.path.exists(temp_dir):
+            if temp_dir and Path(temp_dir).exists():
                 shutil.rmtree(temp_dir, ignore_errors=True)
 
     
