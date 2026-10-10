@@ -1,4 +1,3 @@
-import logging
 import os
 import shutil
 import tempfile
@@ -29,8 +28,6 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from statistics import median
-
-logger = logging.getLogger(__name__)
 
 ptimeit
 show_queries
@@ -856,7 +853,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
         except CommandError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            logger.exception("Unexpected error while importing recipe: %s", e)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         finally:
             if temp_dir and os.path.exists(temp_dir):
