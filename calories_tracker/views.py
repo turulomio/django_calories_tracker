@@ -14,6 +14,7 @@ from datetime import timedelta
 from decimal import Decimal
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from calories_tracker.management.commands.import_recipe import RecipeImporter
 from django.db import transaction
 from django.db.models import Count, Min, Prefetch, Sum
 from django.http import JsonResponse
@@ -742,54 +743,19 @@ class RecipesViewSet(viewsets.ModelViewSet):
         """
         Import a recipe using Ollama AI from a Web/YouTube URL or an uploaded document file.
 
-        Supported Invocation Methods & Examples:
-        -----------------------------------------
-        1. JSON payload with a Web/YouTube URL:
-           POST /api/recipes/import_recipe/
-           Headers:
-               Content-Type: application/json
-               Authorization: Token <token>
-           Body:
-               {
-                   "url": "https://www.ejemplo.com/receta-pollo",
-                   "locale": "es",
-                   "no_elaboration": false
-               }
+        cURL examples:
+        --------------
+        1. Import from Web or YouTube URL:
+            curl -X POST http://localhost:8000/api/recipes/import_recipe/ \\
+                 -H "Authorization: Token <TOKEN>" \\
+                 -H "Content-Type: application/json" \\
+                 -d '{"url": "https://www.ejemplo.com/receta-pollo", "locale": "es"}'
 
-           cURL example:
-               curl -X POST http://localhost:8000/api/recipes/import_recipe/ \\
-                    -H "Authorization: Token <TOKEN>" \\
-                    -H "Content-Type: application/json" \\
-                    -d '{"url": "https://www.ejemplo.com/receta-pollo", "locale": "es"}'
-
-        2. Multipart form-data with an uploaded document file (PDF, TXT, MD, HTML, JSON):
-           POST /api/recipes/import_recipe/
-           Headers:
-               Content-Type: multipart/form-data
-               Authorization: Token <token>
-           Body:
-               document: <uploaded binary file>
-               locale: "es"
-
-           Frontend (JavaScript / Fetch) example:
-               const formData = new FormData();
-               formData.append("document", fileInput.files[0]); // e.g. "receta.pdf"
-               formData.append("locale", "es");
-
-               const response = await fetch("/api/recipes/import_recipe/", {
-                   method: "POST",
-                   headers: {
-                       "Authorization": `Token ${token}`
-                   },
-                   body: formData
-               });
-               const recipe = await response.json();
-
-           cURL example:
-               curl -X POST http://localhost:8000/api/recipes/import_recipe/ \\
-                    -H "Authorization: Token <TOKEN>" \\
-                    -F "document=@/ruta/a/mi_receta.pdf" \\
-                    -F "locale=es"
+        2. Import from uploaded document file (PDF, TXT, MD, HTML, JSON):
+            curl -X POST http://localhost:8000/api/recipes/import_recipe/ \\
+                 -H "Authorization: Token <TOKEN>" \\
+                 -F "document=@/ruta/a/mi_receta.pdf" \\
+                 -F "locale=es"
 
         :param request: HTTP POST request containing 'url', 'document', 'locale',
                         or 'no_elaboration'.
@@ -807,15 +773,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
         temp_dir = None
         try:
-            cmd_kwargs = {
-                "locale": locale,
-                "user_id": request.user.id,
-            }
-            if url:
-                cmd_kwargs["url"] = str(url)
-            if no_elaboration:
-                cmd_kwargs["no_elaboration"] = True
-
+            document_path = None
             # Handle uploaded document file (File upload or local file path)
             if document:
                 if hasattr(document, "read"):
@@ -825,20 +783,19 @@ class RecipesViewSet(viewsets.ModelViewSet):
                     with open(temp_file_path, "wb") as f:
                         for chunk in document.chunks():
                             f.write(chunk)
-                    cmd_kwargs["document"] = temp_file_path
+                    document_path = temp_file_path
                 elif isinstance(document, str):
-                    cmd_kwargs["document"] = document
+                    document_path = document
 
-            # Invoke import_recipe management command
-            result = call_command("import_recipe", **cmd_kwargs)
-
-            # Determine response recipe instance
-            if isinstance(result, tuple) and len(result) > 0 and result[0]:
-                recipe = result[0]
-            elif isinstance(result, models.Recipes):
-                recipe = result
-            else:
-                recipe = models.Recipes.objects.filter(user=request.user).order_by("-id").first()
+            # Import recipe using RecipeImporter service
+            importer = RecipeImporter(locale=locale)
+            recipe, elaboration = importer.import_recipe(
+                url=str(url) if url else None,
+                file_path=document_path,
+                user=request.user,
+                create_elaboration=not no_elaboration,
+                locale=locale,
+            )
 
             if not recipe:
                 return Response(

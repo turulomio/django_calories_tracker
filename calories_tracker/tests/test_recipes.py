@@ -182,14 +182,14 @@ def test_recipes_import_recipe_action(self):
         status.HTTP_401_UNAUTHORIZED,
     )
 
-    # 3. Successful import via URL (mocking call_command)
+    # 3. Successful import via URL (mocking RecipeImporter.import_recipe)
     mock_recipe = models.Recipes.objects.create(
         name="Tortilla Española Importada (Generado por IA)",
         user=self.user_authorized_1,
         food_types=models.FoodTypes.objects.first(),
         obsolete=False,
     )
-    with patch("calories_tracker.views.call_command", return_value=(mock_recipe, None)) as mock_call:
+    with patch("calories_tracker.views.RecipeImporter.import_recipe", return_value=(mock_recipe, None)) as mock_import:
         res_url = tests_helpers.client_post(
             self,
             self.client_authorized_1,
@@ -199,11 +199,11 @@ def test_recipes_import_recipe_action(self):
         )
         self.assertEqual(res_url["id"], mock_recipe.id)
         self.assertEqual(res_url["name"], mock_recipe.name)
-        mock_call.assert_called_once()
-        _, kwargs = mock_call.call_args
+        mock_import.assert_called_once()
+        _, kwargs = mock_import.call_args
         self.assertEqual(kwargs["url"], "https://recetas.test/tortilla")
         self.assertEqual(kwargs["locale"], "es")
-        self.assertEqual(kwargs["user_id"], self.user_authorized_1.id)
+        self.assertEqual(kwargs["user"], self.user_authorized_1)
 
     # 4. Successful import via uploaded document file (multipart/form-data)
     uploaded_doc = SimpleUploadedFile(
@@ -211,7 +211,7 @@ def test_recipes_import_recipe_action(self):
         b"Receta de pastel de chocolate con 200g harina y 100g cacao.",
         content_type="text/plain",
     )
-    with patch("calories_tracker.views.call_command", return_value=(mock_recipe, None)) as mock_call_doc:
+    with patch("calories_tracker.views.RecipeImporter.import_recipe", return_value=(mock_recipe, None)) as mock_import_doc:
         res_doc = self.client_authorized_1.post(
             "/api/recipes/import_recipe/",
             {"document": uploaded_doc, "locale": "es"},
@@ -219,8 +219,8 @@ def test_recipes_import_recipe_action(self):
         )
         self.assertEqual(res_doc.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res_doc.data["id"], mock_recipe.id)
-        mock_call_doc.assert_called_once()
-        _, kwargs = mock_call_doc.call_args
-        self.assertTrue(kwargs.get("document"))
-        self.assertTrue(kwargs["document"].endswith("receta_test.txt"))
+        mock_import_doc.assert_called_once()
+        _, kwargs = mock_import_doc.call_args
+        self.assertTrue(kwargs.get("file_path"))
+        self.assertTrue(kwargs["file_path"].endswith("receta_test.txt"))
 

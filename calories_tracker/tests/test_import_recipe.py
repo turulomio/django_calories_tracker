@@ -210,58 +210,6 @@ def test_management_command_import_recipe(self):
     self.assertEqual(elaboration.diners, 2)
 
 
-def test_management_command_from_recipe_id(self):
-    """
-    Test generating automatic elaboration from an existing recipe's recipes_links using --from-recipe-id.
-    """
-    recipe = models.Recipes.objects.create(
-        name="Lentejas con Verduras Test",
-        food_types=models.FoodTypes.objects.first(),
-        obsolete=False,
-        user=self.user_authorized_1,
-        guests=False,
-        soon=False,
-    )
-
-    models.RecipesLinks.objects.create(
-        datetime=timezone.now(),
-        description="Enlace de receta",
-        type=models.RecipesLinksTypes.objects.get(pk=3),
-        link="https://example.com/lentejas",
-        recipes=recipe,
-    )
-
-    mock_recipe_json = {
-        "name": "Lentejas con Verduras Test",
-        "comment": "Guiso tradicional",
-        "food_type": "Legumes",
-        "categories": ["Legumes"],
-        "diners": 4,
-        "ingredients": [
-            {
-                "name": "Lentejas pardinas test",
-                "amount": 300,
-                "unit": "g",
-                "comment": "lavadas",
-            }
-        ],
-        "steps": "Cocer las Lentejas pardinas test a fuego lento.",
-    }
-
-    with patch.object(RecipeTextExtractor, "extract_from_url", return_value=("Texto lentejas", "Lentejas")):
-        with patch.object(OllamaClient, "generate", return_value=mock_recipe_json):
-            call_command(
-                "import_recipe",
-                from_recipe_id=recipe.id,
-                username="authorized_1",
-            )
-
-    recipe.refresh_from_db()
-    self.assertEqual(recipe.elaborations.count(), 1)
-    elaboration = recipe.elaborations.first()
-    self.assertEqual(elaboration.diners, 4)
-
-
 def test_youtube_helper_and_main_photo(self):
     """
     Test YouTube URL parsing and automatic thumbnail extraction as Main Photo.

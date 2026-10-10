@@ -20,10 +20,8 @@ KEY FUNCTIONALITIES & ARCHITECTURE:
      * Extracts spoken subtitles and auto-generated captions (WebVTT) via `yt-dlp`.
      * Extracts and converts audio track to MP3 via `yt-dlp` for multimodal LLM processing.
      * Extracts video title, description, and metadata.
-   - Local Documents (`--document` / `--file`): Extracts text from plain text, Markdown,
+   - Local Documents (`--file`): Extracts text from plain text, Markdown,
      HTML, JSON, and PDF files, attaching the original file to `Files` and `RecipesLinks`.
-   - Existing Recipe Elaboration (`--from-recipe-id`): Generates an automatic elaboration
-     for an already persisted `Recipes` record using all its linked sources.
 
 2. Local LLM (Ollama) Integration & Resilient Parsing:
    - Integrates with local Ollama instances (`OllamaClient`, default model `gemma4:e2b`).
@@ -62,11 +60,9 @@ KEY FUNCTIONALITIES & ARCHITECTURE:
 
 5. CLI Options & Management Command:
    - `--url <URL>`: Scrapes and imports recipe from web page or YouTube video.
-   - `--document <PATH>` / `--file <PATH>`: Imports recipe from a local document.
+   - `--file <PATH>`: Imports recipe from a local document/file.
    - `--locale <CODE>`: Locale/language code (default: 'es').
-   - `--user_id <ID>`: ID of the user who will own the recipe and whose products are matched.
    - `--username <NAME>`: Username of the user who will own the recipe.
-   - `--from-recipe-id <ID>`: Generates automatic elaboration for an existing recipe ID.
    - `--no-elaboration`: Imports Recipe, Links, Categories, and Files without creating Elaborations.
 """
 
@@ -1369,49 +1365,6 @@ class RecipeImporter:
         return elaboration
 
     @transaction.atomic
-    def create_elaboration_from_recipe_links(self, recipe: models.Recipes, user: User, locale: str = None) -> models.Elaborations:
-        """
-        Generate an automatic elaboration for an existing recipe by reading its associated RecipesLinks.
-
-        :param recipe: The existing Recipe instance.
-        :param user: User executing the action.
-        :param locale: Optional locale override.
-        :return: Created Elaborations model instance.
-        """
-        loc = locale or self.locale or "es"
-        translation.activate(loc)
-
-        combined_text = f"Receta: {recipe.name}\n{recipe.comment or ''}\n"
-        audio_base64 = None
-
-        for link in recipe.recipes_links.all():
-            if link.link:
-                yt_id = YouTubeHelper.get_video_id(link.link)
-                if yt_id:
-                    try:
-                        yt_data = YouTubeHelper.extract_full_youtube_data(link.link, yt_id, locale=loc)
-                        combined_text += f"\n--- Contenido de YouTube ({link.link}) ---\n{yt_data['combined_text']}\n"
-                        if yt_data.get("audio_base64"):
-                            audio_base64 = yt_data["audio_base64"]
-                    except Exception as e:
-                        logger.warning("Could not extract full YouTube data for %s: %s", link.link, e)
-                else:
-                    try:
-                        url_text, _title = RecipeTextExtractor.extract_from_url(link.link)
-                        combined_text += f"\n--- Contenido de enlace {link.link} ---\n{url_text}\n"
-                    except Exception as e:
-                        logger.warning("Could not extract text from recipe link %s: %s", link.link, e)
-            elif link.files and link.files.content:
-                try:
-                    content_str = bytes(link.files.content).decode("utf-8", errors="replace")
-                    combined_text += f"\n--- Contenido de archivo ---\n{content_str}\n"
-                except Exception as e:
-                    logger.warning("Could not decode file content for recipe %s: %s", recipe.id, e)
-
-        recipe_data = self.parse_recipe_with_llm(combined_text, audio_base64=audio_base64, user=user, locale=loc)
-        return self.create_automatic_elaboration(recipe, recipe_data, user, locale=loc)
-
-    @transaction.atomic
     def import_recipe(
         self,
         url: str = None,
@@ -1498,10 +1451,8 @@ class Command(BaseCommand):
             default=None,
         )
         parser.add_argument(
-            "--document",
             "--file",
             type=str,
-            dest="document",
             help="Local document/file path containing the recipe.",
             default=None,
         )
@@ -1512,22 +1463,9 @@ class Command(BaseCommand):
             default="es",
         )
         parser.add_argument(
-            "--user_id",
-            type=int,
-            help="ID of the User who will own the imported recipe.",
-            default=None,
-        )
-        parser.add_argument(
             "--username",
             type=str,
             help="Username of the User who will own the imported recipe.",
-            default=None,
-        )
-        parser.add_argument(
-            "--from-recipe-id",
-            type=int,
-            dest="from_recipe_id",
-            help="ID of an existing recipe to generate an automatic elaboration for, using its recipes_links.",
             default=None,
         )
         parser.add_argument(
@@ -1550,12 +1488,7 @@ class Command(BaseCommand):
 
             # Resolve User
             user = None
-            if options.get("user_id"):
-                try:
-                    user = User.objects.get(pk=options["user_id"])
-                except User.DoesNotExist:
-                    raise CommandError(f"User with ID {options['user_id']} does not exist.")
-            elif options.get("username"):
+            if options.get("username"):
                 try:
                     user = User.objects.get(username=options["username"])
                 except User.DoesNotExist:
@@ -1565,40 +1498,20 @@ class Command(BaseCommand):
                 if not user:
                     raise CommandError("No users exist in the database. Please create a user first.")
 
-            # Mode 1: Create automatic elaboration from existing recipe's recipes_links
-            if options.get("from_recipe_id"):
-                recipe_id = options["from_recipe_id"]
-                try:
-                    recipe = models.Recipes.objects.get(pk=recipe_id)
-                except models.Recipes.DoesNotExist:
-                    raise CommandError(f"Recipe with ID {recipe_id} not found.")
-
-                self.stdout.write(self.style.NOTICE(f"Processing recipe '{recipe.name}' (ID: {recipe.id}) from its recipes_links..."))
-                try:
-                    elaboration = importer.create_elaboration_from_recipe_links(recipe, user=user, locale=locale)
-                    self.stdout.write(
-                        self.style.SUCCESS(
-                            f"Successfully created automatic elaboration (ID: {elaboration.id}) for recipe '{recipe.name}' with {elaboration.diners} diners."
-                        )
-                    )
-                    return elaboration
-                except Exception as e:
-                    raise CommandError(f"Failed to generate elaboration from recipe links: {e}") from e
-
-            # Mode 2: Import new recipe from URL or document
+            # Import new recipe from URL or file
             url = options.get("url")
-            document = options.get("document")
+            file_path = options.get("file")
 
-            if not url and not document:
-                raise CommandError("You must provide either --url, --document (or --file), or --from-recipe-id.")
+            if not url and not file_path:
+                raise CommandError("You must provide either --url or --file.")
 
-            source_desc = f"URL '{url}'" if url else f"file '{document}'"
+            source_desc = f"URL '{url}'" if url else f"file '{file_path}'"
             self.stdout.write(self.style.NOTICE(f"Importing recipe from {source_desc} using Ollama LLM (locale: {locale})..."))
 
             try:
                 recipe, elaboration = importer.import_recipe(
                     url=url,
-                    file_path=document,
+                    file_path=file_path,
                     user=user,
                     create_elaboration=not options.get("no_elaboration"),
                     locale=locale,
@@ -1619,8 +1532,6 @@ class Command(BaseCommand):
                 )
                 pi_count = models.ElaborationsProductsInThrough.objects.filter(elaborations=elaboration).count()
                 self.stdout.write(f"  - Ingredients added: {pi_count}")
-
-            return recipe, elaboration
         finally:
             if current_language:
                 translation.activate(current_language)
