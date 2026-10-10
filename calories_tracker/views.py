@@ -1,3 +1,7 @@
+import logging
+import os
+import shutil
+import tempfile
 from calories_tracker import serializers, models,  commons
 from calories_tracker.reusing.connection_dj import show_queries, show_queries_function
 from calories_tracker.reusing.decorators import ptimeit
@@ -9,6 +13,8 @@ from pydicts.myjsonencoder import MyJSONEncoderDecimalsAsFloat
 from dateutil.rrule import rrule, DAILY, HOURLY
 from datetime import timedelta
 from decimal import Decimal
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.db import transaction
 from django.db.models import Count, Min, Prefetch, Sum
 from django.http import JsonResponse
@@ -20,8 +26,11 @@ from drf_spectacular.types import OpenApiTypes
 from pydicts import lod
 from rest_framework import viewsets, permissions,  status, mixins
 from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from statistics import median
+
+logger = logging.getLogger(__name__)
 
 ptimeit
 show_queries
@@ -673,6 +682,186 @@ class RecipesViewSet(viewsets.ModelViewSet):
             recipes=models.Recipes.objects.get(pk=main_recipe.id)
             return Response(serializers.RecipesSerializer(recipes, context={'request': request}).data, status=status.HTTP_200_OK)
         return Response(_("Something was wrong with your merge urls"), status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        summary="Import recipe using AI",
+        description="""
+            Invokes the `import_recipe` management command to scrape and extract recipe details,
+            ingredients, and preparation instructions using local Ollama LLM from a Web/YouTube URL
+            or an uploaded document file (PDF, plain text, Markdown, HTML, JSON).
+            Returns the created recipe with its links and elaborations.
+
+            ### Invocation Examples:
+
+            1. **Import from Web URL (JSON)**:
+            ```json
+            POST /api/recipes/import_recipe/
+            Content-Type: application/json
+
+            {
+                "url": "https://www.ejemplo.com/receta-lentejas",
+                "locale": "es"
+            }
+            ```
+
+            2. **Import from YouTube Video (JSON)**:
+            ```json
+            POST /api/recipes/import_recipe/
+            Content-Type: application/json
+
+            {
+                "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                "locale": "es",
+                "no_elaboration": false
+            }
+            ```
+
+            3. **Import from Document File (Multipart / FormData)**:
+            ```http
+            POST /api/recipes/import_recipe/
+            Content-Type: multipart/form-data
+
+            document: <binary file: receta_pollo.pdf>
+            locale: es
+            ```
+        """,
+        request=serializers.RecipeImportSerializer,
+        responses={
+            201: serializers.RecipesSerializer,
+            400: OpenApiTypes.OBJECT,
+            500: OpenApiTypes.OBJECT,
+        },
+    )
+    @action(
+        detail=False,
+        methods=['POST'],
+        name='Import recipe with AI',
+        url_path="import_recipe",
+        url_name='import_recipe',
+        parser_classes=[MultiPartParser, FormParser, JSONParser],
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def import_recipe(self, request):
+        """
+        Import a recipe using Ollama AI from a Web/YouTube URL or an uploaded document file.
+
+        Supported Invocation Methods & Examples:
+        -----------------------------------------
+        1. JSON payload with a Web/YouTube URL:
+           POST /api/recipes/import_recipe/
+           Headers:
+               Content-Type: application/json
+               Authorization: Token <token>
+           Body:
+               {
+                   "url": "https://www.ejemplo.com/receta-pollo",
+                   "locale": "es",
+                   "no_elaboration": false
+               }
+
+           cURL example:
+               curl -X POST http://localhost:8000/api/recipes/import_recipe/ \\
+                    -H "Authorization: Token <TOKEN>" \\
+                    -H "Content-Type: application/json" \\
+                    -d '{"url": "https://www.ejemplo.com/receta-pollo", "locale": "es"}'
+
+        2. Multipart form-data with an uploaded document file (PDF, TXT, MD, HTML, JSON):
+           POST /api/recipes/import_recipe/
+           Headers:
+               Content-Type: multipart/form-data
+               Authorization: Token <token>
+           Body:
+               document: <uploaded binary file>
+               locale: "es"
+
+           Frontend (JavaScript / Fetch) example:
+               const formData = new FormData();
+               formData.append("document", fileInput.files[0]); // e.g. "receta.pdf"
+               formData.append("locale", "es");
+
+               const response = await fetch("/api/recipes/import_recipe/", {
+                   method: "POST",
+                   headers: {
+                       "Authorization": `Token ${token}`
+                   },
+                   body: formData
+               });
+               const recipe = await response.json();
+
+           cURL example:
+               curl -X POST http://localhost:8000/api/recipes/import_recipe/ \\
+                    -H "Authorization: Token <TOKEN>" \\
+                    -F "document=@/ruta/a/mi_receta.pdf" \\
+                    -F "locale=es"
+
+        :param request: HTTP POST request containing 'url', 'document', 'locale',
+                        or 'no_elaboration'.
+        :return: Response containing serialized Recipe or error message.
+        """
+        serializer = serializers.RecipeImportSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        validated_data = serializer.validated_data
+        url = validated_data.get("url")
+        document = validated_data.get("document")
+        locale = validated_data.get("locale") or "es"
+        no_elaboration = validated_data.get("no_elaboration", False)
+
+        temp_dir = None
+        try:
+            cmd_kwargs = {
+                "locale": locale,
+                "user_id": request.user.id,
+            }
+            if url:
+                cmd_kwargs["url"] = str(url)
+            if no_elaboration:
+                cmd_kwargs["no_elaboration"] = True
+
+            # Handle uploaded document file (File upload or local file path)
+            if document:
+                if hasattr(document, "read"):
+                    orig_name = getattr(document, "name", "document.txt")
+                    temp_dir = tempfile.mkdtemp()
+                    temp_file_path = os.path.join(temp_dir, os.path.basename(orig_name))
+                    with open(temp_file_path, "wb") as f:
+                        for chunk in document.chunks():
+                            f.write(chunk)
+                    cmd_kwargs["document"] = temp_file_path
+                elif isinstance(document, str):
+                    cmd_kwargs["document"] = document
+
+            # Invoke import_recipe management command
+            result = call_command("import_recipe", **cmd_kwargs)
+
+            # Determine response recipe instance
+            if isinstance(result, tuple) and len(result) > 0 and result[0]:
+                recipe = result[0]
+            elif isinstance(result, models.Recipes):
+                recipe = result
+            else:
+                recipe = models.Recipes.objects.filter(user=request.user).order_by("-id").first()
+
+            if not recipe:
+                return Response(
+                    {"error": _("Recipe import failed to generate a recipe.")},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            return Response(
+                serializers.RecipesSerializer(recipe, context={"request": request}).data,
+                status=status.HTTP_201_CREATED,
+            )
+        except CommandError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.exception("Unexpected error while importing recipe: %s", e)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        finally:
+            if temp_dir and os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir, ignore_errors=True)
+
     
 class RecipesCategoriesViewSet(CatalogModelViewSet):
     queryset = models.RecipesCategories.objects.all()

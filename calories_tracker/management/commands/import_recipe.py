@@ -1581,9 +1581,9 @@ class Command(BaseCommand):
                             f"Successfully created automatic elaboration (ID: {elaboration.id}) for recipe '{recipe.name}' with {elaboration.diners} diners."
                         )
                     )
+                    return elaboration
                 except Exception as e:
                     raise CommandError(f"Failed to generate elaboration from recipe links: {e}") from e
-                return
 
             # Mode 2: Import new recipe from URL or document
             url = options.get("url")
@@ -1619,6 +1619,8 @@ class Command(BaseCommand):
                 )
                 pi_count = models.ElaborationsProductsInThrough.objects.filter(elaborations=elaboration).count()
                 self.stdout.write(f"  - Ingredients added: {pi_count}")
+
+            return recipe, elaboration
         finally:
             if current_language:
                 translation.activate(current_language)

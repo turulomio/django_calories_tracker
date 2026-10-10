@@ -681,4 +681,34 @@ class MeasuresTypesSerializer(serializers.HyperlinkedModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_localname(self, obj):
         return  _(obj.name)
+
+
+class RecipeImportSerializer(serializers.Serializer):
+    """
+    Serializer for importing recipes via AI using the import_recipe management command.
+    Accepts web/YouTube URL or uploaded document file.
+    """
+    url = serializers.URLField(required=False, allow_blank=True, allow_null=True, help_text=_("Web page or YouTube URL containing the recipe."))
+    document = serializers.FileField(required=False, allow_null=True, help_text=_("Uploaded document file (PDF, plain text, Markdown, HTML, JSON)."))
+    locale = serializers.CharField(required=False, default="es", max_length=10, help_text=_("Locale code for recipe extraction and translation (default: 'es')."))
+    no_elaboration = serializers.BooleanField(required=False, default=False, help_text=_("If True, only creates Recipe and links without automatic Elaboration."))
+
+    def validate(self, attrs):
+        """
+        Validate that at least one source (url or document) is provided.
+
+        :param attrs: Dictionary of submitted serializer attributes.
+        :return: Validated attributes dictionary.
+        :raises serializers.ValidationError: If neither url nor document is present.
+        """
+        url = attrs.get("url")
+        document = attrs.get("document")
+
+        if not url and not document:
+            raise serializers.ValidationError(
+                _("You must provide either 'url' or 'document'.")
+            )
+        return attrs
+
+
     

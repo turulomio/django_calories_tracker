@@ -154,3 +154,73 @@ def test_recipes_search_by_ingredients(self):
     # Test case 15: Unauthorized user for :INGREDIENTSANY
     search_ids_product1_any = commons.list_of_integers2string([product1["id"]], ",")
     response = tests_helpers.client_get(self, self.client_anonymous, f"/api/recipes/?search=:INGREDIENTSANY {search_ids_product1_any}", status.HTTP_401_UNAUTHORIZED)
+
+
+def test_recipes_import_recipe_action(self):
+    """
+    Test /api/recipes/import_recipe/ action with URL, uploaded document, validation errors, and unauthorized access.
+    """
+    from unittest.mock import patch
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    # 1. Validation failure: Neither url nor document provided
+    res_invalid = tests_helpers.client_post(
+        self,
+        self.client_authorized_1,
+        "/api/recipes/import_recipe/",
+        {},
+        status.HTTP_400_BAD_REQUEST,
+    )
+    self.assertIn("non_field_errors", res_invalid)
+
+    # 2. Unauthorized request returns 401
+    tests_helpers.client_post(
+        self,
+        self.client_anonymous,
+        "/api/recipes/import_recipe/",
+        {"url": "https://example.com/receta"},
+        status.HTTP_401_UNAUTHORIZED,
+    )
+
+    # 3. Successful import via URL (mocking call_command)
+    mock_recipe = models.Recipes.objects.create(
+        name="Tortilla Española Importada (Generado por IA)",
+        user=self.user_authorized_1,
+        food_types=models.FoodTypes.objects.first(),
+        obsolete=False,
+    )
+    with patch("calories_tracker.views.call_command", return_value=(mock_recipe, None)) as mock_call:
+        res_url = tests_helpers.client_post(
+            self,
+            self.client_authorized_1,
+            "/api/recipes/import_recipe/",
+            {"url": "https://recetas.test/tortilla", "locale": "es"},
+            status.HTTP_201_CREATED,
+        )
+        self.assertEqual(res_url["id"], mock_recipe.id)
+        self.assertEqual(res_url["name"], mock_recipe.name)
+        mock_call.assert_called_once()
+        _, kwargs = mock_call.call_args
+        self.assertEqual(kwargs["url"], "https://recetas.test/tortilla")
+        self.assertEqual(kwargs["locale"], "es")
+        self.assertEqual(kwargs["user_id"], self.user_authorized_1.id)
+
+    # 4. Successful import via uploaded document file (multipart/form-data)
+    uploaded_doc = SimpleUploadedFile(
+        "receta_test.txt",
+        b"Receta de pastel de chocolate con 200g harina y 100g cacao.",
+        content_type="text/plain",
+    )
+    with patch("calories_tracker.views.call_command", return_value=(mock_recipe, None)) as mock_call_doc:
+        res_doc = self.client_authorized_1.post(
+            "/api/recipes/import_recipe/",
+            {"document": uploaded_doc, "locale": "es"},
+            format="multipart",
+        )
+        self.assertEqual(res_doc.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res_doc.data["id"], mock_recipe.id)
+        mock_call_doc.assert_called_once()
+        _, kwargs = mock_call_doc.call_args
+        self.assertTrue(kwargs.get("document"))
+        self.assertTrue(kwargs["document"].endswith("receta_test.txt"))
+
