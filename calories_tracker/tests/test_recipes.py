@@ -188,6 +188,8 @@ def test_recipes_import_recipe_action(self):
         user=self.user_authorized_1,
         food_types=models.FoodTypes.objects.first(),
         obsolete=False,
+        guests=False,
+        soon=False,
     )
     with patch("calories_tracker.views.RecipeImporter.import_recipe", return_value=(mock_recipe, None)) as mock_import:
         res_url = tests_helpers.client_post(
